@@ -16,6 +16,7 @@ void main() {
 }
 
 final _ffmpeg = FlutterFFmpeg();
+int _errCount = 0;
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -26,17 +27,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: '아카콘 다운로더',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
+          primarySwatch: const MaterialColor(0xff3D414D, <int, Color>{
+        50: Color(0x0f3D414D),
+        100: Color(0x1f3D414D),
+        200: Color(0x2f3D414D),
+        300: Color(0x3f3D414D),
+        400: Color(0x4f3D414D),
+        500: Color(0x5f3D414D),
+        600: Color(0x6f3D414D),
+        700: Color(0x7f3D414D),
+        800: Color(0x8f3D414D),
+        900: Color(0x9f3D414D)
+      })),
       home: const MyHomePage(title: '아카콘 다운로더'),
     );
   }
@@ -65,25 +67,34 @@ Future<String?> downloadFile(String url, String fileName, String dir) async {
     var downloadUrl = Uri.parse(url);
     var client = http.Client();
     http.Response response = await client.get(downloadUrl);
-    // print('응답: ' + fileName);
     Directory(dir).createSync(recursive: true);
-    var filePath = '$dir/$fileName';
-    var file = File(filePath);
+    var file = File('$dir/$fileName');
     file.createSync(recursive: true);
     await file.writeAsBytes(response.bodyBytes);
-    return null;
+    //return null;
   } catch (ex) {
     //print('오류: ' + ex.toString());
-    return null;
+    _errCount++;
+    //return null;
   }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Future<void> _incrementCounter(String? myUrl) async {
-    await Permission.manageExternalStorage.request();
-    await Permission.storage.request();
+  Future<bool> _startDownload(String myUrl) async {
+    var request1 = await Permission.manageExternalStorage.request();
+    var request2 = await Permission.storage.request();
 
-    var url = Uri.parse(myUrl!);
+    if (request1.isDenied || request2.isDenied) {
+      return false;
+    }
+
+    Fluttertoast.showToast(
+        msg: "다운로드를 시작하겠습니다!",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.black87);
+
+    var url = Uri.parse(myUrl);
     var client = http.Client();
     http.Response response = await client.get(url);
     var document = html.parse(response.body);
@@ -188,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
           '15',
           '-hide_banner',
           ''
-          '-loglevel',
+              '-loglevel',
           'quiet',
           directory + convertedFileName
         ]);
@@ -199,9 +210,10 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       //_flutterVideoCompress.convertVideoToGif('');
     });
+    return true;
   }
 
-  static String? myUrl;
+  static String myUrl = '';
 
   @override
   Widget build(BuildContext context) {
@@ -213,13 +225,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
           // Column is also a layout widget. It takes a list of children and
           // arranges them vertically. By default, it sizes itself to fit its
@@ -241,8 +249,9 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: TextField(
                 decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
                     labelStyle: TextStyle(fontSize: 20),
-                    labelText: '링크를 적어주세요'),
+                    labelText: '아카콘 링크'),
                 onChanged: (text) {
                   myUrl = text;
                 },
@@ -252,15 +261,52 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async => {await _incrementCounter(myUrl),
-          await Fluttertoast.showToast(
-          msg: "다운로드가 완료되었어요",
-          gravity: ToastGravity.BOTTOM,
-            toastLength: Toast.LENGTH_SHORT
-      )},
+        backgroundColor: const Color(0xff3D414D),
+        onPressed: () async => {
+          _errCount = 0,
+          if (myUrl.isEmpty)
+            {
+              Fluttertoast.showToast(
+                  msg: "주소를 입력해주세요!",
+                  gravity: ToastGravity.BOTTOM,
+                  toastLength: Toast.LENGTH_SHORT,
+                  backgroundColor: Colors.redAccent[400])
+            }
+          else
+            {
+              if (await _startDownload(myUrl))
+                {
+                  if (_errCount == 0)
+                    {
+                      Fluttertoast.showToast(
+                          msg: "다운로드가 완료되었어요\nDownloads 폴더를 확인해보세요!",
+                          gravity: ToastGravity.BOTTOM,
+                          toastLength: Toast.LENGTH_SHORT,
+                          backgroundColor: Colors.indigoAccent)
+                    }
+                  else
+                    {
+                      Fluttertoast.showToast(
+                          msg:
+                              "$_errCount개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+                          gravity: ToastGravity.BOTTOM,
+                          toastLength: Toast.LENGTH_SHORT,
+                          backgroundColor: Colors.green)
+                    }
+                }
+              else
+                {
+                  Fluttertoast.showToast(
+                      msg: "허용되지 않은 권한이 있어요...",
+                      gravity: ToastGravity.BOTTOM,
+                      toastLength: Toast.LENGTH_SHORT,
+                      backgroundColor: Colors.deepOrangeAccent)
+                },
+            }
+        },
         tooltip: '다운로드 시작',
         child: const Icon(Icons.download),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
