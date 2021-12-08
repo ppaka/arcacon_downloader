@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'dart:io';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter/foundation.dart';
@@ -9,15 +8,17 @@ import 'package:html/parser.dart'
     as html; // Contains HTML parsers to generate a Document object
 import 'package:html/dom.dart'
     as html; // Contains DOM related classes for extracting data from elements
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 final _ffmpeg = FlutterFFmpeg();
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -59,32 +60,38 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-Future<String> downloadFile(String url, String fileName, String dir) async {
+Future<String?> downloadFile(String url, String fileName, String dir) async {
   try {
     var downloadUrl = Uri.parse(url);
     var client = http.Client();
     http.Response response = await client.get(downloadUrl);
     print('응답: ' + fileName);
+    Directory('$dir').createSync(recursive: true);
     var filePath = '$dir/$fileName';
     var file = File(filePath);
     file.createSync(recursive: true);
     await file.writeAsBytes(response.bodyBytes);
     return null;
   } catch (ex) {
-    print('오류: ' + ex);
+    print('오류: ' + ex.toString());
     return null;
   }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Future<void> _incrementCounter(String myUrl) async {
-    var url = Uri.parse(myUrl);
+  Future<void> _incrementCounter(String? myUrl) async {
+    await Permission.manageExternalStorage.request();
+    await Permission.storage.request();
+
+    print(Permission.manageExternalStorage.value);
+
+    var url = Uri.parse(myUrl!);
     var client = http.Client();
     http.Response response = await client.get(url);
     var document = html.parse(response.body);
-    html.Element title = document.querySelector(
+    html.Element? title = document.querySelector(
         'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
-    var titleText = title.innerHtml.split('\n')[1];
+    var titleText = title!.innerHtml.split('\n')[1];
 
     titleText = titleText.trim();
     var notvalid = RegExp(r'[\/:*?"<>|]');
@@ -94,9 +101,9 @@ class _MyHomePageState extends State<MyHomePage> {
       titleText = titleText.replaceAll(notvalid, '');
     }
 
-    html.Element links = document.querySelector(
+    html.Element? links = document.querySelector(
         'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div');
-    var arcacon = links.innerHtml.split('\n');
+    var arcacon = links!.innerHtml.split('\n');
     arcacon.removeAt(0);
     for (int i = 0; i < arcacon.length; i++) {
       if (arcacon[i] == '<div class="emoticon-tags">') {
@@ -115,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
       arcacon[i] = 'https:' + arcacon[i];
       print(i.toString() + ':' + arcacon[i]);
 
-      var directory = '/sdcard/download/' + titleText + '/';
+      var directory = '/storage/emulated/0/Download/' + titleText + '/';
 
       if (arcacon[i].endsWith('.png')) {
         var fileType = '.png';
@@ -191,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  static String myUrl;
+  static String? myUrl;
 
   @override
   Widget build(BuildContext context) {
