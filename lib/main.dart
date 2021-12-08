@@ -8,11 +8,11 @@ import 'package:html/parser.dart'
     as html; // Contains HTML parsers to generate a Document object
 import 'package:html/dom.dart'
     as html; // Contains DOM related classes for extracting data from elements
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 final _ffmpeg = FlutterFFmpeg();
@@ -65,15 +65,15 @@ Future<String?> downloadFile(String url, String fileName, String dir) async {
     var downloadUrl = Uri.parse(url);
     var client = http.Client();
     http.Response response = await client.get(downloadUrl);
-    print('응답: ' + fileName);
-    Directory('$dir').createSync(recursive: true);
+    // print('응답: ' + fileName);
+    Directory(dir).createSync(recursive: true);
     var filePath = '$dir/$fileName';
     var file = File(filePath);
     file.createSync(recursive: true);
     await file.writeAsBytes(response.bodyBytes);
     return null;
   } catch (ex) {
-    print('오류: ' + ex.toString());
+    //print('오류: ' + ex.toString());
     return null;
   }
 }
@@ -82,8 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _incrementCounter(String? myUrl) async {
     await Permission.manageExternalStorage.request();
     await Permission.storage.request();
-
-    print(Permission.manageExternalStorage.value);
 
     var url = Uri.parse(myUrl!);
     var client = http.Client();
@@ -96,8 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
     titleText = titleText.trim();
     var notvalid = RegExp(r'[\/:*?"<>|]');
     if (notvalid.hasMatch(titleText)) {
-      print('사용불가능한 문자 있음');
-      var oldtitle = titleText;
+      //print('사용불가능한 문자 있음');
+      //var oldtitle = titleText;
       titleText = titleText.replaceAll(notvalid, '');
     }
 
@@ -120,13 +118,13 @@ class _MyHomePageState extends State<MyHomePage> {
       arcacon[i] = arcacon[i].replaceAll('</video>', '');
       arcacon[i] = arcacon[i].replaceAll(' ', '');
       arcacon[i] = 'https:' + arcacon[i];
-      print(i.toString() + ':' + arcacon[i]);
+      //print(i.toString() + ':' + arcacon[i]);
 
       var directory = '/storage/emulated/0/Download/' + titleText + '/';
 
       if (arcacon[i].endsWith('.png')) {
         var fileType = '.png';
-        downloadFile(
+        await downloadFile(
             arcacon[i],
             (i + 1)
                     .toString()
@@ -136,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
             directory);
       } else if (arcacon[i].endsWith('.jpeg')) {
         var fileType = '.jpeg';
-        downloadFile(
+        await downloadFile(
             arcacon[i],
             (i + 1)
                     .toString()
@@ -146,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
             directory);
       } else if (arcacon[i].endsWith('.jpg')) {
         var fileType = '.jpg';
-        downloadFile(
+        await downloadFile(
             arcacon[i],
             (i + 1)
                     .toString()
@@ -156,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
             directory);
       } else if (arcacon[i].endsWith('.gif')) {
         var fileType = '.gif';
-        downloadFile(
+        await downloadFile(
             arcacon[i],
             (i + 1)
                     .toString()
@@ -180,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
         await downloadFile(arcacon[i], fileName, videoDir);
 
         //var convert = await _flutterVideoCompress.convertVideoToGif(videoDir+fileName);
-        _ffmpeg.executeWithArguments([
+        await _ffmpeg.executeWithArguments([
           '-y',
           '-i',
           videoDir + fileName,
@@ -188,8 +186,13 @@ class _MyHomePageState extends State<MyHomePage> {
           '0',
           '-r',
           '15',
+          '-hide_banner',
+          ''
+          '-loglevel',
+          'quiet',
           directory + convertedFileName
         ]);
+
         //print(convert.path);
       }
     }
@@ -249,7 +252,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _incrementCounter(myUrl),
+        onPressed: () async => {await _incrementCounter(myUrl),
+          await Fluttertoast.showToast(
+          msg: "다운로드가 완료되었어요",
+          gravity: ToastGravity.BOTTOM,
+            toastLength: Toast.LENGTH_SHORT
+      )},
         tooltip: '다운로드 시작',
         child: const Icon(Icons.download),
       ), // This trailing comma makes auto-formatting nicer for build methods.
