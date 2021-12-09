@@ -1,7 +1,5 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'sub/first_page.dart';
 import 'sub/second_page.dart';
 
@@ -54,27 +52,31 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
+  late TabController _controller;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: const Color(0xffE0E0E0),
         body: TabBarView(
           children: const <Widget>[FirstPage(), SecondPage()],
           controller: _controller,
+          physics: const NeverScrollableScrollPhysics(),
         ),
         bottomNavigationBar: TabBar(
+          indicatorColor: const Color(0xff212121),
+          indicatorWeight: 5,
           tabs: const <Tab>[
             Tab(
-              icon: Icon(Icons.looks_one, color: Colors.blue),
+              icon: Icon(Icons.download, color: Color(0xff424242)),
             ),
             Tab(
-              icon: Icon(Icons.looks_two, color: Colors.blue),
+              icon: Icon(Icons.search, color: Color(0xff424242)),
             )
           ],
           controller: _controller,
         ));
   }
-
-  late TabController _controller;
 
   @override
   void initState() {
