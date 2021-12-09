@@ -1,11 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'sub/first_page.dart';
 import 'sub/second_page.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
+late TabController _controller;
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -50,9 +53,15 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+void goBack() {
+  if(_controller.index == 0){
+    SystemNavigator.pop(animated: true);
+  }
+  _controller.index = 0;
+}
+
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  late TabController _controller;
 
   @override
   Widget build(BuildContext context) {
