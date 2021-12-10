@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -161,13 +162,15 @@ Future<bool> _startDownload(String myUrl) async {
 }
 
 class FirstPage extends StatelessWidget {
-  const FirstPage({Key? key}) : super(key: key);
+  FirstPage({Key? key}) : super(key: key);
+
+  final TextEditingController mytext = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('아카콘 다운로더'),
+          title: const Text('아카콘 다운로더'),
         ),
         body: Center(
           child: Column(
@@ -180,11 +183,20 @@ class FirstPage extends StatelessWidget {
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(fontSize: 20),
                       labelText: '아카콘 링크'),
+                  controller: mytext,
                   onChanged: (text) {
                     myUrl = text;
                   },
                 ),
               ),
+              ElevatedButton(
+                  onPressed: () async {
+                    ClipboardData? data = await Clipboard.getData('text/plain');
+                    if (data!.text != null) {
+                      myUrl = mytext.text = data.text!;
+                    }
+                  },
+                  child: const Text('붙여넣기'))
             ],
           ),
         ),
