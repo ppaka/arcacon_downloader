@@ -54,7 +54,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 void goBack() {
-  if(_controller.index == 0){
+  if (_controller.index == 0) {
     SystemNavigator.pop(animated: true);
   }
   _controller.index = 0;
@@ -62,13 +62,12 @@ void goBack() {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: const Color(0xffE0E0E0),
         body: TabBarView(
-          children: const <Widget>[FirstPage(), SecondPage()],
+          children: <Widget>[FirstPage(), const SecondPage()],
           controller: _controller,
           physics: const NeverScrollableScrollPhysics(),
         ),
