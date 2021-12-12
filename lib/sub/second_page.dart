@@ -36,6 +36,8 @@ class _SecondPageState extends State<SecondPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return WillPopScope(
         child: Scaffold(
             body: SafeArea(
@@ -137,44 +139,49 @@ class _SecondPageState extends State<SecondPage>
               ],
             ),
           ),
-          ButtonBar(
-            alignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                child: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  webViewController?.goBack();
-                },
-              ),
-              ElevatedButton(
-                child: const Icon(Icons.arrow_forward),
-                onPressed: () {
-                  webViewController?.goForward();
-                },
-              ),
-              ElevatedButton(
-                child: const Icon(Icons.refresh),
-                onPressed: () {
-                  webViewController?.reload();
-                },
-              ),
-              ElevatedButton(
-                child: const Icon(Icons.copy),
-                onPressed: () {
-                  var url = '';
-                  webViewController?.getUrl().then((value) => {
-                        url = value.toString(),
-                        Clipboard.setData(ClipboardData(text: url)),
-                        Fluttertoast.showToast(
-                            msg: "페이지 주소가 클립보드에 복사되었습니다",
-                            gravity: ToastGravity.BOTTOM,
-                            toastLength: Toast.LENGTH_SHORT,
-                            backgroundColor: Colors.blueGrey)
-                      });
-                },
-              )
-            ],
-          ),
+          Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.black12, width: 3),
+                borderRadius: BorderRadius.circular(10)),
+            child: ButtonBar(
+              alignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ElevatedButton(
+                  child: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    webViewController?.goBack();
+                  },
+                ),
+                ElevatedButton(
+                  child: const Icon(Icons.arrow_forward),
+                  onPressed: () {
+                    webViewController?.goForward();
+                  },
+                ),
+                ElevatedButton(
+                  child: const Icon(Icons.refresh),
+                  onPressed: () {
+                    webViewController?.reload();
+                  },
+                ),
+                ElevatedButton(
+                  child: const Icon(Icons.copy),
+                  onPressed: () {
+                    var url = '';
+                    webViewController?.getUrl().then((value) => {
+                          url = value.toString(),
+                          Clipboard.setData(ClipboardData(text: url)),
+                          Fluttertoast.showToast(
+                              msg: "페이지 주소가 클립보드에 복사되었습니다",
+                              gravity: ToastGravity.BOTTOM,
+                              toastLength: Toast.LENGTH_SHORT,
+                              backgroundColor: Colors.blueGrey)
+                        });
+                  },
+                )
+              ],
+            ),
+          )
         ]))),
         onWillPop: () => _goBack(context));
   }

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
@@ -11,9 +10,8 @@ import 'package:html/dom.dart' as html;
 
 final _ffmpeg = FlutterFFmpeg();
 int _errCount = 0;
-String myUrl = '';
 
-Future<String?> downloadFile(String url, String fileName, String dir) async {
+Future<void> downloadFile(String url, String fileName, String dir) async {
   try {
     var downloadUrl = Uri.parse(url);
     var client = http.Client();
@@ -22,11 +20,9 @@ Future<String?> downloadFile(String url, String fileName, String dir) async {
     var file = File('$dir/$fileName');
     file.createSync(recursive: true);
     await file.writeAsBytes(response.bodyBytes);
-    //return null;
   } catch (ex) {
     //print('오류: ' + ex.toString());
     _errCount++;
-    //return null;
   }
 }
 
@@ -53,11 +49,10 @@ Future<bool> _startDownload(String myUrl) async {
   var titleText = title!.innerHtml.split('\n')[1];
 
   titleText = titleText.trim();
-  var notvalid = RegExp(r'[\/:*?"<>|]');
-  if (notvalid.hasMatch(titleText)) {
-    //print('사용불가능한 문자 있음');
-    //var oldtitle = titleText;
-    titleText = titleText.replaceAll(notvalid, '');
+  var invalidChar = RegExp(r'[\/:*?"<>|]');
+  if (invalidChar.hasMatch(titleText)) {
+    //var oldTitle = titleText;
+    titleText = titleText.replaceAll(invalidChar, '');
   }
 
   html.Element? links = document.querySelector(
@@ -82,7 +77,6 @@ Future<bool> _startDownload(String myUrl) async {
     arcacon[i] = arcacon[i].replaceAll('</video>', '');
     arcacon[i] = arcacon[i].replaceAll(' ', '');
     arcacon[i] = 'https:' + arcacon[i];
-    //print(i.toString() + ':' + arcacon[i]);
 
     var directory = '/storage/emulated/0/Download/' + titleText + '/';
 
@@ -129,32 +123,46 @@ Future<bool> _startDownload(String myUrl) async {
     } else if (arcacon[i].endsWith('.mp4')) {
       var fileType = '.mp4';
       var fileName = (i + 1)
-              .toString()
-              .padLeft(arcacon.length.toString().length, '0')
-              .toString() +
-          fileType;
+          .toString()
+          .padLeft(arcacon.length.toString().length, '0')
+          .toString();
       var videoDir = directory + 'videos/';
       var convertedFileName = (i + 1)
               .toString()
               .padLeft(arcacon.length.toString().length, '0')
               .toString() +
           '.gif';
-      await downloadFile(arcacon[i], fileName, videoDir);
-
+      await downloadFile(arcacon[i], fileName + fileType, videoDir);
       await _ffmpeg.executeWithArguments([
         '-y',
         '-i',
-        videoDir + fileName,
-        '-ss',
-        '0',
-        '-r',
-        '15',
+        videoDir + fileName + fileType,
+        '-vf',
+        'fps=24,scale=100:-1:flags=lanczos,palettegen',
         '-hide_banner',
-        ''
-            '-loglevel',
-        'quiet',
+        '-loglevel',
+        'error',
+        videoDir + 'palette.png'
+      ]);
+      await _ffmpeg.executeWithArguments([
+        '-y',
+        '-i',
+        videoDir + fileName + fileType,
+        '-i',
+        videoDir + 'palette.png',
+        '-filter_complex',
+        'fps=24,scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
+        '-hide_banner',
+        '-loglevel',
+        'error',
         directory + convertedFileName
       ]);
+      try{
+        File(videoDir + 'palette.png').deleteSync(recursive: true);
+      }
+      catch(ex){
+        print("오류: 팔레트 파일을 제거할 수 없음");
+      }
     }
     i++;
   }
@@ -164,7 +172,7 @@ Future<bool> _startDownload(String myUrl) async {
 class FirstPage extends StatelessWidget {
   FirstPage({Key? key}) : super(key: key);
 
-  final TextEditingController mytext = TextEditingController();
+  final TextEditingController textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -183,17 +191,14 @@ class FirstPage extends StatelessWidget {
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(fontSize: 20),
                       labelText: '아카콘 링크'),
-                  controller: mytext,
-                  onChanged: (text) {
-                    myUrl = text;
-                  },
+                  controller: textController,
                 ),
               ),
               ElevatedButton(
                   onPressed: () async {
                     ClipboardData? data = await Clipboard.getData('text/plain');
                     if (data!.text != null) {
-                      myUrl = mytext.text = data.text!;
+                      textController.text = data.text!;
                     }
                   },
                   child: const Text('붙여넣기'))
@@ -209,7 +214,7 @@ class FirstPage extends StatelessWidget {
                 backgroundColor: const Color(0xff3D414D),
                 onPressed: () async => {
                   _errCount = 0,
-                  if (myUrl.isEmpty)
+                  if (textController.text.isEmpty)
                     {
                       Fluttertoast.showToast(
                           msg: "주소를 입력해주세요!",
@@ -219,7 +224,7 @@ class FirstPage extends StatelessWidget {
                     }
                   else
                     {
-                      if (await _startDownload(myUrl))
+                      if (await _startDownload(textController.text))
                         {
                           if (_errCount == 0)
                             {
