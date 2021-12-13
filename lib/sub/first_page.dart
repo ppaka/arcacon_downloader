@@ -1,36 +1,41 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html;
 import 'package:html/dom.dart' as html;
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 
-final _ffmpeg = FlutterFFmpeg();
 int _errCount = 0;
+final _ffmpeg = FlutterFFmpeg();
 
 Future<void> downloadFile(String url, String fileName, String dir) async {
   try {
+    Directory(dir).createSync(recursive: true);
     var downloadUrl = Uri.parse(url);
     var client = http.Client();
     http.Response response = await client.get(downloadUrl);
-    Directory(dir).createSync(recursive: true);
-    var file = File('$dir/$fileName');
+    var file = File('$dir$fileName');
     file.createSync(recursive: true);
     await file.writeAsBytes(response.bodyBytes);
+    print('파일 다운로드 완료');
+    //sleep(const Duration(seconds: 2));
   } catch (ex) {
-    //print('오류: ' + ex.toString());
+    print('오류: ' + ex.toString());
     _errCount++;
   }
 }
 
 Future<bool> _startDownload(String myUrl) async {
-  var request1 = await Permission.manageExternalStorage.request();
+  // var request1 = await Permission.manageExternalStorage.request();
+  // await FlutterDownloader.initialize(debug: true);
   var request2 = await Permission.storage.request();
 
-  if (request1.isDenied || request2.isDenied) {
+  //if (request1.isDenied || request2.isDenied) {
+  if (request2.isDenied) {
     return false;
   }
 
@@ -60,6 +65,7 @@ Future<bool> _startDownload(String myUrl) async {
   var arcacon = links!.innerHtml.split('\n');
   arcacon.removeAt(0);
   int i = 0;
+  String outputPalettePath = '';
   while (true) {
     if (arcacon.length <= i) break;
     if (arcacon[i] == '<div class="emoticon-tags">') {
@@ -80,8 +86,13 @@ Future<bool> _startDownload(String myUrl) async {
 
     var directory = '/storage/emulated/0/Download/' + titleText + '/';
 
+    /// Get Android [downloads] top-level shared folder
+    /// You can also create a reference to a custom directory as: `EnvironmentDirectory.custom('Custom Folder')`
+    // final sharedDirectory = await getExternalStoragePublicDirectory(EnvironmentDirectory.custom('Download/' + titleText + '/'));
+
     if (arcacon[i].endsWith('.png')) {
       var fileType = '.png';
+
       await downloadFile(
           arcacon[i],
           (i + 1)
@@ -133,6 +144,8 @@ Future<bool> _startDownload(String myUrl) async {
               .toString() +
           '.gif';
       await downloadFile(arcacon[i], fileName + fileType, videoDir);
+      String inputPath = videoDir + fileName + fileType;
+      outputPalettePath = videoDir + 'palette.png';
       await _ffmpeg.executeWithArguments([
         '-y',
         '-i',
@@ -144,6 +157,7 @@ Future<bool> _startDownload(String myUrl) async {
         'error',
         videoDir + 'palette.png'
       ]);
+      String outputPath = directory + convertedFileName;
       await _ffmpeg.executeWithArguments([
         '-y',
         '-i',
@@ -157,11 +171,14 @@ Future<bool> _startDownload(String myUrl) async {
         'error',
         directory + convertedFileName
       ]);
-      try{
-        File(videoDir + 'palette.png').deleteSync(recursive: true);
-      }
-      catch(ex){
-        print("오류: 팔레트 파일을 제거할 수 없음");
+      try {
+        print('팔레트 파일 제거: $outputPalettePath');
+        File(outputPalettePath).deleteSync(recursive: true);
+        //File(videoDir + 'palette.png').deleteSync(recursive: true);
+      } catch (ex) {
+        print("오류: 팔레트 파일을 제거할 수 없음\n$ex");
+
+        print('팔레트 생성');
       }
     }
     i++;
