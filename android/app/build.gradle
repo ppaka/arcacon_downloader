@@ -33,13 +33,14 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     compileSdkVersion 31
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
+    }
+
+    compileOptions {
+        sourceCompatibility '11'
+        targetCompatibility '11'
     }
 
     sourceSets {
@@ -47,7 +48,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.ppaka.ArcaconDownloader"
         minSdkVersion 24
         targetSdkVersion 31
@@ -63,13 +63,14 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
+
     buildTypes {
         release {
             signingConfig signingConfigs.release
 
             minifyEnabled true
-            shrinkResources true
-            useProguard true
+            //shrinkResources true
+            //useProguard true
 
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
