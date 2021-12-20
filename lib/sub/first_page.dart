@@ -50,8 +50,47 @@ Future<bool> _startDownload(String myUrl) async {
   http.Response response = await client.get(url);
   var document = html.parse(response.body);
   html.Element? title = document.querySelector(
-      'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
+      'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
+
+  //print(title!.innerHtml);
+  //print(title.innerHtml.split('\n')[1]);
+
   var titleText = title!.innerHtml.split('\n')[1];
+
+  for (int j = 0; j < titleText.length; j++) {
+    if (titleText.contains('<a href="/cdn-cgi/l/email-protection"')) {
+      var lastIndex =
+          titleText.lastIndexOf('<a href="/cdn-cgi/l/email-protection"');
+      var endIndex = titleText.lastIndexOf('</a>') + 4;
+      //print(lastIndex);
+      //print(endIndex);
+
+      var emailSource = titleText.substring(lastIndex, endIndex);
+      //print(emailSource);
+
+      var valueStartIndex = emailSource.lastIndexOf('data-cfemail="') + 14;
+      //print(valueStartIndex);
+      var valueEndIndex =
+          emailSource.lastIndexOf('">[email&nbsp;protected]</a>');
+      //print(valueEndIndex);
+
+      var encodedString = emailSource.substring(valueStartIndex, valueEndIndex);
+      //print(encodedString);
+      var email = "",
+          r = int.parse(encodedString.substring(0, 2), radix: 16),
+          n = 0,
+          enI = 0;
+      for (n = 2; encodedString.length - n > 0; n += 2) {
+        enI = int.parse(encodedString.substring(n, n + 2), radix: 16) ^ r;
+        email += String.fromCharCode(enI);
+      }
+      //print(email);
+
+      titleText = titleText.substring(0, lastIndex) +
+          email +
+          titleText.substring(endIndex);
+    }
+  }
 
   titleText = titleText.trim();
   var invalidChar = RegExp(r'[\/:*?"<>|]');
@@ -144,7 +183,7 @@ Future<bool> _startDownload(String myUrl) async {
               .toString() +
           '.gif';
       await downloadFile(arcacon[i], fileName + fileType, videoDir);
-      String inputPath = videoDir + fileName + fileType;
+      //String inputPath = videoDir + fileName + fileType;
       outputPalettePath = videoDir + 'palette.png';
       await _ffmpeg.executeWithArguments([
         '-y',
@@ -157,7 +196,7 @@ Future<bool> _startDownload(String myUrl) async {
         'error',
         videoDir + 'palette.png'
       ]);
-      String outputPath = directory + convertedFileName;
+      //String outputPath = directory + convertedFileName;
       await _ffmpeg.executeWithArguments([
         '-y',
         '-i',
@@ -172,13 +211,13 @@ Future<bool> _startDownload(String myUrl) async {
         directory + convertedFileName
       ]);
       try {
-        print('팔레트 파일 제거: $outputPalettePath');
+        //print('팔레트 파일 제거: $outputPalettePath');
         File(outputPalettePath).deleteSync(recursive: true);
         //File(videoDir + 'palette.png').deleteSync(recursive: true);
       } catch (ex) {
         print("오류: 팔레트 파일을 제거할 수 없음\n$ex");
 
-        print('팔레트 생성');
+        //print('팔레트 생성');
       }
     }
     i++;

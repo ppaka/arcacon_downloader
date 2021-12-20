@@ -194,7 +194,8 @@ class _SecondPageState extends State<SecondPage>
       webViewController!.goBack();
       return Future.value(false);
     } else {
-      webViewController?.pauseTimers().then((value) => {goBack()});
+      // webViewController?.pauseTimers().then((value) => {goBack()});
+      goBack();
       // return Future.value(true);
       return false;
     }
