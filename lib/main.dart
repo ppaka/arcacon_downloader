@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'sub/first_page.dart';
-import 'sub/second_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -65,36 +64,16 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xffE0E0E0),
-        body: TabBarView(
-          children: <Widget>[FirstPage(), const SecondPage()],
-          controller: _controller,
-          physics: const NeverScrollableScrollPhysics(),
-        ),
-        bottomNavigationBar: TabBar(
-          indicatorColor: const Color(0xff212121),
-          indicatorWeight: 5,
-          tabs: const <Tab>[
-            Tab(
-              icon: Icon(Icons.download, color: Color(0xff424242)),
-            ),
-            Tab(
-              icon: Icon(Icons.search, color: Color(0xff424242)),
-            )
-          ],
-          controller: _controller,
-        ));
+        backgroundColor: const Color(0xffE0E0E0), body: FirstPage());
   }
 
   @override
   void initState() {
     super.initState();
-    _controller = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 }
