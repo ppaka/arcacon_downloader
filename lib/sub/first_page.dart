@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html;
 import 'package:html/dom.dart' as html;
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 
 int _errCount = 0;
 final _ffmpeg = FlutterFFmpeg();
@@ -225,6 +227,44 @@ Future<bool> _startDownload(String myUrl) async {
   return true;
 }
 
+void _launchURL(BuildContext context) async {
+  try {
+    await launch(
+      'https://arca.live/e/?p=1',
+      customTabsOption: CustomTabsOption(
+        toolbarColor: Theme.of(context).primaryColor,
+        enableDefaultShare: true,
+        enableUrlBarHiding: true,
+        showPageTitle: true,
+        animation: CustomTabsSystemAnimation.slideIn(),
+        // or user defined animation.
+        /*animation: const CustomTabsSystemAnimation(
+          startEnter: 'slide_up',
+          startExit: 'android:anim/fade_out',
+          endEnter: 'android:anim/fade_in',
+          endExit: 'slide_down',
+        ),*/
+        extraCustomTabs: const <String>[
+          // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
+          'org.mozilla.firefox',
+          // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
+          'com.microsoft.emmx',
+        ],
+      ),
+      safariVCOption: SafariViewControllerOption(
+        preferredBarTintColor: Theme.of(context).primaryColor,
+        preferredControlTintColor: Colors.white,
+        barCollapsingEnabled: true,
+        entersReaderIfAvailable: false,
+        dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
+      ),
+    );
+  } catch (e) {
+    // An exception is thrown if browser app is not installed on Android device.
+    debugPrint(e.toString());
+  }
+}
+
 class FirstPage extends StatelessWidget {
   FirstPage({Key? key}) : super(key: key);
 
@@ -257,7 +297,12 @@ class FirstPage extends StatelessWidget {
                       textController.text = data.text!;
                     }
                   },
-                  child: const Text('붙여넣기'))
+                  child: const Text('붙여넣기')),
+              ElevatedButton(
+                  onPressed: () async {
+                    _launchURL(context);
+                  },
+                  child: const Text('검색'))
             ],
           ),
         ),
