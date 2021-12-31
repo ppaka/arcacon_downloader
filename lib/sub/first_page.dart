@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -58,9 +57,6 @@ Future<Result> _startDownload(String myUrl) async {
   html.Element? title = document.querySelector(
       'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
 
-  //print(title!.innerHtml);
-  //print(title.innerHtml.split('\n')[1]);
-
   var titleText = title!.innerHtml.split('\n')[1];
 
   for (int j = 0; j < titleText.length; j++) {
@@ -68,20 +64,13 @@ Future<Result> _startDownload(String myUrl) async {
       var lastIndex =
           titleText.lastIndexOf('<a href="/cdn-cgi/l/email-protection"');
       var endIndex = titleText.lastIndexOf('</a>') + 4;
-      //print(lastIndex);
-      //print(endIndex);
-
       var emailSource = titleText.substring(lastIndex, endIndex);
-      //print(emailSource);
 
       var valueStartIndex = emailSource.lastIndexOf('data-cfemail="') + 14;
-      //print(valueStartIndex);
       var valueEndIndex =
           emailSource.lastIndexOf('">[email&nbsp;protected]</a>');
-      //print(valueEndIndex);
 
       var encodedString = emailSource.substring(valueStartIndex, valueEndIndex);
-      //print(encodedString);
       var email = "",
           r = int.parse(encodedString.substring(0, 2), radix: 16),
           n = 0,
@@ -90,7 +79,6 @@ Future<Result> _startDownload(String myUrl) async {
         enI = int.parse(encodedString.substring(n, n + 2), radix: 16) ^ r;
         email += String.fromCharCode(enI);
       }
-      //print(email);
 
       titleText = titleText.substring(0, lastIndex) +
           email +
@@ -112,7 +100,7 @@ Future<Result> _startDownload(String myUrl) async {
   arcacon.removeAt(0);
   int i = 0;
 
-  if(nowRunning.containsKey(titleText)){
+  if (nowRunning.containsKey(titleText)) {
     return Result.AlreadyRunning;
   }
 
@@ -124,7 +112,7 @@ Future<Result> _startDownload(String myUrl) async {
 
   int randomValue = Random.secure().nextInt(2147483647);
 
-  while(nowRunning.containsValue(randomValue)){
+  while (nowRunning.containsValue(randomValue)) {
     randomValue = Random.secure().nextInt(2147483647);
   }
 
@@ -151,10 +139,6 @@ Future<Result> _startDownload(String myUrl) async {
     arcacon[i] = 'https:' + arcacon[i];
 
     var directory = '/storage/emulated/0/Download/' + titleText + '/';
-
-    /// Get Android [downloads] top-level shared folder
-    /// You can also create a reference to a custom directory as: `EnvironmentDirectory.custom('Custom Folder')`
-    // final sharedDirectory = await getExternalStoragePublicDirectory(EnvironmentDirectory.custom('Download/' + titleText + '/'));
 
     if (arcacon[i].endsWith('.png')) {
       var fileType = '.png';
@@ -238,13 +222,9 @@ Future<Result> _startDownload(String myUrl) async {
         directory + convertedFileName
       ]);
       try {
-        //print('팔레트 파일 제거: $outputPalettePath');
         File(outputPalettePath).deleteSync(recursive: true);
-        //File(videoDir + 'palette.png').deleteSync(recursive: true);
       } catch (ex) {
         print("오류: 팔레트 파일을 제거할 수 없음\n$ex");
-
-        //print('팔레트 생성');
       }
     }
     i++;
@@ -260,47 +240,49 @@ Future<Result> _startDownload(String myUrl) async {
   return Result.Success;
 }
 
-Future<void> _progressNotification(String conTitle, int nowProgress, int maxProgress) async{
+Future<void> _progressNotification(
+    String conTitle, int nowProgress, int maxProgress) async {
   final AndroidNotificationDetails androidPlatformChannelSpecifics =
-  AndroidNotificationDetails('Arcacon Downloader', 'Task Notifications',
-      // channelDescription: '',
-      channelShowBadge: false,
-      importance: Importance.max,
-      priority: Priority.high,
-      onlyAlertOnce: false,
-      showProgress: true,
-      maxProgress: maxProgress,
-      progress: nowProgress,
-      icon: 'ic_stat_name',
-      playSound: false,
-      setAsGroupSummary: true);
+      AndroidNotificationDetails('Task Notifications ID', 'Task Notifications',
+          // channelDescription: '',
+          // settings
+          importance: Importance.low,
+          priority: Priority.low,
+          channelAction: AndroidNotificationChannelAction.createIfNotExists,
+          onlyAlertOnce: false,
+          enableVibration: false,
+          channelShowBadge: false,
+          icon: 'ic_stat_name',
+          playSound: false,
+          setAsGroupSummary: false,
+          autoCancel: false,
+          // progress
+          showProgress: true,
+          maxProgress: maxProgress,
+          progress: nowProgress,
+          ongoing: true);
   final NotificationDetails platformChannelSpecifics =
-  NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(
-      nowRunning[conTitle]!,
-      '아카콘 다운로드 중...',
-      conTitle,
-      platformChannelSpecifics,
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(nowRunning[conTitle]!,
+      '아카콘 다운로드 중...', conTitle, platformChannelSpecifics,
       payload: 'item x');
 }
 
-Future<void> _showNotification(String conTitle) async{
+Future<void> _showNotification(String conTitle) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-  AndroidNotificationDetails('Arcacon Downloader', 'Task Notifications',
-      // channelDescription: '',
-      channelShowBadge: true,
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
-      onlyAlertOnce: false,
-      icon: 'ic_stat_name',
-      setAsGroupSummary: true);
+      AndroidNotificationDetails(
+          'Ended Task Notifications ID', 'Ended Task Notifications',
+          // channelDescription: '',
+          channelShowBadge: true,
+          importance: Importance.high,
+          priority: Priority.high,
+          onlyAlertOnce: false,
+          icon: 'ic_stat_name',
+          setAsGroupSummary: false);
   const NotificationDetails platformChannelSpecifics =
-  NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(
-      nowRunning[conTitle]!,
-      '아카콘 다운로드 완료!',
-      conTitle,
-      platformChannelSpecifics,
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(nowRunning[conTitle]!.hashCode,
+      '아카콘 다운로드 완료!', conTitle, platformChannelSpecifics,
       payload: 'item x');
 }
 
@@ -373,8 +355,10 @@ class FirstPage extends StatelessWidget {
               ElevatedButton(
                   onPressed: () async {
                     ClipboardData? data = await Clipboard.getData('text/plain');
-                    if (data!.text != null) {
-                      textController.text = data.text!;
+                    if (data != null) {
+                      if (data.text != null) {
+                        textController.text = data.text!;
+                      }
                     }
                   },
                   child: const Text('붙여넣기')),
@@ -451,14 +435,14 @@ class FirstPage extends StatelessWidget {
                               toastLength: Toast.LENGTH_SHORT,
                               backgroundColor: Colors.deepOrangeAccent)
                         }
-                    else if (result == Result.AlreadyRunning)
-                    {
-                    Fluttertoast.showToast(
-                    msg: "이미 다운로드가 진행중인 아카콘입니다!",
-                    gravity: ToastGravity.BOTTOM,
-                    toastLength: Toast.LENGTH_SHORT,
-                    backgroundColor: Colors.red)
-                    },
+                      else if (result == Result.AlreadyRunning)
+                        {
+                          Fluttertoast.showToast(
+                              msg: "이미 다운로드가 진행중인 아카콘입니다!",
+                              gravity: ToastGravity.BOTTOM,
+                              toastLength: Toast.LENGTH_SHORT,
+                              backgroundColor: Colors.red)
+                        },
                     }
                 },
                 tooltip: '다운로드 시작',
