@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'sub/first_page.dart';
 
 void main() {
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = ThemeData(
+    final ThemeData lightTheme = ThemeData(
       primarySwatch: Colors.blue,
       primaryColor: Colors.white,
       primaryIconTheme: const IconThemeData(color: Colors.blue),
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
       dividerColor: Colors.white54,
     );
 
-    final ThemeData darktheme = ThemeData(
+    final ThemeData darkTheme = ThemeData(
       primarySwatch: Colors.grey,
       primaryColor: Colors.black,
       primaryIconTheme: const IconThemeData(color: Colors.grey),
@@ -33,15 +32,12 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: '아카콘 다운로더',
-      theme: theme.copyWith(
-          colorScheme: theme.colorScheme.copyWith(secondary: Colors.white)),
-      darkTheme: darktheme.copyWith(
-          colorScheme: darktheme.colorScheme.copyWith(secondary: Colors.white)),
+      theme: lightTheme.copyWith(
+          colorScheme:
+              lightTheme.colorScheme.copyWith(secondary: Colors.white)),
+      darkTheme: darkTheme.copyWith(
+          colorScheme: darkTheme.colorScheme.copyWith(secondary: Colors.white)),
       themeMode: ThemeMode.system,
-      /* ThemeMode.system to follow system theme, 
-         ThemeMode.light for light theme, 
-         ThemeMode.dark for dark theme
-      */
       // debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: '아카콘 다운로더'),
     );
