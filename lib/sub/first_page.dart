@@ -11,6 +11,7 @@ import 'package:html/dom.dart' as html;
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:flutter_custom_tabs_platform_interface/flutter_custom_tabs_platform_interface.dart';
+import 'package:dio/dio.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -20,13 +21,15 @@ Map<String, int> nowRunning = {};
 
 Future<void> downloadFile(String url, String fileName, String dir) async {
   try {
-    Directory(dir).createSync(recursive: true);
+    /*Directory(dir).createSync(recursive: true);
     var downloadUrl = Uri.parse(url);
     var client = http.Client();
     http.Response response = await client.get(downloadUrl);
     var file = File('$dir$fileName');
     file.createSync(recursive: true);
-    await file.writeAsBytes(response.bodyBytes);
+    await file.writeAsBytes(response.bodyBytes);*/
+    Dio dio = Dio();
+    await dio.download(url, dir + fileName);
     print('파일 다운로드 완료');
     //sleep(const Duration(seconds: 2));
   } catch (ex) {
