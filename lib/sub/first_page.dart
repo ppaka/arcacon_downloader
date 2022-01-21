@@ -76,18 +76,47 @@ Future<DownloadTask> _startDownload(String myUrl) async {
 
   dom.Element links = document.querySelector(
       'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div')!;
-  List<String> arcacon = [];
+
+  int totalCount = 0;
 
   links.getElementsByTagName('video').forEach((element) {
-    var eachUrl = 'https:' + element.attributes['src'].toString();
-    arcacon.add(eachUrl);
+    /*var eachUrl = 'https:' + element.attributes['src'].toString();
+    arcacon.add(eachUrl);*/
+    totalCount++;
   });
   links.getElementsByTagName('img').forEach((element) {
-    var eachUrl = 'https:' + element.attributes['src'].toString();
-    arcacon.add(eachUrl);
+    /*var eachUrl = 'https:' + element.attributes['src'].toString();
+    arcacon.add(eachUrl);*/
+    totalCount++;
   });
 
-  int i = 0;
+  var eachLines = links.outerHtml.split('\n');
+  List<String> arcacon = [];
+
+  print(totalCount);
+
+  if (eachLines[0] == '<div class="emoticons-wrapper">') {
+    for (int i = 0; i < eachLines.length; i++) {
+      eachLines.remove(' ');
+      eachLines.remove('');
+    }
+    Iterable<String> range = eachLines.getRange(1, (totalCount + 1));
+    arcacon.addAll(range);
+    for (int i = 0; i < arcacon.length; i++) {
+      arcacon[i] = arcacon[i].replaceAll('<img loading="lazy" src="', '');
+      arcacon[i] = arcacon[i].replaceAll('"/>', '');
+      arcacon[i] = arcacon[i].replaceAll('">', '');
+
+      arcacon[i] = arcacon[i].replaceAll(
+          '<video loading="lazy" autoplay="" loop="" muted="" playsinline="" src="',
+          '');
+      arcacon[i] = arcacon[i].replaceAll('</video>', '');
+      arcacon[i] = arcacon[i].replaceAll(' ', '');
+      arcacon[i] = 'https:' + arcacon[i];
+    }
+  }
+
+  int count = 0;
 
   if (nowRunning.containsKey(titleText)) {
     result.result = Result.alreadyRunning;
@@ -112,66 +141,64 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   var videoDir = directory + 'videos/';
   var outputPalettePath = '';
 
-  while (true) {
-    if (i >= arcacon.length) break;
-
-    if (arcacon[i].endsWith('.png')) {
+  for (var con in arcacon) {
+    if (con.endsWith('.png')) {
       var fileType = '.png';
 
       var res = await downloadFile(
-          arcacon[i],
-          (i + 1)
+          con,
+          (count + 1)
                   .toString()
                   .padLeft(arcacon.length.toString().length, '0')
                   .toString() +
               fileType,
           directory);
       if (res == false) result.errorCount++;
-    } else if (arcacon[i].endsWith('.jpeg')) {
+    } else if (con.endsWith('.jpeg')) {
       var fileType = '.jpeg';
       var res = await downloadFile(
-          arcacon[i],
-          (i + 1)
+          con,
+          (count + 1)
                   .toString()
                   .padLeft(arcacon.length.toString().length, '0')
                   .toString() +
               fileType,
           directory);
       if (res == false) result.errorCount++;
-    } else if (arcacon[i].endsWith('.jpg')) {
+    } else if (con.endsWith('.jpg')) {
       var fileType = '.jpg';
       var res = await downloadFile(
-          arcacon[i],
-          (i + 1)
+          con,
+          (count + 1)
                   .toString()
-                  .padLeft(arcacon.length.toString().length, '0')
+                  .padLeft(con.length.toString().length, '0')
                   .toString() +
               fileType,
           directory);
       if (res == false) result.errorCount++;
-    } else if (arcacon[i].endsWith('.gif')) {
+    } else if (con.endsWith('.gif')) {
       var fileType = '.gif';
       var res = await downloadFile(
-          arcacon[i],
-          (i + 1)
+          con,
+          (count + 1)
                   .toString()
                   .padLeft(arcacon.length.toString().length, '0')
                   .toString() +
               fileType,
           directory);
       if (res == false) result.errorCount++;
-    } else if (arcacon[i].endsWith('.mp4')) {
+    } else if (con.endsWith('.mp4')) {
       var fileType = '.mp4';
-      var fileName = (i + 1)
+      var fileName = (count + 1)
           .toString()
           .padLeft(arcacon.length.toString().length, '0')
           .toString();
-      var convertedFileName = (i + 1)
+      var convertedFileName = (count + 1)
               .toString()
               .padLeft(arcacon.length.toString().length, '0')
               .toString() +
           '.gif';
-      var res = await downloadFile(arcacon[i], fileName + fileType, videoDir);
+      var res = await downloadFile(con, fileName + fileType, videoDir);
       if (res == false) result.errorCount++;
       outputPalettePath = videoDir + 'palette.png';
       await FlutterFFmpeg().executeWithArguments([
@@ -204,8 +231,8 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         print("오류: 팔레트 파일을 제거할 수 없음\n$ex");
       }
     }
-    i++;
-    await _progressNotification(titleText, i, arcacon.length);
+    count++;
+    await _progressNotification(titleText, count, arcacon.length);
   }
 
   try {
