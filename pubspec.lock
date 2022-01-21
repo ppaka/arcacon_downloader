@@ -178,14 +178,14 @@ packages:
     source: hosted
     version: "8.0.8"
   html:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: html
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.15.0"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       url: "https://pub.dartlang.org"
@@ -227,7 +227,7 @@ packages:
     source: hosted
     version: "1.7.0"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       url: "https://pub.dartlang.org"
@@ -357,13 +357,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
-  web_scraper:
-    dependency: "direct main"
-    description:
-      name: web_scraper
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.4"
   xdg_directories:
     dependency: transitive
     description:
@@ -379,5 +372,5 @@ packages:
     source: hosted
     version: "5.3.1"
 sdks:
-  dart: ">=2.14.0 <3.0.0"
+  dart: ">=2.14.4 <3.0.0"
   flutter: ">=2.5.0"

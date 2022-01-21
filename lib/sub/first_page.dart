@@ -6,8 +6,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as html;
-import 'package:html/dom.dart' as html;
+import 'package:html/parser.dart' as parser;
+import 'package:html/dom.dart' as dom;
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:flutter_custom_tabs_platform_interface/flutter_custom_tabs_platform_interface.dart';
@@ -15,53 +15,216 @@ import 'package:dio/dio.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-int _errCount = 0;
-final _ffmpeg = FlutterFFmpeg();
 Map<String, int> nowRunning = {};
 
-Future<void> downloadFile(String url, String fileName, String dir) async {
+class DownloadTask {
+  int errorCount = 0;
+  late Result result;
+}
+
+Future<bool> downloadFile(String url, String fileName, String dir) async {
   try {
-    /*Directory(dir).createSync(recursive: true);
-    var downloadUrl = Uri.parse(url);
-    var client = http.Client();
-    http.Response response = await client.get(downloadUrl);
-    var file = File('$dir$fileName');
-    file.createSync(recursive: true);
-    await file.writeAsBytes(response.bodyBytes);*/
     Dio dio = Dio();
-    await dio.download(url, dir + fileName);
+    await dio.download(url, dir + fileName, deleteOnError: false);
+    dio.close();
     print('파일 다운로드 완료');
-    //sleep(const Duration(seconds: 2));
+    return true;
   } catch (ex) {
     print('오류: ' + ex.toString());
-    _errCount++;
+    return false;
   }
 }
 
-enum Result { NoPermission, CannotConnect, Success, AlreadyRunning }
+enum Result { noPermission, connectError, success, alreadyRunning }
 
-Future<Result> _startDownload(String myUrl) async {
+void cancelAllTasks() {
+  FlutterFFmpeg().cancel();
+}
+
+Future<DownloadTask> _startDownload(String myUrl) async {
+  DownloadTask result = DownloadTask();
   var request = await Permission.storage.request();
   if (request.isDenied) {
-    return Result.NoPermission;
+    result.result = Result.noPermission;
+    return result;
   }
-  Uri url;
   var client = http.Client();
 
   http.Response response;
   try {
-    url = Uri.parse(myUrl);
-    response = await client.get(url);
+    response = await client.get(Uri.parse(myUrl));
   } catch (ex) {
-    return Result.CannotConnect;
+    result.result = Result.connectError;
+    return result;
   }
 
-  var document = html.parse(response.body);
-  html.Element? title = document.querySelector(
+  var document = parser.parse(response.body);
+  dom.Element? title = document.querySelector(
       'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
 
-  var titleText = title!.innerHtml.split('\n')[1];
+  var titleText = title!.outerHtml.split('\n')[1];
 
+  if (titleText.contains('[email&nbsp;protected]')) {
+    titleText = convertEncodedTitle(titleText);
+  }
+
+  titleText = titleText.trim();
+  var invalidChar = RegExp(r'[\/:*?"<>|]');
+  if (invalidChar.hasMatch(titleText)) {
+    titleText = titleText.replaceAll(invalidChar, '');
+  }
+
+  dom.Element links = document.querySelector(
+      'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div')!;
+  List<String> arcacon = [];
+
+  links.getElementsByTagName('video').forEach((element) {
+    var eachUrl = 'https:' + element.attributes['src'].toString();
+    arcacon.add(eachUrl);
+  });
+  links.getElementsByTagName('img').forEach((element) {
+    var eachUrl = 'https:' + element.attributes['src'].toString();
+    arcacon.add(eachUrl);
+  });
+
+  int i = 0;
+
+  if (nowRunning.containsKey(titleText)) {
+    result.result = Result.alreadyRunning;
+    return result;
+  }
+
+  Fluttertoast.showToast(
+      msg: "다운로드를 시작하겠습니다!",
+      gravity: ToastGravity.BOTTOM,
+      toastLength: Toast.LENGTH_SHORT,
+      backgroundColor: Colors.black87);
+
+  int randomValue = Random.secure().nextInt(2147483647);
+  while (nowRunning.containsValue(randomValue)) {
+    randomValue = Random.secure().nextInt(2147483647);
+  }
+
+  nowRunning[titleText] = randomValue;
+  await _progressNotification(titleText, 0, 1);
+
+  var directory = '/storage/emulated/0/Download/' + titleText + '/';
+  var videoDir = directory + 'videos/';
+  var outputPalettePath = '';
+
+  while (true) {
+    if (i >= arcacon.length) break;
+
+    if (arcacon[i].endsWith('.png')) {
+      var fileType = '.png';
+
+      var res = await downloadFile(
+          arcacon[i],
+          (i + 1)
+                  .toString()
+                  .padLeft(arcacon.length.toString().length, '0')
+                  .toString() +
+              fileType,
+          directory);
+      if (res == false) result.errorCount++;
+    } else if (arcacon[i].endsWith('.jpeg')) {
+      var fileType = '.jpeg';
+      var res = await downloadFile(
+          arcacon[i],
+          (i + 1)
+                  .toString()
+                  .padLeft(arcacon.length.toString().length, '0')
+                  .toString() +
+              fileType,
+          directory);
+      if (res == false) result.errorCount++;
+    } else if (arcacon[i].endsWith('.jpg')) {
+      var fileType = '.jpg';
+      var res = await downloadFile(
+          arcacon[i],
+          (i + 1)
+                  .toString()
+                  .padLeft(arcacon.length.toString().length, '0')
+                  .toString() +
+              fileType,
+          directory);
+      if (res == false) result.errorCount++;
+    } else if (arcacon[i].endsWith('.gif')) {
+      var fileType = '.gif';
+      var res = await downloadFile(
+          arcacon[i],
+          (i + 1)
+                  .toString()
+                  .padLeft(arcacon.length.toString().length, '0')
+                  .toString() +
+              fileType,
+          directory);
+      if (res == false) result.errorCount++;
+    } else if (arcacon[i].endsWith('.mp4')) {
+      var fileType = '.mp4';
+      var fileName = (i + 1)
+          .toString()
+          .padLeft(arcacon.length.toString().length, '0')
+          .toString();
+      var convertedFileName = (i + 1)
+              .toString()
+              .padLeft(arcacon.length.toString().length, '0')
+              .toString() +
+          '.gif';
+      var res = await downloadFile(arcacon[i], fileName + fileType, videoDir);
+      if (res == false) result.errorCount++;
+      outputPalettePath = videoDir + 'palette.png';
+      await FlutterFFmpeg().executeWithArguments([
+        '-y',
+        '-i',
+        videoDir + fileName + fileType,
+        '-vf',
+        'fps=24,scale=100:-1:flags=lanczos,palettegen',
+        '-hide_banner',
+        '-loglevel',
+        'error',
+        videoDir + 'palette.png'
+      ]);
+      await FlutterFFmpeg().executeWithArguments([
+        '-y',
+        '-i',
+        videoDir + fileName + fileType,
+        '-i',
+        videoDir + 'palette.png',
+        '-filter_complex',
+        'fps=24,scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
+        '-hide_banner',
+        '-loglevel',
+        'error',
+        directory + convertedFileName
+      ]);
+      try {
+        File(outputPalettePath).deleteSync(recursive: false);
+      } catch (ex) {
+        print("오류: 팔레트 파일을 제거할 수 없음\n$ex");
+      }
+    }
+    i++;
+    await _progressNotification(titleText, i, arcacon.length);
+  }
+
+  try {
+    Directory(videoDir).deleteSync(recursive: true);
+  } catch (ex) {
+    print("오류: 원본 영상 파일을 제거할 수 없음\n$ex");
+  }
+
+  await _progressNotification(titleText, 1, 1);
+
+  await Future.delayed(const Duration(milliseconds: 500));
+  await flutterLocalNotificationsPlugin.cancel(nowRunning[titleText]!);
+  await _showNotification(titleText);
+  nowRunning.remove(titleText);
+  result.result = Result.success;
+  return result;
+}
+
+String convertEncodedTitle(String titleText) {
   for (int j = 0; j < titleText.length; j++) {
     if (titleText.contains('<a href="/cdn-cgi/l/email-protection"')) {
       var lastIndex =
@@ -88,167 +251,13 @@ Future<Result> _startDownload(String myUrl) async {
           titleText.substring(endIndex);
     }
   }
-
-  titleText = titleText.trim();
-
-  var invalidChar = RegExp(r'[\/:*?"<>|]');
-  if (invalidChar.hasMatch(titleText)) {
-    //var oldTitle = titleText;
-    titleText = titleText.replaceAll(invalidChar, '');
-  }
-
-  html.Element? links = document.querySelector(
-      'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div');
-  var arcacon = links!.innerHtml.split('\n');
-  arcacon.removeAt(0);
-  int i = 0;
-
-  if (nowRunning.containsKey(titleText)) {
-    return Result.AlreadyRunning;
-  }
-
-  Fluttertoast.showToast(
-      msg: "다운로드를 시작하겠습니다!",
-      gravity: ToastGravity.BOTTOM,
-      toastLength: Toast.LENGTH_SHORT,
-      backgroundColor: Colors.black87);
-
-  int randomValue = Random.secure().nextInt(2147483647);
-
-  while (nowRunning.containsValue(randomValue)) {
-    randomValue = Random.secure().nextInt(2147483647);
-  }
-
-  nowRunning[titleText] = randomValue;
-  await _progressNotification(titleText, 0, 1);
-
-  String outputPalettePath = '';
-  while (true) {
-    if (arcacon.length <= i) break;
-    if (arcacon[i] == '<div class="emoticon-tags">') {
-      break;
-    } else if (arcacon[i] == '') {
-      arcacon.removeAt(i);
-    }
-    if (arcacon.length <= i) break;
-    arcacon[i] = arcacon[i].replaceAll('<img loading="lazy" src="', '');
-    arcacon[i] = arcacon[i].replaceAll('"/>', '');
-    arcacon[i] = arcacon[i].replaceAll('">', '');
-    arcacon[i] = arcacon[i].replaceAll(
-        '<video loading="lazy" autoplay="" loop="" muted="" playsinline="" src="',
-        '');
-    arcacon[i] = arcacon[i].replaceAll('</video>', '');
-    arcacon[i] = arcacon[i].replaceAll(' ', '');
-    arcacon[i] = 'https:' + arcacon[i];
-
-    var directory = '/storage/emulated/0/Download/' + titleText + '/';
-
-    if (arcacon[i].endsWith('.png')) {
-      var fileType = '.png';
-
-      await downloadFile(
-          arcacon[i],
-          (i + 1)
-                  .toString()
-                  .padLeft(arcacon.length.toString().length, '0')
-                  .toString() +
-              fileType,
-          directory);
-    } else if (arcacon[i].endsWith('.jpeg')) {
-      var fileType = '.jpeg';
-      await downloadFile(
-          arcacon[i],
-          (i + 1)
-                  .toString()
-                  .padLeft(arcacon.length.toString().length, '0')
-                  .toString() +
-              fileType,
-          directory);
-    } else if (arcacon[i].endsWith('.jpg')) {
-      var fileType = '.jpg';
-      await downloadFile(
-          arcacon[i],
-          (i + 1)
-                  .toString()
-                  .padLeft(arcacon.length.toString().length, '0')
-                  .toString() +
-              fileType,
-          directory);
-    } else if (arcacon[i].endsWith('.gif')) {
-      var fileType = '.gif';
-      await downloadFile(
-          arcacon[i],
-          (i + 1)
-                  .toString()
-                  .padLeft(arcacon.length.toString().length, '0')
-                  .toString() +
-              fileType,
-          directory);
-    } else if (arcacon[i].endsWith('.mp4')) {
-      var fileType = '.mp4';
-      var fileName = (i + 1)
-          .toString()
-          .padLeft(arcacon.length.toString().length, '0')
-          .toString();
-      var videoDir = directory + 'videos/';
-      var convertedFileName = (i + 1)
-              .toString()
-              .padLeft(arcacon.length.toString().length, '0')
-              .toString() +
-          '.gif';
-      await downloadFile(arcacon[i], fileName + fileType, videoDir);
-      //String inputPath = videoDir + fileName + fileType;
-      outputPalettePath = videoDir + 'palette.png';
-      await _ffmpeg.executeWithArguments([
-        '-y',
-        '-i',
-        videoDir + fileName + fileType,
-        '-vf',
-        'fps=24,scale=100:-1:flags=lanczos,palettegen',
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        videoDir + 'palette.png'
-      ]);
-      //String outputPath = directory + convertedFileName;
-      await _ffmpeg.executeWithArguments([
-        '-y',
-        '-i',
-        videoDir + fileName + fileType,
-        '-i',
-        videoDir + 'palette.png',
-        '-filter_complex',
-        'fps=24,scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        directory + convertedFileName
-      ]);
-      try {
-        File(outputPalettePath).deleteSync(recursive: true);
-      } catch (ex) {
-        print("오류: 팔레트 파일을 제거할 수 없음\n$ex");
-      }
-    }
-    i++;
-    await _progressNotification(titleText, i, arcacon.length);
-  }
-
-  await _progressNotification(titleText, 1, 1);
-
-  await Future.delayed(const Duration(milliseconds: 500));
-  await flutterLocalNotificationsPlugin.cancel(nowRunning[titleText]!);
-  await _showNotification(titleText);
-  nowRunning.remove(titleText);
-  return Result.Success;
+  return titleText;
 }
 
 Future<void> _progressNotification(
     String conTitle, int nowProgress, int maxProgress) async {
   final AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails('Task Notifications ID', 'Task Notifications',
-          // channelDescription: '',
-          // settings
           importance: Importance.low,
           priority: Priority.low,
           channelAction: AndroidNotificationChannelAction.createIfNotExists,
@@ -259,7 +268,6 @@ Future<void> _progressNotification(
           playSound: false,
           setAsGroupSummary: false,
           autoCancel: false,
-          // progress
           showProgress: true,
           maxProgress: maxProgress,
           progress: nowProgress,
@@ -275,7 +283,6 @@ Future<void> _showNotification(String conTitle) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
           'Ended Task Notifications ID', 'Ended Task Notifications',
-          // channelDescription: '',
           channelShowBadge: true,
           importance: Importance.high,
           priority: Priority.high,
@@ -299,13 +306,6 @@ void _launchURL(BuildContext context) async {
         enableUrlBarHiding: true,
         showPageTitle: true,
         animation: CustomTabsSystemAnimation.fade(),
-        // or user defined animation.
-        // animation: const CustomTabsAnimation(
-        //   startEnter: 'slide_up',
-        //   startExit: 'android:anim/fade_out',
-        //   endEnter: 'android:anim/fade_in',
-        //   endExit: 'slide_down',
-        // ),
         extraCustomTabs: const <String>[
           // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
           'org.mozilla.firefox',
@@ -334,7 +334,7 @@ class FirstPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Result result;
+    DownloadTask result;
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -390,7 +390,6 @@ class FirstPage extends StatelessWidget {
               FloatingActionButton(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 onPressed: () async => {
-                  _errCount = 0,
                   if (textController.text.isEmpty)
                     {
                       Fluttertoast.showToast(
@@ -402,9 +401,9 @@ class FirstPage extends StatelessWidget {
                   else
                     {
                       result = await _startDownload(textController.text),
-                      if (result == Result.Success)
+                      if (result.result == Result.success)
                         {
-                          if (_errCount == 0)
+                          if (result.errorCount == 0)
                             {
                               Fluttertoast.showToast(
                                   msg: "다운로드가 완료되었어요\nDownloads 폴더를 확인해보세요!",
@@ -416,13 +415,13 @@ class FirstPage extends StatelessWidget {
                             {
                               Fluttertoast.showToast(
                                   msg:
-                                      "$_errCount개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+                                      "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
                                   gravity: ToastGravity.BOTTOM,
                                   toastLength: Toast.LENGTH_SHORT,
                                   backgroundColor: Colors.green)
                             }
                         }
-                      else if (result == Result.CannotConnect)
+                      else if (result.result == Result.connectError)
                         {
                           Fluttertoast.showToast(
                               msg: "해당 주소로 이동할 수 없습니다...",
@@ -430,7 +429,7 @@ class FirstPage extends StatelessWidget {
                               toastLength: Toast.LENGTH_SHORT,
                               backgroundColor: Colors.red)
                         }
-                      else if (result == Result.NoPermission)
+                      else if (result.result == Result.noPermission)
                         {
                           Fluttertoast.showToast(
                               msg: "허용되지 않은 권한이 있어요...",
@@ -438,7 +437,7 @@ class FirstPage extends StatelessWidget {
                               toastLength: Toast.LENGTH_SHORT,
                               backgroundColor: Colors.deepOrangeAccent)
                         }
-                      else if (result == Result.AlreadyRunning)
+                      else if (result.result == Result.alreadyRunning)
                         {
                           Fluttertoast.showToast(
                               msg: "이미 다운로드가 진행중인 아카콘입니다!",

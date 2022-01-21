@@ -63,10 +63,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(backgroundColor: Colors.white, body: FirstPage());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.detached) {
+      cancelAllTasks();
+      print("앱 종료됨");
+    }
   }
 
   @override
