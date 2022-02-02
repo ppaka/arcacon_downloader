@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'sub/first_page.dart';
+import 'sub/arcacon_list.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +14,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData lightTheme = ThemeData(
-      primarySwatch: Colors.blue,
+      primarySwatch: Colors.blueGrey,
       primaryColor: Colors.white,
-      primaryIconTheme: const IconThemeData(color: Colors.blue),
+      primaryIconTheme: const IconThemeData(color: Colors.grey),
       brightness: Brightness.light,
       backgroundColor: const Color(0xFFE5E5E5),
       dividerColor: Colors.white54,
@@ -66,7 +67,8 @@ class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.white, body: FirstPage());
+    return const Scaffold(backgroundColor: Colors.white, body: ArcaconPage());
+    //return Scaffold(backgroundColor: Colors.white, body: FirstPage());
   }
 
   @override
