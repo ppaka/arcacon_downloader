@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -8,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:flutter_custom_tabs_platform_interface/flutter_custom_tabs_platform_interface.dart';
 import 'package:dio/dio.dart';
@@ -27,10 +29,10 @@ Future<bool> downloadFile(String url, String fileName, String dir) async {
     Dio dio = Dio();
     await dio.download(url, dir + fileName, deleteOnError: false);
     dio.close();
-    print('파일 다운로드 완료');
+    print(fileName + ' 파일 다운로드 완료');
     return true;
   } catch (ex) {
-    print('오류: ' + ex.toString());
+    print(fileName + ' 오류: ' + ex.toString());
     return false;
   }
 }
@@ -38,7 +40,7 @@ Future<bool> downloadFile(String url, String fileName, String dir) async {
 enum Result { noPermission, connectError, success, alreadyRunning }
 
 void cancelAllTasks() {
-  FlutterFFmpeg().cancel();
+  FFmpegKit.cancel();
 }
 
 Future<DownloadTask> _startDownload(String myUrl) async {
@@ -201,30 +203,82 @@ Future<DownloadTask> _startDownload(String myUrl) async {
       var res = await downloadFile(con, fileName + fileType, videoDir);
       if (res == false) result.errorCount++;
       outputPalettePath = videoDir + 'palette.png';
-      await FlutterFFmpeg().executeWithArguments([
+
+      var fps = "25";
+
+      var l = await FFprobeKit.execute(
+          "-v 0 -of compact=p=0 -select_streams 0 -show_entries stream=r_frame_rate '${videoDir + fileName + fileType}'");
+      await l.getOutput().then((value) => {
+            if (value != null)
+              {
+                value = value.replaceAll("r_frame_rate=", ""),
+                print("프레임" + value),
+                fps = value
+              }
+          });
+
+      await FFmpegKit.executeWithArguments([
         '-y',
         '-i',
         videoDir + fileName + fileType,
         '-vf',
-        'fps=24,scale=100:-1:flags=lanczos,palettegen',
+        'fps=$fps,scale=100:-1:flags=lanczos,palettegen',
         '-hide_banner',
         '-loglevel',
         'error',
         videoDir + 'palette.png'
-      ]);
-      await FlutterFFmpeg().executeWithArguments([
+      ]).then((session) async {
+        final returnCode = await session.getReturnCode();
+
+        if (ReturnCode.isSuccess(returnCode)) {
+          print(fileName +
+              fileType +
+              " 팔레트 추출 성공 " +
+              returnCode!.getValue().toString());
+        } else if (ReturnCode.isCancel(returnCode)) {
+          print(fileName +
+              fileType +
+              " 팔레트 추출 취소 " +
+              returnCode!.getValue().toString());
+        } else {
+          print(fileName +
+              fileType +
+              " 팔레트 추출 오류 " +
+              returnCode!.getValue().toString());
+        }
+      });
+      await FFmpegKit.executeWithArguments([
         '-y',
         '-i',
         videoDir + fileName + fileType,
         '-i',
         videoDir + 'palette.png',
         '-filter_complex',
-        'fps=24,scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
+        'fps=$fps,scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
         '-hide_banner',
         '-loglevel',
         'error',
         directory + convertedFileName
-      ]);
+      ]).then((session) async {
+        final returnCode = await session.getReturnCode();
+
+        if (ReturnCode.isSuccess(returnCode)) {
+          print(fileName +
+              fileType +
+              " gif 변환 성공 " +
+              returnCode!.getValue().toString());
+        } else if (ReturnCode.isCancel(returnCode)) {
+          print(fileName +
+              fileType +
+              " gif 변환 취소 " +
+              returnCode!.getValue().toString());
+        } else {
+          print(fileName +
+              fileType +
+              " gif 변환 오류 " +
+              returnCode!.getValue().toString());
+        }
+      });
       try {
         File(outputPalettePath).deleteSync(recursive: false);
       } catch (ex) {
