@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class ArcaconPage extends StatefulWidget {
   const ArcaconPage({Key? key}) : super(key: key);
@@ -12,6 +13,8 @@ class ArcaconPage extends StatefulWidget {
 }
 
 int lastLoadPage = 0;
+int nowWorkingPage = -1;
+late int lastPage;
 List<PreviewArcaconItem> previewList = [];
 Map<int, VideoPlayerControllerItem> videoControllers = {};
 late Future<List<PreviewArcaconItem>> items;
@@ -21,25 +24,71 @@ class VideoPlayerControllerItem {
   late bool isPlaying;
 }
 
+String _convertEncodedTitle(String titleText) {
+  for (int j = 0; j < titleText.length; j++) {
+    if (titleText.contains('<span class="__cf_email__"')) {
+      var lastIndex = titleText.lastIndexOf('<span class="__cf_email__"');
+      var endIndex = titleText.lastIndexOf('</span>') + 7;
+      var emailSource = titleText.substring(lastIndex, endIndex);
+
+      var valueStartIndex = emailSource.lastIndexOf('data-cfemail="') + 14;
+      var valueEndIndex = emailSource.lastIndexOf('">[email&nbsp;protected]');
+
+      var encodedString = emailSource.substring(valueStartIndex, valueEndIndex);
+      var email = "",
+          r = int.parse(encodedString.substring(0, 2), radix: 16),
+          n = 0,
+          enI = 0;
+      for (n = 2; encodedString.length - n > 0; n += 2) {
+        enI = int.parse(encodedString.substring(n, n + 2), radix: 16) ^ r;
+        email += String.fromCharCode(enI);
+      }
+
+      titleText = titleText.substring(0, lastIndex) +
+          email +
+          titleText.substring(endIndex);
+    }
+  }
+  return titleText;
+}
+
 Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
   if (loadFirstPage) {
     return Future<List<PreviewArcaconItem>>.delayed(const Duration(seconds: 0),
         () async {
       int targetPage = 1;
-      String url = "https://arca.live/e/?p={$targetPage}";
+      nowWorkingPage = 1;
+      String url = "https://arca.live/e/?p=$targetPage";
 
       http.Client client = http.Client();
       http.Response response = await client.get(Uri.parse(url));
       var document = parser.parse(response.body);
 
+      dom.Element? lastPageDocu = document.querySelector(
+          'body > div.root-container > div.content-wrapper.clearfix > article > div > div > nav > ul');
+      var lastPageLinkBody = lastPageDocu!
+          .children[lastPageDocu.children.length - 1]
+          .children[0]
+          .attributes['href'];
+      var lastPageNumber = lastPageLinkBody!.replaceAll('/e/?p=', '');
+      lastPage = int.parse(lastPageNumber);
+
       dom.Element? parsed = document.querySelector(
           'body > div.root-container > div.content-wrapper.clearfix > article > div > div > div.emoticon-list');
       parsed!.children.removeAt(0);
       previewList.clear();
-      print(previewList.length);
 
       for (var element in parsed.children) {
         String title = element.children[0].children[1].children[0].text;
+        if (element.children[0].children[1].children[0].outerHtml
+            .contains('[email&nbsp;protected]')) {
+          print(title + '-> 제목 변환');
+          title = element.children[0].children[1].children[0].outerHtml
+              .replaceAll('<div class="title">', '');
+          title = title.replaceAll('</div>', '');
+          title = _convertEncodedTitle(title);
+        }
+
         String count = element.children[0].children[1].children[1].text;
         String maker = element.children[0].children[1].children[2].text;
         print(title);
@@ -61,6 +110,13 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
   return Future<List<PreviewArcaconItem>>.delayed(const Duration(seconds: 0),
       () async {
     int targetPage = lastLoadPage + 1;
+    if (targetPage == lastPage) {
+      return previewList;
+    }
+    if (nowWorkingPage == targetPage) {
+      return previewList;
+    }
+    nowWorkingPage = targetPage;
     String url = "https://arca.live/e/?p=$targetPage";
     print(url);
 
@@ -71,10 +127,18 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
     dom.Element? parsed = document.querySelector(
         'body > div.root-container > div.content-wrapper.clearfix > article > div > div > div.emoticon-list');
     parsed!.children.removeAt(0);
-    print(previewList.length);
 
     for (var element in parsed.children) {
       String title = element.children[0].children[1].children[0].text;
+      if (element.children[0].children[1].children[0].outerHtml
+          .contains('[email&nbsp;protected]')) {
+        print(title + '-> 제목 변환');
+        title = element.children[0].children[1].children[0].outerHtml
+            .replaceAll('<div class="title">', '');
+        title = title.replaceAll('</div>', '');
+        title = _convertEncodedTitle(title);
+      }
+
       String count = element.children[0].children[1].children[1].text;
       String maker = element.children[0].children[1].children[2].text;
       print(title);
@@ -127,18 +191,17 @@ Future<void> requestMore() async {
     nextPage += 1;
   });*/
 
-  loadPage(false).onError((error, stackTrace) {
+  await loadPage(false).onError((error, stackTrace) {
     print(error);
     return previewList;
   });
 
   // 가상으로 잠시 지연 줌
-  return await Future.delayed(const Duration(milliseconds: 1000));
+  return await Future.delayed(const Duration(milliseconds: 0));
 }
 
 class _ArcaconListPage extends State<ArcaconPage> {
   Future<void> requestNew() async {
-    print('request New');
     previewList.clear();
     videoControllers.forEach((key, value) {
       value.controller.dispose();
@@ -213,10 +276,25 @@ class _ArcaconListPage extends State<ArcaconPage> {
     }
   }
 
+  Future<Image> loadThumbnailImage(AsyncSnapshot snapshot, int index) {
+    return Future<Image>.delayed(const Duration(seconds: 0), () async {
+      var thumbnail = await VideoThumbnail.thumbnailData(
+        video: snapshot.data![index].imageUrl,
+        imageFormat: ImageFormat.PNG,
+        maxWidth: 100,
+        maxHeight: 100,
+        timeMs: 0,
+        quality: 100,
+      );
+
+      return Image.memory(thumbnail!);
+    });
+  }
+
   Future<VideoPlayerController> loadVideo(AsyncSnapshot snapshot, int index) {
     return Future<VideoPlayerController>.delayed(
       const Duration(seconds: 0),
-      () {
+      () async {
         VideoPlayerController controller = VideoPlayerController.network(
           snapshot.data![index].imageUrl,
           videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
@@ -267,7 +345,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
                               ),
                               if (snapshot.data![position].imageUrl
                                   .endsWith('mp4'))
-                                const SizedBox(
+                                SizedBox(
                                     width: 100,
                                     height: 100,
                                     child: /*FutureBuilder(
@@ -315,12 +393,39 @@ class _ArcaconListPage extends State<ArcaconPage> {
                                       return const CircularProgressIndicator();
                                     },
                                   ),*/
-                                        CircularProgressIndicator())
+                                        FutureBuilder(
+                                            future: loadThumbnailImage(
+                                                snapshot, position),
+                                            builder: (context,
+                                                AsyncSnapshot<Image> snapshot) {
+                                              if (snapshot.hasData) {
+                                                return snapshot.data!;
+                                              } else if (snapshot.hasError) {
+                                                return const Icon(Icons.warning,
+                                                    color: Colors.red,
+                                                    size: 50);
+                                              }
+                                              return const CircularProgressIndicator();
+                                            }))
                               else
                                 Image.network(
                                   snapshot.data![position].imageUrl,
                                   width: 100,
                                   height: 100,
+                                  errorBuilder: (BuildContext context,
+                                      Object obj, StackTrace? trace) {
+                                    return const Center(
+                                      child: SizedBox(
+                                        width: 100,
+                                        height: 100,
+                                        child: Icon(
+                                          Icons.error,
+                                          size: 50,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                   loadingBuilder: (BuildContext context,
                                       Widget child,
                                       ImageChunkEvent? loadingProgress) {
