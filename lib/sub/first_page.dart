@@ -97,7 +97,14 @@ Future<DownloadTask> _startDownload(String myUrl) async {
 
   print(totalCount);
 
-  if (eachLines[0] == '<div class="emoticons-wrapper">') {
+  for (var element in links.children) {
+    print(element.runtimeType);
+    if(element.toString().startsWith('<div'))
+      break;
+    arcacon.add('https:'+element.attributes['src'].toString());
+  }
+
+  /*if (eachLines[0] == '<div class="emoticons-wrapper">') {
     for (int i = 0; i < eachLines.length; i++) {
       eachLines.remove(' ');
       eachLines.remove('');
@@ -116,7 +123,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
       arcacon[i] = arcacon[i].replaceAll(' ', '');
       arcacon[i] = 'https:' + arcacon[i];
     }
-  }
+  }*/
 
   int count = 0;
 
@@ -173,7 +180,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
           con,
           (count + 1)
                   .toString()
-                  .padLeft(con.length.toString().length, '0')
+                  .padLeft(arcacon.length.toString().length, '0')
                   .toString() +
               fileType,
           directory);
