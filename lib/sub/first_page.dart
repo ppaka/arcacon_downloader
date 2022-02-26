@@ -92,38 +92,16 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     totalCount++;
   });
 
-  var eachLines = links.outerHtml.split('\n');
   List<String> arcacon = [];
 
   print(totalCount);
 
   for (var element in links.children) {
-    print(element.runtimeType);
-    if(element.toString().startsWith('<div'))
+    if(element.toString().startsWith('<div')) {
       break;
+    }
     arcacon.add('https:'+element.attributes['src'].toString());
   }
-
-  /*if (eachLines[0] == '<div class="emoticons-wrapper">') {
-    for (int i = 0; i < eachLines.length; i++) {
-      eachLines.remove(' ');
-      eachLines.remove('');
-    }
-    Iterable<String> range = eachLines.getRange(1, (totalCount + 1));
-    arcacon.addAll(range);
-    for (int i = 0; i < arcacon.length; i++) {
-      arcacon[i] = arcacon[i].replaceAll('<img loading="lazy" src="', '');
-      arcacon[i] = arcacon[i].replaceAll('"/>', '');
-      arcacon[i] = arcacon[i].replaceAll('">', '');
-
-      arcacon[i] = arcacon[i].replaceAll(
-          '<video loading="lazy" autoplay="" loop="" muted="" playsinline="" src="',
-          '');
-      arcacon[i] = arcacon[i].replaceAll('</video>', '');
-      arcacon[i] = arcacon[i].replaceAll(' ', '');
-      arcacon[i] = 'https:' + arcacon[i];
-    }
-  }*/
 
   int count = 0;
 
