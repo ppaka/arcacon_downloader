@@ -12,7 +12,6 @@ import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
-import 'package:flutter_custom_tabs_platform_interface/flutter_custom_tabs_platform_interface.dart';
 import 'package:dio/dio.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -97,10 +96,10 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   print(totalCount);
 
   for (var element in links.children) {
-    if(element.toString().startsWith('<div')) {
+    if (element.toString().startsWith('<div')) {
       break;
     }
-    arcacon.add('https:'+element.attributes['src'].toString());
+    arcacon.add('https:' + element.attributes['src'].toString());
   }
 
   int count = 0;
@@ -472,7 +471,7 @@ class FirstPage extends StatelessWidget {
                           if (result.errorCount == 0)
                             {
                               Fluttertoast.showToast(
-                                  msg: "다운로드가 완료되었어요\nDownloads 폴더를 확인해보세요!",
+                                  msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
                                   gravity: ToastGravity.BOTTOM,
                                   toastLength: Toast.LENGTH_SHORT,
                                   backgroundColor: Colors.indigoAccent)
