@@ -188,7 +188,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
       if (res == false) result.errorCount++;
       outputPalettePath = videoDir + 'palette.png';
 
-      var fps = "25";
+      var fps = 25.0;
 
       var l = await FFprobeKit.execute(
           "-v 0 -of compact=p=0 -select_streams 0 -show_entries stream=r_frame_rate '${videoDir + fileName + fileType}'");
@@ -196,17 +196,23 @@ Future<DownloadTask> _startDownload(String myUrl) async {
             if (value != null)
               {
                 value = value.replaceAll("r_frame_rate=", ""),
-                print("프레임" + value),
-                fps = value
+                fps = double.parse(value.split('/')[0]) /
+                    double.parse(value.split('/')[1]),
+                print("프레임: " + value + " ($fps)"),
               }
           });
+
+      while (fps > 50) {
+        fps = fps / 2;
+        print("프레임 변경: " + fps.toString());
+      }
 
       await FFmpegKit.executeWithArguments([
         '-y',
         '-i',
         videoDir + fileName + fileType,
         '-vf',
-        'fps=$fps,scale=100:-1:flags=lanczos,palettegen',
+        'scale=100:-1:flags=lanczos,palettegen',
         '-hide_banner',
         '-loglevel',
         'error',
@@ -238,10 +244,12 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         '-i',
         videoDir + 'palette.png',
         '-filter_complex',
-        'fps=$fps,scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
+        'scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
         '-hide_banner',
         '-loglevel',
         'error',
+        '-r',
+        fps.toString(),
         directory + convertedFileName
       ]).then((session) async {
         final returnCode = await session.getReturnCode();
@@ -261,6 +269,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
               fileType +
               " gif 변환 오류 " +
               returnCode!.getValue().toString());
+          result.errorCount++;
         }
       });
       try {
