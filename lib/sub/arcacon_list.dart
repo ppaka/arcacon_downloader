@@ -479,6 +479,8 @@ class _ArcaconListPage extends State<ArcaconPage> {
                         ),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6)),
+                        borderOnForeground: false,
+                        elevation: 10,
                       );
                     },
                     physics: const AlwaysScrollableScrollPhysics(),
