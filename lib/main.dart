@@ -113,8 +113,8 @@ class _MyPageState extends State<MyPage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
-    //return const Scaffold(backgroundColor: Colors.white, body: ArcaconPage());
-    return Scaffold(backgroundColor: Colors.white, body: FirstPage());
+    return const Scaffold(backgroundColor: Colors.white, body: ArcaconPage());
+    //return Scaffold(backgroundColor: Colors.white, body: FirstPage());
   }
 
   @override
