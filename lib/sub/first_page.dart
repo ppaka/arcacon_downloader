@@ -405,7 +405,7 @@ class FirstPage extends StatelessWidget {
   FirstPage({Key? key}) : super(key: key);
 
   final TextEditingController textController = TextEditingController();
-  FocusNode textFocus = FocusNode();
+  final FocusNode textFocus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
