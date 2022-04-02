@@ -405,126 +405,142 @@ class FirstPage extends StatelessWidget {
   FirstPage({Key? key}) : super(key: key);
 
   final TextEditingController textController = TextEditingController();
+  FocusNode textFocus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     DownloadTask result;
-    return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('아카콘 다운로더'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: TextField(
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelStyle: TextStyle(fontSize: 20),
-                      labelText: '아카콘 링크'),
-                  controller: textController,
-                  keyboardType: TextInputType.url,
-                ),
-              ),
-              ElevatedButton(
-                  onPressed: () async {
-                    ClipboardData? data = await Clipboard.getData('text/plain');
-                    if (data != null) {
-                      if (data.text != null) {
-                        textController.text = data.text!;
-                      }
-                    }
-                  },
-                  child: const Text('붙여넣기')),
-            ],
+    return GestureDetector(
+      onTap: () {
+        textFocus.unfocus();
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+            elevation: 0,
+            centerTitle: true,
+            title: const Text('아카콘 다운로더'),
           ),
-        ),
-        floatingActionButton: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                onPressed: () async {
-                  _launchURL(context);
-                },
-                tooltip: '웹에서 검색',
-                child: Icon(
-                  Icons.search,
-                  color: Theme.of(context).colorScheme.primary,
+          backgroundColor: Theme.of(context).backgroundColor,
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20),
+                  child: TextField(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(fontSize: 20),
+                        labelText: '아카콘 링크'),
+                    controller: textController,
+                    keyboardType: TextInputType.url,
+                    focusNode: textFocus,
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              FloatingActionButton(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                onPressed: () async => {
-                  if (textController.text.isEmpty)
-                    {
-                      Fluttertoast.showToast(
-                          msg: "주소를 입력해주세요!",
-                          gravity: ToastGravity.BOTTOM,
-                          toastLength: Toast.LENGTH_SHORT,
-                          backgroundColor: Colors.redAccent[400])
-                    }
-                  else
-                    {
-                      result = await _startDownload(textController.text),
-                      if (result.result == Result.success)
-                        {
-                          if (result.errorCount == 0)
-                            {
-                              Fluttertoast.showToast(
-                                  msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
-                                  gravity: ToastGravity.BOTTOM,
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  backgroundColor: Colors.indigoAccent)
-                            }
-                          else
-                            {
-                              Fluttertoast.showToast(
-                                  msg:
-                                      "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
-                                  gravity: ToastGravity.BOTTOM,
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  backgroundColor: Colors.green)
-                            }
+                const SizedBox(
+                  width: 0,
+                  height: 4,
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      ClipboardData? data =
+                          await Clipboard.getData('text/plain');
+                      if (data != null) {
+                        if (data.text != null) {
+                          textController.text = data.text!;
                         }
-                      else if (result.result == Result.connectError)
-                        {
-                          Fluttertoast.showToast(
-                              msg: "해당 주소로 이동할 수 없습니다...",
-                              gravity: ToastGravity.BOTTOM,
-                              toastLength: Toast.LENGTH_SHORT,
-                              backgroundColor: Colors.red)
-                        }
-                      else if (result.result == Result.noPermission)
-                        {
-                          Fluttertoast.showToast(
-                              msg: "허용되지 않은 권한이 있어요...",
-                              gravity: ToastGravity.BOTTOM,
-                              toastLength: Toast.LENGTH_SHORT,
-                              backgroundColor: Colors.deepOrangeAccent)
-                        }
-                      else if (result.result == Result.alreadyRunning)
-                        {
-                          Fluttertoast.showToast(
-                              msg: "이미 다운로드가 진행중인 아카콘입니다!",
-                              gravity: ToastGravity.BOTTOM,
-                              toastLength: Toast.LENGTH_SHORT,
-                              backgroundColor: Colors.red)
-                        },
-                    }
-                },
-                tooltip: '다운로드 시작',
-                child: Icon(Icons.download,
-                    color: Theme.of(context).colorScheme.secondary),
-              ),
-            ]));
+                      }
+                    },
+                    child: const Text('붙여넣기')),
+              ],
+            ),
+          ),
+          floatingActionButton: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  backgroundColor: const Color(0xFF9A9895),
+                  onPressed: () async {
+                    _launchURL(context);
+                  },
+                  tooltip: '웹에서 검색',
+                  child: const Icon(
+                    Icons.search,
+                    color: Colors.white,
+                  ),
+                  mini: true,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                FloatingActionButton(
+                  backgroundColor: const Color(0xFF9A9895),
+                  onPressed: () async => {
+                    if (textController.text.isEmpty)
+                      {
+                        Fluttertoast.showToast(
+                            msg: "주소를 입력해주세요!",
+                            gravity: ToastGravity.BOTTOM,
+                            toastLength: Toast.LENGTH_SHORT,
+                            backgroundColor: Colors.redAccent[400])
+                      }
+                    else
+                      {
+                        result = await _startDownload(textController.text),
+                        if (result.result == Result.success)
+                          {
+                            if (result.errorCount == 0)
+                              {
+                                Fluttertoast.showToast(
+                                    msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
+                                    gravity: ToastGravity.BOTTOM,
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    backgroundColor: Colors.indigoAccent)
+                              }
+                            else
+                              {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+                                    gravity: ToastGravity.BOTTOM,
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    backgroundColor: Colors.green)
+                              }
+                          }
+                        else if (result.result == Result.connectError)
+                          {
+                            Fluttertoast.showToast(
+                                msg: "해당 주소로 이동할 수 없습니다...",
+                                gravity: ToastGravity.BOTTOM,
+                                toastLength: Toast.LENGTH_SHORT,
+                                backgroundColor: Colors.red)
+                          }
+                        else if (result.result == Result.noPermission)
+                          {
+                            Fluttertoast.showToast(
+                                msg: "허용되지 않은 권한이 있어요...",
+                                gravity: ToastGravity.BOTTOM,
+                                toastLength: Toast.LENGTH_SHORT,
+                                backgroundColor: Colors.deepOrangeAccent)
+                          }
+                        else if (result.result == Result.alreadyRunning)
+                          {
+                            Fluttertoast.showToast(
+                                msg: "이미 다운로드가 진행중인 아카콘입니다!",
+                                gravity: ToastGravity.BOTTOM,
+                                toastLength: Toast.LENGTH_SHORT,
+                                backgroundColor: Colors.red)
+                          },
+                      }
+                  },
+                  tooltip: '다운로드 시작',
+                  child: const Icon(Icons.download, color: Colors.white),
+                  mini: true,
+                ),
+              ])),
+    );
   }
 }
