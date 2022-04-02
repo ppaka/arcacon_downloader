@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
@@ -54,8 +55,7 @@ String _convertEncodedTitle(String titleText) {
 
 Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
   if (loadFirstPage) {
-    return Future<List<PreviewArcaconItem>>.delayed(const Duration(seconds: 0),
-        () async {
+    return Future<List<PreviewArcaconItem>>(() async {
       int targetPage = 1;
       nowWorkingPage = 1;
       String url = "https://arca.live/e/?p=$targetPage";
@@ -107,8 +107,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
     });
   }
 
-  return Future<List<PreviewArcaconItem>>.delayed(const Duration(seconds: 0),
-      () async {
+  return Future<List<PreviewArcaconItem>>(() async {
     int targetPage = lastLoadPage + 1;
     if (targetPage == lastPage) {
       return previewList;
@@ -159,6 +158,7 @@ class PreviewArcaconItem {
   final String pageUrl;
   final String imageUrl;
   final String title, count, maker;
+
   PreviewArcaconItem(
       this.pageUrl, this.imageUrl, this.title, this.count, this.maker);
 }
@@ -197,7 +197,7 @@ Future<void> requestMore() async {
   });
 
   // 가상으로 잠시 지연 줌
-  return await Future.delayed(const Duration(milliseconds: 0));
+  // return await Future.delayed(const Duration(milliseconds: 0));
 }
 
 class _ArcaconListPage extends State<ArcaconPage> {
@@ -212,16 +212,16 @@ class _ArcaconListPage extends State<ArcaconPage> {
     });
 
     /*nextPage = 0;
-  items.clear();
-  setState(() {
-    items += serverItems.sublist(nextPage * 10, (nextPage * 10) + 10);
-    // 다음을 위해 페이지 증가
-    nextPage += 1;
-  });*/
+    items.clear();
+    setState(() {
+      items += serverItems.sublist(nextPage * 10, (nextPage * 10) + 10);
+      // 다음을 위해 페이지 증가
+      nextPage += 1;
+    });
 
-    // 데이터 가져오는 동안 효과를 보여주기 위해 약 1초간 대기하는 것
-    // 실제 서버에서 가져올땐 필요없음
-    return await Future.delayed(const Duration(milliseconds: 1000));
+    데이터 가져오는 동안 효과를 보여주기 위해 약 1초간 대기하는 것
+    실제 서버에서 가져올땐 필요없음
+    return await Future.delayed(const Duration(milliseconds: 1000));*/
   }
 
   double _dragDistance = 0;
@@ -277,7 +277,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
   }
 
   Future<Image> loadThumbnailImage(AsyncSnapshot snapshot, int index) {
-    return Future<Image>.delayed(const Duration(seconds: 0), () async {
+    return Future<Image>(() async {
       var thumbnail = await VideoThumbnail.thumbnailData(
         video: snapshot.data![index].imageUrl,
         imageFormat: ImageFormat.PNG,
@@ -292,8 +292,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
   }
 
   Future<VideoPlayerController> loadVideo(AsyncSnapshot snapshot, int index) {
-    return Future<VideoPlayerController>.delayed(
-      const Duration(seconds: 0),
+    return Future<VideoPlayerController>(
       () async {
         VideoPlayerController controller = VideoPlayerController.network(
           snapshot.data![index].imageUrl,
@@ -319,7 +318,15 @@ class _ArcaconListPage extends State<ArcaconPage> {
 
   @override
   Widget build(BuildContext context) {
+    const double itemHeight = (100 + 70);
+    const double itemWidth = 100 + 20;
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('목록'),
+        elevation: 0,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      ),
+      backgroundColor: Theme.of(context).backgroundColor,
       body: Center(
         child: FutureBuilder(
           future: items,
@@ -330,22 +337,26 @@ class _ArcaconListPage extends State<ArcaconPage> {
                   scrollNotification(notification);
                   return false;
                 },
-                child: RefreshIndicator(
-                  onRefresh: requestNew,
-                  child: GridView.builder(
-                    itemBuilder: (context, position) {
-                      return Card(
-                        child: SizedBox(
-                          height: 10,
-                          width: 50,
+                child: ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context).copyWith(
+                    dragDevices: {
+                      PointerDeviceKind.touch,
+                      PointerDeviceKind.mouse,
+                    },
+                  ),
+                  child: RefreshIndicator(
+                    onRefresh: requestNew,
+                    child: GridView.builder(
+                      itemBuilder: (context, position) {
+                        return Card(
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const SizedBox(
-                                height: 10.0,
-                              ),
                               if (snapshot.data![position].imageUrl
                                   .endsWith('mp4'))
-                                SizedBox(
+                                Container(
+                                  child: SizedBox(
                                     width: 100,
                                     height: 100,
                                     child: /*FutureBuilder(
@@ -357,7 +368,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
                                         print("영상있음");
                                         //return VideoPlayer(snapshot.data!);
                                         return const CircularProgressIndicator();
-                                        */ /*return VisibilityDetector(
+                                        return VisibilityDetector(
                                           key: UniqueKey(),
                                           child: videoControllers[position]!
                                               .player,
@@ -367,7 +378,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
                                                 .controller
                                                 .onPlayerVisibilityChanged(
                                                     info.visibleFraction);
-                                            */ /* */ /*if (info.visibleFraction == 0) {
+                                            if (info.visibleFraction == 0) {
                                             videoControllers[position]!
                                                 .player
                                                 .controller
@@ -385,8 +396,8 @@ class _ArcaconListPage extends State<ArcaconPage> {
                                               videoControllers[position]!
                                                   .isPlaying = true;
                                             }
-                                          }*/ /* */ /*
-                                          });*/ /*
+                                          }
+                                          });
                                       }
 
                                       print('영상 없음');
@@ -401,58 +412,64 @@ class _ArcaconListPage extends State<ArcaconPage> {
                                               if (snapshot.hasData) {
                                                 return snapshot.data!;
                                               } else if (snapshot.hasError) {
-                                                return const Icon(Icons.warning,
+                                                return const Icon(
+                                                    Icons.play_circle,
                                                     color: Colors.red,
                                                     size: 50);
                                               }
                                               return const CircularProgressIndicator();
-                                            }))
+                                            }),
+                                  ),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                )
                               else
-                                Image.network(
-                                  snapshot.data![position].imageUrl,
-                                  width: 100,
-                                  height: 100,
-                                  errorBuilder: (BuildContext context,
-                                      Object obj, StackTrace? trace) {
-                                    return const Center(
-                                      child: SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: Icon(
-                                          Icons.error,
-                                          size: 50,
-                                          color: Colors.red,
+                                Container(
+                                  child: Image.network(
+                                    snapshot.data![position].imageUrl,
+                                    width: 100,
+                                    height: 100,
+                                    errorBuilder: (BuildContext context,
+                                        Object obj, StackTrace? trace) {
+                                      return const Center(
+                                        child: SizedBox(
+                                          width: 100,
+                                          height: 100,
+                                          child: Icon(
+                                            Icons.error,
+                                            size: 50,
+                                            color: Colors.red,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  loadingBuilder: (BuildContext context,
-                                      Widget child,
-                                      ImageChunkEvent? loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    }
-                                    return Center(
-                                      child: SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
+                                      );
+                                    },
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      }
+                                      return Center(
+                                        child: SizedBox(
+                                          width: 100,
+                                          height: 100,
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
+                                      );
+                                    },
+                                  ),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                 ),
-                              const SizedBox(
-                                height: 10.0,
-                              ),
                               Container(
                                 child: Text(
                                   snapshot.data![position].title,
@@ -460,10 +477,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
                                       fontWeight: FontWeight.bold),
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              ),
-                              const SizedBox(
-                                height: 5.0,
+                                margin: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                               ),
                               Container(
                                 child: Text(
@@ -472,26 +486,26 @@ class _ArcaconListPage extends State<ArcaconPage> {
                                       fontWeight: FontWeight.normal),
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                                margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                               ),
                             ],
                           ),
-                        ),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        borderOnForeground: false,
-                        elevation: 10,
-                      );
-                    },
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: snapshot.data!.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 150,
-                      //crossAxisCount: 3, //1 개의 행에 보여줄 item 개수
-                      childAspectRatio: 1 / 1.4, //item 의 가로 1, 세로 2 의 비율
-                      mainAxisSpacing: 10, //수평 Padding
-                      crossAxisSpacing: 10, //수직 Padding
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                          borderOnForeground: false,
+                          elevation: 10,
+                        );
+                      },
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 130,
+                        mainAxisSpacing: 7, //수평 Padding
+                        crossAxisSpacing: 7, //수직 Padding
+                        mainAxisExtent: 180,
+                        //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
+                      ),
                     ),
                   ),
                 ),
