@@ -210,58 +210,6 @@ class _ArcaconPageState extends State<ArcaconPage>
     });
   }
 
-  double _dragDistance = 0;
-
-  scrollNotification(notification) {
-    // 스크롤 최대 범위
-    var containerExtent = notification.metrics.viewportDimension;
-
-    if (notification is ScrollStartNotification) {
-      // 스크롤을 시작하면 발생(손가락으로 리스트를 누르고 움직이려고 할때)
-      // 스크롤 거리값을 0으로 초기화함
-      _dragDistance = 0;
-    } else if (notification is OverscrollNotification) {
-      // 안드로이드에서 동작
-      // 스크롤을 시작후 움직일때 발생(손가락으로 리스트를 누르고 움직이고 있을때 계속 발생)
-      // 스크롤 움직인 만큼 빼준다.(notification.overscroll)
-      _dragDistance -= notification.overscroll;
-    } else if (notification is ScrollUpdateNotification) {
-      // ios에서 동작
-      // 스크롤을 시작후 움직일때 발생(손가락으로 리스트를 누르고 움직이고 있을때 계속 발생)
-      // 스크롤 움직인 만큼 빼준다.(notification.scrollDelta)
-      _dragDistance -= notification.scrollDelta!;
-    } else if (notification is ScrollEndNotification) {
-      // 스크롤이 끝났을때 발생(손가락을 리스트에서 움직이다가 뗐을때 발생)
-
-      // 지금까지 움직인 거리를 최대 거리로 나눈다.
-      var percent = _dragDistance / (containerExtent);
-      // 해당 값이 -0.4(40프로 이상) 아래서 위로 움직였다면
-      if (percent <= -0.4) {
-        // maxScrollExtent는 리스트 가장 아래 위치 값
-        // pixels는 현재 위치 값
-        // 두 같이 같다면(스크롤이 가장 아래에 있다)
-        if (notification.metrics.maxScrollExtent ==
-            notification.metrics.pixels) {
-          debugPrint("데이터 로드");
-
-          setState(() {
-            // 서버에서 데이터를 더 가져오는 효과를 주기 위함
-            // 하단에 프로그레스 서클 표시용
-            // isMoreRequesting = true;
-          });
-
-          // 서버에서 데이터 가져온다.
-          requestMore().then((value) {
-            setState(() {
-              // 다 가져오면 하단 표시 서클 제거
-              // isMoreRequesting = false;
-            });
-          });
-        }
-      }
-    }
-  }
-
   Future<Image> loadThumbnailImage(AsyncSnapshot snapshot, int index) {
     return Future<Image>(() async {
       var thumbnail = await VideoThumbnail.thumbnailData(
@@ -306,8 +254,10 @@ class _ArcaconPageState extends State<ArcaconPage>
 
     scrollController.addListener(() {
       if (scrollController.offset >
-          scrollController.position.maxScrollExtent * 0.35) {
-        requestMore();
+          scrollController.position.maxScrollExtent * 0.4) {
+        requestMore().then((value) => setState(
+              () {},
+            ));
       }
     });
   }
@@ -333,41 +283,36 @@ class _ArcaconPageState extends State<ArcaconPage>
           future: items,
           builder: (context, AsyncSnapshot<List<PreviewArcaconItem>> snapshot) {
             if (snapshot.hasData) {
-              return NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification notification) {
-                  scrollNotification(notification);
-                  return false;
-                },
-                child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(
-                    dragDevices: {
-                      PointerDeviceKind.touch,
-                      PointerDeviceKind.mouse,
-                    },
-                  ),
-                  child: RefreshIndicator(
-                    onRefresh: requestNew,
-                    child: GridView.builder(
-                      controller: scrollController,
-                      itemBuilder: (context, position) {
-                        return Card(
-                          child: GestureDetector(
-                            onTap: () {
-                              debugPrint('누름');
-                            },
-                            child: Container(
-                              color: Colors.transparent,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  if (snapshot.data![position].imageUrl
-                                      .endsWith('mp4'))
-                                    Container(
-                                      child: SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: /*FutureBuilder(
+              return ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                ),
+                child: RefreshIndicator(
+                  onRefresh: requestNew,
+                  child: GridView.builder(
+                    controller: scrollController,
+                    itemBuilder: (context, position) {
+                      return Card(
+                        child: GestureDetector(
+                          onTap: () {
+                            debugPrint('누름');
+                          },
+                          child: Container(
+                            color: Colors.transparent,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                if (snapshot.data![position].imageUrl
+                                    .endsWith('mp4'))
+                                  Container(
+                                    child: SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: /*FutureBuilder(
                                         future: loadVideo(snapshot, position),
                                         builder: (context,
                                             AsyncSnapshot<VideoPlayerController>
@@ -412,114 +357,111 @@ class _ArcaconPageState extends State<ArcaconPage>
                                           return const CircularProgressIndicator();
                                         },
                                       ),*/
-                                            FutureBuilder(
-                                                future: loadThumbnailImage(
-                                                    snapshot, position),
-                                                builder: (context,
-                                                    AsyncSnapshot<Image>
-                                                        snapshot) {
-                                                  if (snapshot.hasData) {
-                                                    return snapshot.data!;
-                                                  } else if (snapshot
-                                                      .hasError) {
-                                                    return const Icon(
-                                                        Icons.play_circle,
-                                                        color: Colors.red,
-                                                        size: 50);
-                                                  }
-                                                  return const CircularProgressIndicator();
-                                                }),
-                                      ),
-                                      margin: const EdgeInsets.fromLTRB(
-                                          0, 10, 0, 0),
-                                    )
-                                  else
-                                    Container(
-                                      child: Image.network(
-                                        snapshot.data![position].imageUrl,
-                                        width: 100,
-                                        height: 100,
-                                        errorBuilder: (BuildContext context,
-                                            Object obj, StackTrace? trace) {
-                                          return const Center(
-                                            child: SizedBox(
-                                              width: 100,
-                                              height: 100,
-                                              child: Icon(
-                                                Icons.error,
-                                                size: 50,
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        loadingBuilder: (BuildContext context,
-                                            Widget child,
-                                            ImageChunkEvent? loadingProgress) {
-                                          if (loadingProgress == null) {
-                                            return child;
-                                          }
-                                          return Center(
-                                            child: SizedBox(
-                                              width: 100,
-                                              height: 100,
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes!
-                                                    : null,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      margin: const EdgeInsets.fromLTRB(
-                                          0, 10, 0, 0),
-                                    ),
-                                  Container(
-                                    child: Text(
-                                      snapshot.data![position].title,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                      overflow: TextOverflow.ellipsis,
+                                          FutureBuilder(
+                                              future: loadThumbnailImage(
+                                                  snapshot, position),
+                                              builder: (context,
+                                                  AsyncSnapshot<Image>
+                                                      snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return snapshot.data!;
+                                                } else if (snapshot.hasError) {
+                                                  return const Icon(
+                                                      Icons.play_circle,
+                                                      color: Colors.red,
+                                                      size: 50);
+                                                }
+                                                return const CircularProgressIndicator();
+                                              }),
                                     ),
                                     margin:
-                                        const EdgeInsets.fromLTRB(5, 10, 5, 0),
-                                  ),
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  )
+                                else
                                   Container(
-                                    child: Text(
-                                      snapshot.data![position].maker,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.normal),
-                                      overflow: TextOverflow.ellipsis,
+                                    child: Image.network(
+                                      snapshot.data![position].imageUrl,
+                                      width: 100,
+                                      height: 100,
+                                      errorBuilder: (BuildContext context,
+                                          Object obj, StackTrace? trace) {
+                                        return const Center(
+                                          child: SizedBox(
+                                            width: 100,
+                                            height: 100,
+                                            child: Icon(
+                                              Icons.error,
+                                              size: 50,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      loadingBuilder: (BuildContext context,
+                                          Widget child,
+                                          ImageChunkEvent? loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return Center(
+                                          child: SizedBox(
+                                            width: 100,
+                                            height: 100,
+                                            child: CircularProgressIndicator(
+                                              value: loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      loadingProgress
+                                                          .expectedTotalBytes!
+                                                  : null,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                     margin:
-                                        const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   ),
-                                ],
-                              ),
+                                Container(
+                                  child: Text(
+                                    snapshot.data![position].title,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  margin:
+                                      const EdgeInsets.fromLTRB(5, 10, 5, 0),
+                                ),
+                                Container(
+                                  child: Text(
+                                    snapshot.data![position].maker,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.normal),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                ),
+                              ],
                             ),
                           ),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6)),
-                          borderOnForeground: false,
-                          elevation: 10,
-                        );
-                      },
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: snapshot.data!.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 150,
-                        mainAxisSpacing: 7, //수평 Padding
-                        crossAxisSpacing: 7, //수직 Padding
-                        mainAxisExtent: 180,
-                        //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
-                      ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
+                        borderOnForeground: false,
+                        elevation: 10,
+                      );
+                    },
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: snapshot.data!.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 150,
+                      mainAxisSpacing: 7, //수평 Padding
+                      crossAxisSpacing: 7, //수직 Padding
+                      mainAxisExtent: 180,
+                      //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
                     ),
                   ),
                 ),
