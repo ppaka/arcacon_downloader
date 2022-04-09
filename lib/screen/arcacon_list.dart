@@ -1,29 +1,33 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
-import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-
-class ArcaconPage extends StatefulWidget {
-  const ArcaconPage({Key? key}) : super(key: key);
-
-  @override
-  _ArcaconPageState createState() => _ArcaconPageState();
-}
+// import 'package:arcacon_downloader/utility/video.dart';
+// import 'package:video_player/video_player.dart';
+// import 'package:video_thumbnail/video_thumbnail.dart';
 
 int lastLoadPage = 0;
 int nowWorkingPage = -1;
 late int lastPage;
 List<PreviewArcaconItem> previewList = [];
-Map<int, VideoPlayerControllerItem> videoControllers = {};
 late Future<List<PreviewArcaconItem>> items;
+//Map<int, VideoPlayerControllerItem> videoControllers = {};
 
-class VideoPlayerControllerItem {
-  late VideoPlayerController controller;
-  late bool isPlaying;
+class PreviewArcaconItem {
+  final String pageUrl;
+  final String imageUrl;
+  final String title, count, maker;
+
+  PreviewArcaconItem(
+      this.pageUrl, this.imageUrl, this.title, this.count, this.maker);
 }
+
+// class VideoPlayerControllerItem {
+//   late VideoPlayerController controller;
+//   late bool isPlaying;
+// }
 
 String _convertEncodedTitle(String titleText) {
   for (int j = 0; j < titleText.length; j++) {
@@ -154,94 +158,31 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
   });
 }
 
-class PreviewArcaconItem {
-  final String pageUrl;
-  final String imageUrl;
-  final String title, count, maker;
+class ArcaconPage extends StatefulWidget {
+  const ArcaconPage({Key? key}) : super(key: key);
 
-  PreviewArcaconItem(
-      this.pageUrl, this.imageUrl, this.title, this.count, this.maker);
-}
-
-Future<void> requestMore() async {
-  // 해당부분은 서버에서 가져오는 내용을 가상으로 만든 것이기 때문에 큰 의미는 없다.
-
-  // 읽을 데이터 위치 얻기
-  /*int nextDataPosition = (nextPage * 10);
-  // 읽을 데이터 크기
-  int dataLength = 10;
-
-  // 읽을 데이터가 서버에 있는 데이터 총 크기보다 크다면 더이상 읽을 데이터가 없다고 판다.
-  if (nextDataPosition > serverItems.length) {
-    // 더이상 가져갈 것이 없음
-    return;
-  }
-
-  // 읽을 데이터는 있지만 10개가 안되는 경우
-  if ((nextDataPosition + 10) > serverItems.length) {
-    // 가능한 최대 개수 얻기
-    dataLength = serverItems.length - nextDataPosition;
-  }
-  setState(() {
-    // 데이터 읽기
-    items +=
-        serverItems.sublist(nextDataPosition, nextDataPosition + dataLength);
-
-    // 다음을 위해 페이지 증가
-    nextPage += 1;
-  });*/
-
-  await loadPage(false).onError((error, stackTrace) {
-    debugPrint(error.toString());
-    return previewList;
-  });
+  @override
+  _ArcaconPageState createState() => _ArcaconPageState();
 }
 
 class _ArcaconPageState extends State<ArcaconPage>
     with AutomaticKeepAliveClientMixin {
   Future<void> requestNew() async {
     previewList.clear();
-    videoControllers.forEach((key, value) {
-      value.controller.dispose();
-    });
-    videoControllers.clear();
+    // videoControllers.forEach((key, value) {
+    //   value.controller.dispose();
+    // });
+    // videoControllers.clear();
     setState(() {
       items = loadPage(true);
     });
   }
 
-  Future<Image> loadThumbnailImage(AsyncSnapshot snapshot, int index) {
-    return Future<Image>(() async {
-      var thumbnail = await VideoThumbnail.thumbnailData(
-        video: snapshot.data![index].imageUrl,
-        imageFormat: ImageFormat.PNG,
-        maxWidth: 100,
-        maxHeight: 100,
-        timeMs: 0,
-        quality: 100,
-      );
-
-      return Image.memory(thumbnail!);
+  Future<void> requestMore() async {
+    await loadPage(false).onError((error, stackTrace) {
+      debugPrint(error.toString());
+      return previewList;
     });
-  }
-
-  Future<VideoPlayerController> loadVideo(AsyncSnapshot snapshot, int index) {
-    return Future<VideoPlayerController>(
-      () async {
-        VideoPlayerController controller = VideoPlayerController.network(
-          snapshot.data![index].imageUrl,
-          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-        );
-        controller.initialize();
-        controller.setLooping(true);
-        controller.pause();
-
-        videoControllers[index]!.controller = controller;
-        videoControllers[index]!.isPlaying = true;
-
-        return controller;
-      },
-    );
   }
 
   late ScrollController scrollController;
@@ -309,10 +250,10 @@ class _ArcaconPageState extends State<ArcaconPage>
                                 if (snapshot.data![position].imageUrl
                                     .endsWith('mp4'))
                                   Container(
-                                    child: SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: /*FutureBuilder(
+                                    child: const SizedBox(
+                                        width: 100,
+                                        height: 100,
+                                        child: /*FutureBuilder(
                                         future: loadVideo(snapshot, position),
                                         builder: (context,
                                             AsyncSnapshot<VideoPlayerController>
@@ -357,69 +298,43 @@ class _ArcaconPageState extends State<ArcaconPage>
                                           return const CircularProgressIndicator();
                                         },
                                       ),*/
-                                          FutureBuilder(
-                                              future: loadThumbnailImage(
-                                                  snapshot, position),
-                                              builder: (context,
-                                                  AsyncSnapshot<Image>
-                                                      snapshot) {
-                                                if (snapshot.hasData) {
-                                                  return snapshot.data!;
-                                                } else if (snapshot.hasError) {
-                                                  return const Icon(
-                                                      Icons.play_circle,
-                                                      color: Colors.red,
-                                                      size: 50);
-                                                }
-                                                return const CircularProgressIndicator();
-                                              }),
-                                    ),
+                                            // FutureBuilder(
+                                            //     future: loadThumbnailImage(
+                                            //         snapshot, position),
+                                            //     builder: (context,
+                                            //         AsyncSnapshot<Image>
+                                            //             snapshot) {
+                                            //       if (snapshot.hasData) {
+                                            //         return snapshot.data!;
+                                            //       } else if (snapshot.hasError) {
+                                            //         return const Icon(
+                                            //             Icons.play_circle,
+                                            //             color: Colors.red,
+                                            //             size: 50);
+                                            //       }
+                                            //       return const CircularProgressIndicator();
+                                            //     }),
+                                            Icon(Icons.play_circle,
+                                                color: Colors.red, size: 50)),
                                     margin:
                                         const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   )
                                 else
                                   Container(
-                                    child: Image.network(
-                                      snapshot.data![position].imageUrl,
+                                    child: SizedBox(
                                       width: 100,
                                       height: 100,
-                                      errorBuilder: (BuildContext context,
-                                          Object obj, StackTrace? trace) {
-                                        return const Center(
-                                          child: SizedBox(
-                                            width: 100,
-                                            height: 100,
-                                            child: Icon(
-                                              Icons.error,
-                                              size: 50,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      loadingBuilder: (BuildContext context,
-                                          Widget child,
-                                          ImageChunkEvent? loadingProgress) {
-                                        if (loadingProgress == null) {
-                                          return child;
-                                        }
-                                        return Center(
-                                          child: SizedBox(
-                                            width: 100,
-                                            height: 100,
-                                            child: CircularProgressIndicator(
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      loadingProgress
-                                                          .expectedTotalBytes!
-                                                  : null,
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            snapshot.data![position].imageUrl,
+                                        progressIndicatorBuilder: (context, url,
+                                                downloadProgress) =>
+                                            CircularProgressIndicator(
+                                                value:
+                                                    downloadProgress.progress),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error),
+                                      ),
                                     ),
                                     margin:
                                         const EdgeInsets.fromLTRB(0, 10, 0, 0),
