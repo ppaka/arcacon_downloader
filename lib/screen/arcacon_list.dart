@@ -10,7 +10,7 @@ class ArcaconPage extends StatefulWidget {
   const ArcaconPage({Key? key}) : super(key: key);
 
   @override
-  _ArcaconListPage createState() => _ArcaconListPage();
+  _ArcaconPageState createState() => _ArcaconPageState();
 }
 
 int lastLoadPage = 0;
@@ -195,12 +195,10 @@ Future<void> requestMore() async {
     debugPrint(error.toString());
     return previewList;
   });
-
-  // 가상으로 잠시 지연 줌
-  // return await Future.delayed(const Duration(milliseconds: 0));
 }
 
-class _ArcaconListPage extends State<ArcaconPage> {
+class _ArcaconPageState extends State<ArcaconPage>
+    with AutomaticKeepAliveClientMixin {
   Future<void> requestNew() async {
     previewList.clear();
     videoControllers.forEach((key, value) {
@@ -298,14 +296,31 @@ class _ArcaconListPage extends State<ArcaconPage> {
     );
   }
 
+  late ScrollController scrollController;
+
   @override
   void initState() {
     super.initState();
     items = loadPage(true);
+    scrollController = ScrollController();
+
+    scrollController.addListener(() {
+      if (scrollController.offset >
+          scrollController.position.maxScrollExtent * 0.35) {
+        requestMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('목록'),
@@ -333,6 +348,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
                   child: RefreshIndicator(
                     onRefresh: requestNew,
                     child: GridView.builder(
+                      controller: scrollController,
                       itemBuilder: (context, position) {
                         return Card(
                           child: GestureDetector(
@@ -517,4 +533,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
