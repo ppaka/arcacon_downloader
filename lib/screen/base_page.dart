@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import '/screen/first_page.dart';
 import '/screen/arcacon_list.dart';
-import 'package:flutter/material.dart';
 
 class BasePage extends StatefulWidget {
   const BasePage({Key? key, required this.title}) : super(key: key);
