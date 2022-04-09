@@ -82,7 +82,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
         String title = element.children[0].children[1].children[0].text;
         if (element.children[0].children[1].children[0].outerHtml
             .contains('[email&nbsp;protected]')) {
-          print(title + '-> 제목 변환');
+          debugPrint(title + '-> 제목 변환');
           title = element.children[0].children[1].children[0].outerHtml
               .replaceAll('<div class="title">', '');
           title = title.replaceAll('</div>', '');
@@ -91,7 +91,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
 
         String count = element.children[0].children[1].children[1].text;
         String maker = element.children[0].children[1].children[2].text;
-        print(title);
+        debugPrint(title);
         previewList.add(
           PreviewArcaconItem(
               "https://arca.live" + element.attributes['href']!,
@@ -117,7 +117,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
     }
     nowWorkingPage = targetPage;
     String url = "https://arca.live/e/?p=$targetPage";
-    print(url);
+    debugPrint(url);
 
     http.Client client = http.Client();
     http.Response response = await client.get(Uri.parse(url));
@@ -131,7 +131,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
       String title = element.children[0].children[1].children[0].text;
       if (element.children[0].children[1].children[0].outerHtml
           .contains('[email&nbsp;protected]')) {
-        print(title + '-> 제목 변환');
+        debugPrint(title + '-> 제목 변환');
         title = element.children[0].children[1].children[0].outerHtml
             .replaceAll('<div class="title">', '');
         title = title.replaceAll('</div>', '');
@@ -140,7 +140,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
 
       String count = element.children[0].children[1].children[1].text;
       String maker = element.children[0].children[1].children[2].text;
-      print(title);
+      debugPrint(title);
       previewList.add(PreviewArcaconItem(
           "https://arca.live" + element.attributes['href']!,
           "https:" + element.children[0].children[0].attributes['src']!,
@@ -192,7 +192,7 @@ Future<void> requestMore() async {
   });*/
 
   await loadPage(false).onError((error, stackTrace) {
-    print(error);
+    debugPrint(error.toString());
     return previewList;
   });
 
@@ -210,18 +210,6 @@ class _ArcaconListPage extends State<ArcaconPage> {
     setState(() {
       items = loadPage(true);
     });
-
-    /*nextPage = 0;
-    items.clear();
-    setState(() {
-      items += serverItems.sublist(nextPage * 10, (nextPage * 10) + 10);
-      // 다음을 위해 페이지 증가
-      nextPage += 1;
-    });
-
-    데이터 가져오는 동안 효과를 보여주기 위해 약 1초간 대기하는 것
-    실제 서버에서 가져올땐 필요없음
-    return await Future.delayed(const Duration(milliseconds: 1000));*/
   }
 
   double _dragDistance = 0;
@@ -256,7 +244,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
         // 두 같이 같다면(스크롤이 가장 아래에 있다)
         if (notification.metrics.maxScrollExtent ==
             notification.metrics.pixels) {
-          print("데이터 로드");
+          debugPrint("데이터 로드");
 
           setState(() {
             // 서버에서 데이터를 더 가져오는 효과를 주기 위함
@@ -318,8 +306,6 @@ class _ArcaconListPage extends State<ArcaconPage> {
 
   @override
   Widget build(BuildContext context) {
-    const double itemHeight = (100 + 70);
-    const double itemWidth = 100 + 20;
     return Scaffold(
       appBar: AppBar(
         title: const Text('목록'),
@@ -349,146 +335,158 @@ class _ArcaconListPage extends State<ArcaconPage> {
                     child: GridView.builder(
                       itemBuilder: (context, position) {
                         return Card(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (snapshot.data![position].imageUrl
-                                  .endsWith('mp4'))
-                                Container(
-                                  child: SizedBox(
-                                    width: 100,
-                                    height: 100,
-                                    child: /*FutureBuilder(
-                                    future: loadVideo(snapshot, position),
-                                    builder: (context,
-                                        AsyncSnapshot<VideoPlayerController>
-                                            snapshot) {
-                                      if (snapshot.hasData) {
-                                        print("영상있음");
-                                        //return VideoPlayer(snapshot.data!);
-                                        return const CircularProgressIndicator();
-                                        return VisibilityDetector(
-                                          key: UniqueKey(),
-                                          child: videoControllers[position]!
-                                              .player,
-                                          onVisibilityChanged: (info) {
-                                            videoControllers[position]!
-                                                .player
-                                                .controller
-                                                .onPlayerVisibilityChanged(
-                                                    info.visibleFraction);
-                                            if (info.visibleFraction == 0) {
-                                            videoControllers[position]!
-                                                .player
-                                                .controller
-                                                .pause();
-                                            videoControllers[position]!
-                                                .isPlaying = false;
-                                          } else {
-                                            if (videoControllers[position]!
-                                                    .isPlaying ==
-                                                false) {
-                                              videoControllers[position]!
-                                                  .player
-                                                  .controller
-                                                  .play();
-                                              videoControllers[position]!
-                                                  .isPlaying = true;
-                                            }
-                                          }
-                                          });
-                                      }
-
-                                      print('영상 없음');
-                                      return const CircularProgressIndicator();
-                                    },
-                                  ),*/
-                                        FutureBuilder(
-                                            future: loadThumbnailImage(
-                                                snapshot, position),
-                                            builder: (context,
-                                                AsyncSnapshot<Image> snapshot) {
-                                              if (snapshot.hasData) {
-                                                return snapshot.data!;
-                                              } else if (snapshot.hasError) {
-                                                return const Icon(
-                                                    Icons.play_circle,
-                                                    color: Colors.red,
-                                                    size: 50);
+                          child: GestureDetector(
+                            onTap: () {
+                              debugPrint('누름');
+                            },
+                            child: Container(
+                              color: Colors.transparent,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (snapshot.data![position].imageUrl
+                                      .endsWith('mp4'))
+                                    Container(
+                                      child: SizedBox(
+                                        width: 100,
+                                        height: 100,
+                                        child: /*FutureBuilder(
+                                        future: loadVideo(snapshot, position),
+                                        builder: (context,
+                                            AsyncSnapshot<VideoPlayerController>
+                                                snapshot) {
+                                          if (snapshot.hasData) {
+                                            debugPrint("영상있음");
+                                            //return VideoPlayer(snapshot.data!);
+                                            return const CircularProgressIndicator();
+                                            return VisibilityDetector(
+                                              key: UniqueKey(),
+                                              child: videoControllers[position]!
+                                                  .player,
+                                              onVisibilityChanged: (info) {
+                                                videoControllers[position]!
+                                                    .player
+                                                    .controller
+                                                    .onPlayerVisibilityChanged(
+                                                        info.visibleFraction);
+                                                if (info.visibleFraction == 0) {
+                                                videoControllers[position]!
+                                                    .player
+                                                    .controller
+                                                    .pause();
+                                                videoControllers[position]!
+                                                    .isPlaying = false;
+                                              } else {
+                                                if (videoControllers[position]!
+                                                        .isPlaying ==
+                                                    false) {
+                                                  videoControllers[position]!
+                                                      .player
+                                                      .controller
+                                                      .play();
+                                                  videoControllers[position]!
+                                                      .isPlaying = true;
+                                                }
                                               }
-                                              return const CircularProgressIndicator();
-                                            }),
+                                              });
+                                          }
+
+                                          debugPrint('영상 없음');
+                                          return const CircularProgressIndicator();
+                                        },
+                                      ),*/
+                                            FutureBuilder(
+                                                future: loadThumbnailImage(
+                                                    snapshot, position),
+                                                builder: (context,
+                                                    AsyncSnapshot<Image>
+                                                        snapshot) {
+                                                  if (snapshot.hasData) {
+                                                    return snapshot.data!;
+                                                  } else if (snapshot
+                                                      .hasError) {
+                                                    return const Icon(
+                                                        Icons.play_circle,
+                                                        color: Colors.red,
+                                                        size: 50);
+                                                  }
+                                                  return const CircularProgressIndicator();
+                                                }),
+                                      ),
+                                      margin: const EdgeInsets.fromLTRB(
+                                          0, 10, 0, 0),
+                                    )
+                                  else
+                                    Container(
+                                      child: Image.network(
+                                        snapshot.data![position].imageUrl,
+                                        width: 100,
+                                        height: 100,
+                                        errorBuilder: (BuildContext context,
+                                            Object obj, StackTrace? trace) {
+                                          return const Center(
+                                            child: SizedBox(
+                                              width: 100,
+                                              height: 100,
+                                              child: Icon(
+                                                Icons.error,
+                                                size: 50,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        loadingBuilder: (BuildContext context,
+                                            Widget child,
+                                            ImageChunkEvent? loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child;
+                                          }
+                                          return Center(
+                                            child: SizedBox(
+                                              width: 100,
+                                              height: 100,
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      margin: const EdgeInsets.fromLTRB(
+                                          0, 10, 0, 0),
+                                    ),
+                                  Container(
+                                    child: Text(
+                                      snapshot.data![position].title,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(5, 10, 5, 0),
                                   ),
-                                  margin:
-                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                )
-                              else
-                                Container(
-                                  child: Image.network(
-                                    snapshot.data![position].imageUrl,
-                                    width: 100,
-                                    height: 100,
-                                    errorBuilder: (BuildContext context,
-                                        Object obj, StackTrace? trace) {
-                                      return const Center(
-                                        child: SizedBox(
-                                          width: 100,
-                                          height: 100,
-                                          child: Icon(
-                                            Icons.error,
-                                            size: 50,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent? loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child;
-                                      }
-                                      return Center(
-                                        child: SizedBox(
-                                          width: 100,
-                                          height: 100,
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress
-                                                        .expectedTotalBytes !=
-                                                    null
-                                                ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    loadingProgress
-                                                        .expectedTotalBytes!
-                                                : null,
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                  Container(
+                                    child: Text(
+                                      snapshot.data![position].maker,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.normal),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(5, 5, 5, 5),
                                   ),
-                                  margin:
-                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                ),
-                              Container(
-                                child: Text(
-                                  snapshot.data![position].title,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                margin: const EdgeInsets.fromLTRB(5, 10, 5, 0),
+                                ],
                               ),
-                              Container(
-                                child: Text(
-                                  snapshot.data![position].maker,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.normal),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                              ),
-                            ],
+                            ),
                           ),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6)),
@@ -500,7 +498,7 @@ class _ArcaconListPage extends State<ArcaconPage> {
                       itemCount: snapshot.data!.length,
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 130,
+                        maxCrossAxisExtent: 150,
                         mainAxisSpacing: 7, //수평 Padding
                         crossAxisSpacing: 7, //수직 Padding
                         mainAxisExtent: 180,

@@ -28,10 +28,10 @@ Future<bool> downloadFile(String url, String fileName, String dir) async {
     Dio dio = Dio();
     await dio.download(url, dir + fileName, deleteOnError: false);
     dio.close();
-    print(fileName + ' 파일 다운로드 완료');
+    debugPrint(fileName + ' 파일 다운로드 완료');
     return true;
   } catch (ex) {
-    print(fileName + ' 오류: ' + ex.toString());
+    debugPrint(fileName + ' 오류: ' + ex.toString());
     return false;
   }
 }
@@ -93,7 +93,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
 
   List<String> arcacon = [];
 
-  print(totalCount);
+  debugPrint(totalCount.toString());
 
   for (var element in links.children) {
     if (element.toString().startsWith('<div')) {
@@ -198,13 +198,13 @@ Future<DownloadTask> _startDownload(String myUrl) async {
                 value = value.replaceAll("r_frame_rate=", ""),
                 fps = double.parse(value.split('/')[0]) /
                     double.parse(value.split('/')[1]),
-                print("프레임: " + value + " ($fps)"),
+                debugPrint("프레임: " + value + " ($fps)"),
               }
           });
 
       while (fps > 50) {
         fps = fps / 2;
-        print("프레임 변경: " + fps.toString());
+        debugPrint("프레임 변경: " + fps.toString());
       }
 
       await FFmpegKit.executeWithArguments([
@@ -221,17 +221,17 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         final returnCode = await session.getReturnCode();
 
         if (ReturnCode.isSuccess(returnCode)) {
-          print(fileName +
+          debugPrint(fileName +
               fileType +
               " 팔레트 추출 성공 " +
               returnCode!.getValue().toString());
         } else if (ReturnCode.isCancel(returnCode)) {
-          print(fileName +
+          debugPrint(fileName +
               fileType +
               " 팔레트 추출 취소 " +
               returnCode!.getValue().toString());
         } else {
-          print(fileName +
+          debugPrint(fileName +
               fileType +
               " 팔레트 추출 오류 " +
               returnCode!.getValue().toString());
@@ -255,17 +255,17 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         final returnCode = await session.getReturnCode();
 
         if (ReturnCode.isSuccess(returnCode)) {
-          print(fileName +
+          debugPrint(fileName +
               fileType +
               " gif 변환 성공 " +
               returnCode!.getValue().toString());
         } else if (ReturnCode.isCancel(returnCode)) {
-          print(fileName +
+          debugPrint(fileName +
               fileType +
               " gif 변환 취소 " +
               returnCode!.getValue().toString());
         } else {
-          print(fileName +
+          debugPrint(fileName +
               fileType +
               " gif 변환 오류 " +
               returnCode!.getValue().toString());
@@ -275,7 +275,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
       try {
         File(outputPalettePath).deleteSync(recursive: false);
       } catch (ex) {
-        print("오류: 팔레트 파일을 제거할 수 없음\n$ex");
+        debugPrint("오류: 팔레트 파일을 제거할 수 없음\n$ex");
       }
     }
     count++;
@@ -285,7 +285,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   try {
     Directory(videoDir).deleteSync(recursive: true);
   } catch (ex) {
-    print("오류: 원본 영상 파일을 제거할 수 없음\n$ex");
+    debugPrint("오류: 원본 영상 파일을 제거할 수 없음\n$ex");
   }
 
   await _progressNotification(titleText, 1, 1);
