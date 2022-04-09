@@ -37,6 +37,7 @@ class _BasePageState extends State<BasePage>
       initialIndex: 0,
       child: Scaffold(
         body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
           children: [FirstPage(), const ArcaconPage()],
         ),
         bottomNavigationBar: const TabBar(
