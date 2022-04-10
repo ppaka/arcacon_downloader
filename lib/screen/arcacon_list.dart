@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
+
+import '../route/con_page.dart';
 // import 'package:arcacon_downloader/utility/video.dart';
 // import 'package:video_player/video_player.dart';
 // import 'package:video_thumbnail/video_thumbnail.dart';
@@ -195,7 +197,9 @@ class _ArcaconPageState extends State<ArcaconPage>
 
     scrollController.addListener(() {
       if (scrollController.offset >
-          scrollController.position.maxScrollExtent * 0.4) {
+          scrollController.position.maxScrollExtent -
+              MediaQuery.of(context).size.height *
+                  MediaQuery.of(context).devicePixelRatio) {
         requestMore().then((value) => setState(
               () {},
             ));
@@ -239,7 +243,13 @@ class _ArcaconPageState extends State<ArcaconPage>
                       return Card(
                         child: GestureDetector(
                           onTap: () {
-                            debugPrint('누름');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ConPage(
+                                        item: snapshot.data![position],
+                                      )),
+                            );
                           },
                           child: Container(
                             color: Colors.transparent,

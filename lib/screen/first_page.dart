@@ -409,7 +409,6 @@ class FirstPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DownloadTask result;
     return GestureDetector(
       onTap: () {
         textFocus.unfocus();
@@ -488,53 +487,7 @@ class FirstPage extends StatelessWidget {
                             backgroundColor: Colors.redAccent[400])
                       }
                     else
-                      {
-                        result = await _startDownload(textController.text),
-                        if (result.result == Result.success)
-                          {
-                            if (result.errorCount == 0)
-                              {
-                                Fluttertoast.showToast(
-                                    msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
-                                    gravity: ToastGravity.BOTTOM,
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    backgroundColor: Colors.indigoAccent)
-                              }
-                            else
-                              {
-                                Fluttertoast.showToast(
-                                    msg:
-                                        "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
-                                    gravity: ToastGravity.BOTTOM,
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    backgroundColor: Colors.green)
-                              }
-                          }
-                        else if (result.result == Result.connectError)
-                          {
-                            Fluttertoast.showToast(
-                                msg: "해당 주소로 이동할 수 없습니다...",
-                                gravity: ToastGravity.BOTTOM,
-                                toastLength: Toast.LENGTH_SHORT,
-                                backgroundColor: Colors.red)
-                          }
-                        else if (result.result == Result.noPermission)
-                          {
-                            Fluttertoast.showToast(
-                                msg: "허용되지 않은 권한이 있어요...",
-                                gravity: ToastGravity.BOTTOM,
-                                toastLength: Toast.LENGTH_SHORT,
-                                backgroundColor: Colors.deepOrangeAccent)
-                          }
-                        else if (result.result == Result.alreadyRunning)
-                          {
-                            Fluttertoast.showToast(
-                                msg: "이미 다운로드가 진행중인 아카콘입니다!",
-                                gravity: ToastGravity.BOTTOM,
-                                toastLength: Toast.LENGTH_SHORT,
-                                backgroundColor: Colors.red)
-                          },
-                      }
+                      {onPressStartDownload(textController.text)}
                   },
                   tooltip: '다운로드 시작',
                   child: const Icon(Icons.download, color: Colors.white),
@@ -542,5 +495,43 @@ class FirstPage extends StatelessWidget {
                 ),
               ])),
     );
+  }
+}
+
+Future<void> onPressStartDownload(String url) async {
+  var result = await _startDownload(url);
+  if (result.result == Result.success) {
+    if (result.errorCount == 0) {
+      Fluttertoast.showToast(
+          msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.indigoAccent);
+    } else {
+      Fluttertoast.showToast(
+          msg:
+              "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.green);
+    }
+  } else if (result.result == Result.connectError) {
+    Fluttertoast.showToast(
+        msg: "해당 주소로 이동할 수 없습니다...",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red);
+  } else if (result.result == Result.noPermission) {
+    Fluttertoast.showToast(
+        msg: "허용되지 않은 권한이 있어요...",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.deepOrangeAccent);
+  } else if (result.result == Result.alreadyRunning) {
+    Fluttertoast.showToast(
+        msg: "이미 다운로드가 진행중인 아카콘입니다!",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red);
   }
 }
