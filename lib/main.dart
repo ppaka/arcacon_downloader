@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'screen/base_page.dart';
-import 'theme/style.dart';
+import './screen/base_page.dart';
+import './theme/style.dart';
 
 void main() {
   runApp(const ArcaconDownloader());
