@@ -18,6 +18,28 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 Map<String, int> nowRunning = {};
 
+Future<void> init() async {
+  //Initialization Settings for Android
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('app_icon');
+
+  //Initialization Settings for iOS
+  const IOSInitializationSettings initializationSettingsIOS =
+      IOSInitializationSettings(
+    requestSoundPermission: false,
+    requestBadgePermission: false,
+    requestAlertPermission: false,
+  );
+
+  //InitializationSettings for initializing settings for both platforms (Android & iOS)
+  const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+  );
+}
+
 class DownloadTask {
   int errorCount = 0;
   late Result result;

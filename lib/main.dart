@@ -4,6 +4,9 @@ import './screen/base_page.dart';
 import './theme/style.dart';
 
 void main() {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
   runApp(const ArcaconDownloader());
 }
 
@@ -12,10 +15,6 @@ class ArcaconDownloader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-    ));
-
     return MaterialApp(
       title: '아카콘 다운로더',
       theme: lightTheme(),
