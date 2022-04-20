@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
@@ -154,32 +155,40 @@ class _ConPageState extends State<ConPage> {
               child: const Text('웹에서 열기')),
         ),
         const SizedBox(height: 20),
-        FutureBuilder(
-          future: items,
-          builder: (context, AsyncSnapshot<List<String>> snapshot) {
-            if (snapshot.hasData) {
-              return Expanded(
-                  child: GridView.builder(
-                itemBuilder: (context, position) {
-                  return img(snapshot.data!, position);
-                },
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: snapshot.data!.length,
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 100,
-                  mainAxisSpacing: 7, //수평 Padding
-                  crossAxisSpacing: 7, //수직 Padding
-                  mainAxisExtent: 100,
-                  //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
-                ),
-                shrinkWrap: true,
-              ));
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            return const CircularProgressIndicator();
-          },
-        ),
+        ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            dragDevices: {
+              PointerDeviceKind.touch,
+              PointerDeviceKind.mouse,
+            },
+          ),
+          child: FutureBuilder(
+            future: items,
+            builder: (context, AsyncSnapshot<List<String>> snapshot) {
+              if (snapshot.hasData) {
+                return Expanded(
+                    child: GridView.builder(
+                  itemBuilder: (context, position) {
+                    return img(snapshot.data!, position);
+                  },
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: snapshot.data!.length,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 100,
+                    mainAxisSpacing: 7, //수평 Padding
+                    crossAxisSpacing: 7, //수직 Padding
+                    mainAxisExtent: 100,
+                    //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
+                  ),
+                  shrinkWrap: true,
+                ));
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              return const CircularProgressIndicator();
+            },
+          ),
+        )
       ]),
     );
   }
