@@ -1,48 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 
 import '../screen/arcacon_list.dart';
 import '../screen/first_page.dart';
-
-void _launchURL(BuildContext context, String url) async {
-  try {
-    await launch(
-      url,
-      customTabsOption: CustomTabsOption(
-        toolbarColor: Colors.grey[850],
-        enableDefaultShare: true,
-        enableUrlBarHiding: true,
-        showPageTitle: true,
-        animation: CustomTabsSystemAnimation.fade(),
-        extraCustomTabs: const <String>[
-          // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
-          'org.mozilla.firefox',
-          // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
-          'com.microsoft.emmx',
-        ],
-      ),
-      safariVCOption: SafariViewControllerOption(
-        preferredBarTintColor: Colors.grey[850],
-        preferredControlTintColor: Colors.white,
-        barCollapsingEnabled: true,
-        entersReaderIfAvailable: false,
-        dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
-      ),
-    );
-  } catch (e) {
-    // An exception is thrown if browser app is not installed on Android device.
-    debugPrint(e.toString());
-  }
-}
+import '../utility/custom_tab.dart';
 
 Future<List<String>> getCons(String url) async {
   var client = http.Client();
   List<String> list = <String>[];
-  print('작업 시작');
 
   http.Response response;
   try {
@@ -75,10 +43,15 @@ Future<List<String>> getCons(String url) async {
     if (element.toString().startsWith('<div')) {
       break;
     }
-    if (element.attributes['src'].toString() == "null") {
+
+    if (element.attributes['poster'].toString() != "null") {
+      list.add('https:' + element.attributes['poster'].toString());
       continue;
     }
-    list.add('https:' + element.attributes['src'].toString());
+    if (element.attributes['src'].toString() != "null") {
+      list.add('https:' + element.attributes['src'].toString());
+      continue;
+    }
   }
   return list;
 }
@@ -117,8 +90,11 @@ class _ConPageState extends State<ConPage> {
                 child: const SizedBox(
                     width: 100,
                     height: 100,
-                    child:
-                        Icon(Icons.play_circle, color: Colors.red, size: 50)),
+                    child: Icon(
+                      Icons.play_circle,
+                      color: Colors.red,
+                      size: 50,
+                    )),
                 margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               )
             else
@@ -173,7 +149,7 @@ class _ConPageState extends State<ConPage> {
           width: MediaQuery.of(context).size.width - 40,
           child: OutlinedButton(
               onPressed: () {
-                _launchURL(context, widget.item.pageUrl);
+                launchURL(context, widget.item.pageUrl);
               },
               child: const Text('웹에서 열기')),
         ),
@@ -210,7 +186,6 @@ class _ConPageState extends State<ConPage> {
 }
 
 Widget img(List<String> data, int position) {
-  print('작업 2');
   print(data[position]);
 
   if (data[position].endsWith('mp4')) {
@@ -220,6 +195,19 @@ Widget img(List<String> data, int position) {
           height: 100,
           child: Icon(Icons.play_circle, color: Colors.red, size: 50)),
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+    );
+  } else if (data[position].endsWith('.thumbnail.jpg')) {
+    return Stack(
+      alignment: AlignmentDirectional.bottomEnd,
+      children: [
+        CachedNetworkImage(
+          imageUrl: data[position],
+          progressIndicatorBuilder: (context, url, downloadProgress) =>
+              CircularProgressIndicator(value: downloadProgress.progress),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+        ),
+        const Icon(Icons.play_circle, color: Colors.red, size: 24),
+      ],
     );
   } else {
     return Container(

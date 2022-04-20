@@ -11,8 +11,9 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:dio/dio.dart';
+
+import '../utility/custom_tab.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -99,7 +100,15 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     if (element.toString().startsWith('<div')) {
       break;
     }
-    arcacon.add('https:' + element.attributes['src'].toString());
+
+    if (element.attributes['data-src'].toString() != "null") {
+      arcacon.add('https:' + element.attributes['data-src'].toString());
+      continue;
+    }
+    if (element.attributes['src'].toString() != "null") {
+      arcacon.add('https:' + element.attributes['src'].toString());
+      continue;
+    }
   }
 
   int count = 0;
@@ -370,37 +379,6 @@ Future<void> _showNotification(String conTitle) async {
       payload: 'item x');
 }
 
-void _launchURL(BuildContext context) async {
-  try {
-    await launch(
-      'https://arca.live/e/?p=1',
-      customTabsOption: CustomTabsOption(
-        toolbarColor: Colors.grey[850],
-        enableDefaultShare: true,
-        enableUrlBarHiding: true,
-        showPageTitle: true,
-        animation: CustomTabsSystemAnimation.fade(),
-        extraCustomTabs: const <String>[
-          // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
-          'org.mozilla.firefox',
-          // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
-          'com.microsoft.emmx',
-        ],
-      ),
-      safariVCOption: SafariViewControllerOption(
-        preferredBarTintColor: Colors.grey[850],
-        preferredControlTintColor: Colors.white,
-        barCollapsingEnabled: true,
-        entersReaderIfAvailable: false,
-        dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
-      ),
-    );
-  } catch (e) {
-    // An exception is thrown if browser app is not installed on Android device.
-    debugPrint(e.toString());
-  }
-}
-
 class FirstPage extends StatelessWidget {
   FirstPage({Key? key}) : super(key: key);
 
@@ -463,7 +441,7 @@ class FirstPage extends StatelessWidget {
                 FloatingActionButton(
                   backgroundColor: const Color(0xFF9A9895),
                   onPressed: () async {
-                    _launchURL(context);
+                    launchURL(context, 'https://arca.live/e/?p=1');
                   },
                   tooltip: '웹에서 검색',
                   child: const Icon(
