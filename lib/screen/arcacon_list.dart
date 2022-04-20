@@ -6,16 +6,12 @@ import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 
 import '../route/con_page.dart';
-// import 'package:arcacon_downloader/utility/video.dart';
-// import 'package:video_player/video_player.dart';
-// import 'package:video_thumbnail/video_thumbnail.dart';
 
 int lastLoadPage = 0;
 int nowWorkingPage = -1;
 late int lastPage;
 List<PreviewArcaconItem> previewList = [];
 late Future<List<PreviewArcaconItem>> items;
-//Map<int, VideoPlayerControllerItem> videoControllers = {};
 
 class PreviewArcaconItem {
   final String pageUrl;
@@ -25,11 +21,6 @@ class PreviewArcaconItem {
   PreviewArcaconItem(
       this.pageUrl, this.imageUrl, this.title, this.count, this.maker);
 }
-
-// class VideoPlayerControllerItem {
-//   late VideoPlayerController controller;
-//   late bool isPlaying;
-// }
 
 String _convertEncodedTitle(String titleText) {
   for (int j = 0; j < titleText.length; j++) {
@@ -171,12 +162,14 @@ class _ArcaconPageState extends State<ArcaconPage>
     with AutomaticKeepAliveClientMixin {
   Future<void> requestNew() async {
     previewList.clear();
-    // videoControllers.forEach((key, value) {
-    //   value.controller.dispose();
-    // });
-    // videoControllers.clear();
     setState(() {
       items = loadPage(true);
+      if (scrollController.offset >
+          scrollController.position.maxScrollExtent -
+              MediaQuery.of(context).size.height *
+                  MediaQuery.of(context).devicePixelRatio) {
+        requestMore().then((value) => setState(() {}));
+      }
     });
   }
 
@@ -192,7 +185,7 @@ class _ArcaconPageState extends State<ArcaconPage>
   @override
   void initState() {
     super.initState();
-    items = loadPage(true);
+    items = loadPage(true).whenComplete(() => requestMore());
     scrollController = ScrollController();
 
     scrollController.addListener(() {
@@ -200,9 +193,7 @@ class _ArcaconPageState extends State<ArcaconPage>
           scrollController.position.maxScrollExtent -
               MediaQuery.of(context).size.height *
                   MediaQuery.of(context).devicePixelRatio) {
-        requestMore().then((value) => setState(
-              () {},
-            ));
+        requestMore().then((value) => setState(() {}));
       }
     });
   }
@@ -263,69 +254,8 @@ class _ArcaconPageState extends State<ArcaconPage>
                                     child: const SizedBox(
                                         width: 100,
                                         height: 100,
-                                        child: /*FutureBuilder(
-                                        future: loadVideo(snapshot, position),
-                                        builder: (context,
-                                            AsyncSnapshot<VideoPlayerController>
-                                                snapshot) {
-                                          if (snapshot.hasData) {
-                                            debugPrint("영상있음");
-                                            //return VideoPlayer(snapshot.data!);
-                                            return const CircularProgressIndicator();
-                                            return VisibilityDetector(
-                                              key: UniqueKey(),
-                                              child: videoControllers[position]!
-                                                  .player,
-                                              onVisibilityChanged: (info) {
-                                                videoControllers[position]!
-                                                    .player
-                                                    .controller
-                                                    .onPlayerVisibilityChanged(
-                                                        info.visibleFraction);
-                                                if (info.visibleFraction == 0) {
-                                                videoControllers[position]!
-                                                    .player
-                                                    .controller
-                                                    .pause();
-                                                videoControllers[position]!
-                                                    .isPlaying = false;
-                                              } else {
-                                                if (videoControllers[position]!
-                                                        .isPlaying ==
-                                                    false) {
-                                                  videoControllers[position]!
-                                                      .player
-                                                      .controller
-                                                      .play();
-                                                  videoControllers[position]!
-                                                      .isPlaying = true;
-                                                }
-                                              }
-                                              });
-                                          }
-
-                                          debugPrint('영상 없음');
-                                          return const CircularProgressIndicator();
-                                        },
-                                      ),*/
-                                            // FutureBuilder(
-                                            //     future: loadThumbnailImage(
-                                            //         snapshot, position),
-                                            //     builder: (context,
-                                            //         AsyncSnapshot<Image>
-                                            //             snapshot) {
-                                            //       if (snapshot.hasData) {
-                                            //         return snapshot.data!;
-                                            //       } else if (snapshot.hasError) {
-                                            //         return const Icon(
-                                            //             Icons.play_circle,
-                                            //             color: Colors.red,
-                                            //             size: 50);
-                                            //       }
-                                            //       return const CircularProgressIndicator();
-                                            //     }),
-                                            Icon(Icons.play_circle,
-                                                color: Colors.red, size: 50)),
+                                        child: Icon(Icons.play_circle,
+                                            color: Colors.red, size: 50)),
                                     margin:
                                         const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   )
