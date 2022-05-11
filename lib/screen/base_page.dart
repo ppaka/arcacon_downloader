@@ -43,10 +43,10 @@ class _BasePageState extends State<BasePage>
         bottomNavigationBar: const TabBar(
           tabs: [
             Tab(
-              icon: Icon(Icons.looks_one),
+              text: '다운로드',
             ),
             Tab(
-              icon: Icon(Icons.looks_two),
+              text: '목록',
             )
           ],
         ),
