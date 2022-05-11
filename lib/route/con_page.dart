@@ -1,3 +1,4 @@
+import 'package:arcacon_downloader/utility/string_converter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ Future<List<String>> getCons(String url) async {
   var titleText = title!.outerHtml.split('\n')[1];
 
   if (titleText.contains('[email&nbsp;protected]')) {
-    titleText = convertEncodedTitle(titleText);
+    titleText = convertEncodedTitleForList(titleText);
   }
 
   titleText = titleText.trim();
