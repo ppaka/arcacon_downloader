@@ -52,7 +52,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
         String title = element.children[0].children[1].children[0].text;
         if (element.children[0].children[1].children[0].outerHtml
             .contains('[email&nbsp;protected]')) {
-          debugPrint(title + '-> 제목 변환');
+          debugPrint('$title-> 제목 변환');
           title = element.children[0].children[1].children[0].outerHtml
               .replaceAll('<div class="title">', '');
           title = title.replaceAll('</div>', '');
@@ -64,8 +64,8 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
         debugPrint(title);
         previewList.add(
           PreviewArcaconItem(
-              "https://arca.live" + element.attributes['href']!,
-              "https:" + element.children[0].children[0].attributes['src']!,
+              "https://arca.live${element.attributes['href']!}",
+              "https:${element.children[0].children[0].attributes['src']!}",
               title,
               count,
               maker),
@@ -101,7 +101,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
       String title = element.children[0].children[1].children[0].text;
       if (element.children[0].children[1].children[0].outerHtml
           .contains('[email&nbsp;protected]')) {
-        debugPrint(title + '-> 제목 변환');
+        debugPrint('$title-> 제목 변환');
         title = element.children[0].children[1].children[0].outerHtml
             .replaceAll('<div class="title">', '');
         title = title.replaceAll('</div>', '');
@@ -112,8 +112,8 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
       String maker = element.children[0].children[1].children[2].text;
       debugPrint(title);
       previewList.add(PreviewArcaconItem(
-          "https://arca.live" + element.attributes['href']!,
-          "https:" + element.children[0].children[0].attributes['src']!,
+          "https://arca.live${element.attributes['href']!}",
+          "https:${element.children[0].children[0].attributes['src']!}",
           title,
           count,
           maker));
@@ -128,10 +128,10 @@ class ArcaconPage extends StatefulWidget {
   const ArcaconPage({Key? key}) : super(key: key);
 
   @override
-  _ArcaconPageState createState() => _ArcaconPageState();
+  ArcaconPageState createState() => ArcaconPageState();
 }
 
-class _ArcaconPageState extends State<ArcaconPage>
+class ArcaconPageState extends State<ArcaconPage>
     with AutomaticKeepAliveClientMixin {
   Future<void> requestNew() async {
     previewList.clear();
@@ -205,6 +205,10 @@ class _ArcaconPageState extends State<ArcaconPage>
                     controller: scrollController,
                     itemBuilder: (context, position) {
                       return Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
+                        borderOnForeground: false,
+                        elevation: 10,
                         child: GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -224,16 +228,18 @@ class _ArcaconPageState extends State<ArcaconPage>
                                 if (snapshot.data![position].imageUrl
                                     .endsWith('mp4'))
                                   Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                     child: const SizedBox(
                                         width: 100,
                                         height: 100,
                                         child: Icon(Icons.play_circle,
                                             color: Colors.red, size: 50)),
-                                    margin:
-                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   )
                                 else
                                   Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                     child: SizedBox(
                                       width: 100,
                                       height: 100,
@@ -249,36 +255,30 @@ class _ArcaconPageState extends State<ArcaconPage>
                                             const Icon(Icons.error),
                                       ),
                                     ),
-                                    margin:
-                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   ),
                                 Container(
+                                  margin:
+                                      const EdgeInsets.fromLTRB(5, 10, 5, 0),
                                   child: Text(
                                     snapshot.data![position].title,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  margin:
-                                      const EdgeInsets.fromLTRB(5, 10, 5, 0),
                                 ),
                                 Container(
+                                  margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                                   child: Text(
                                     snapshot.data![position].maker,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.normal),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        borderOnForeground: false,
-                        elevation: 10,
                       );
                     },
                     physics: const AlwaysScrollableScrollPhysics(),
