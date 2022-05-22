@@ -18,9 +18,11 @@ class ArcaconDownloader extends StatelessWidget {
 
     return MaterialApp(
       title: '아카콘 다운로더',
-      theme: lightTheme(),
+      theme: testTheme(),
+      // theme: lightTheme(),
       darkTheme: darkTheme(),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
+      //themeMode: ThemeMode.system,
       // debugShowCheckedModeBanner: false,
       home: const BasePage(title: '아카콘 다운로더'),
     );

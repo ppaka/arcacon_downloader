@@ -30,10 +30,10 @@ Future<bool> downloadFile(String url, String fileName, String dir) async {
     Dio dio = Dio();
     await dio.download(url, dir + fileName, deleteOnError: false);
     dio.close();
-    debugPrint(fileName + ' 파일 다운로드 완료');
+    debugPrint('$fileName 파일 다운로드 완료');
     return true;
   } catch (ex) {
-    debugPrint(fileName + ' 오류: ' + ex.toString());
+    debugPrint('$fileName 오류: $ex');
     return false;
   }
 }
@@ -103,11 +103,11 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     }
 
     if (element.attributes['data-src'].toString() != "null") {
-      arcacon.add('https:' + element.attributes['data-src'].toString());
+      arcacon.add('https:${element.attributes['data-src']}');
       continue;
     }
     if (element.attributes['src'].toString() != "null") {
-      arcacon.add('https:' + element.attributes['src'].toString());
+      arcacon.add('https:${element.attributes['src']}');
       continue;
     }
   }
@@ -133,8 +133,8 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   nowRunning[titleText] = randomValue;
   await _progressNotification(titleText, 0, 1);
 
-  var directory = '/storage/emulated/0/Download/' + titleText + '/';
-  var videoDir = directory + 'videos/';
+  var directory = '/storage/emulated/0/Download/$titleText/';
+  var videoDir = '${directory}videos/';
   var outputPalettePath = '';
 
   for (var con in arcacon) {
@@ -189,14 +189,11 @@ Future<DownloadTask> _startDownload(String myUrl) async {
           .toString()
           .padLeft(arcacon.length.toString().length, '0')
           .toString();
-      var convertedFileName = (count + 1)
-              .toString()
-              .padLeft(arcacon.length.toString().length, '0')
-              .toString() +
-          '.gif';
+      var convertedFileName =
+          '${(count + 1).toString().padLeft(arcacon.length.toString().length, '0')}.gif';
       var res = await downloadFile(con, fileName + fileType, videoDir);
       if (res == false) result.errorCount++;
-      outputPalettePath = videoDir + 'palette.png';
+      outputPalettePath = '${videoDir}palette.png';
 
       var fps = 25.0;
 
@@ -208,13 +205,13 @@ Future<DownloadTask> _startDownload(String myUrl) async {
                 value = value.replaceAll("r_frame_rate=", ""),
                 fps = double.parse(value.split('/')[0]) /
                     double.parse(value.split('/')[1]),
-                debugPrint("프레임: " + value + " ($fps)"),
+                debugPrint("프레임: $value ($fps)"),
               }
           });
 
       while (fps > 50) {
         fps = fps / 2;
-        debugPrint("프레임 변경: " + fps.toString());
+        debugPrint("프레임 변경: $fps");
       }
 
       await FFmpegKit.executeWithArguments([
@@ -226,25 +223,16 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         '-hide_banner',
         '-loglevel',
         'error',
-        videoDir + 'palette.png'
+        '${videoDir}palette.png'
       ]).then((session) async {
         final returnCode = await session.getReturnCode();
 
         if (ReturnCode.isSuccess(returnCode)) {
-          debugPrint(fileName +
-              fileType +
-              " 팔레트 추출 성공 " +
-              returnCode!.getValue().toString());
+          debugPrint("$fileName$fileType 팔레트 추출 성공 ${returnCode!.getValue()}");
         } else if (ReturnCode.isCancel(returnCode)) {
-          debugPrint(fileName +
-              fileType +
-              " 팔레트 추출 취소 " +
-              returnCode!.getValue().toString());
+          debugPrint("$fileName$fileType 팔레트 추출 취소 ${returnCode!.getValue()}");
         } else {
-          debugPrint(fileName +
-              fileType +
-              " 팔레트 추출 오류 " +
-              returnCode!.getValue().toString());
+          debugPrint("$fileName$fileType 팔레트 추출 오류 ${returnCode!.getValue()}");
         }
       });
       await FFmpegKit.executeWithArguments([
@@ -252,7 +240,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         '-i',
         videoDir + fileName + fileType,
         '-i',
-        videoDir + 'palette.png',
+        '${videoDir}palette.png',
         '-filter_complex',
         'scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
         '-hide_banner',
@@ -265,20 +253,11 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         final returnCode = await session.getReturnCode();
 
         if (ReturnCode.isSuccess(returnCode)) {
-          debugPrint(fileName +
-              fileType +
-              " gif 변환 성공 " +
-              returnCode!.getValue().toString());
+          debugPrint("$fileName$fileType gif 변환 성공 ${returnCode!.getValue()}");
         } else if (ReturnCode.isCancel(returnCode)) {
-          debugPrint(fileName +
-              fileType +
-              " gif 변환 취소 " +
-              returnCode!.getValue().toString());
+          debugPrint("$fileName$fileType gif 변환 취소 ${returnCode!.getValue()}");
         } else {
-          debugPrint(fileName +
-              fileType +
-              " gif 변환 오류 " +
-              returnCode!.getValue().toString());
+          debugPrint("$fileName$fileType gif 변환 오류 ${returnCode!.getValue()}");
           result.errorCount++;
         }
       });
@@ -415,11 +394,11 @@ class FirstPage extends StatelessWidget {
                     launchURL(context, 'https://arca.live/e/?p=1');
                   },
                   tooltip: '웹에서 검색',
+                  mini: true,
                   child: const Icon(
                     Icons.search,
                     color: Colors.white,
                   ),
-                  mini: true,
                 ),
                 const SizedBox(
                   height: 10,
@@ -439,8 +418,8 @@ class FirstPage extends StatelessWidget {
                       {onPressStartDownload(textController.text)}
                   },
                   tooltip: '다운로드 시작',
-                  child: const Icon(Icons.download, color: Colors.white),
                   mini: true,
+                  child: const Icon(Icons.download, color: Colors.white),
                 ),
               ])),
     );

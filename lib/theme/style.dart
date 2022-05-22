@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+ThemeData testTheme() {
+  const seedColor = Color(0xFF4F5464);
+
+  return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+          seedColor: seedColor, brightness: Brightness.dark),
+      textTheme: GoogleFonts.notoSansNKoTextTheme(
+        ThemeData.dark().textTheme,
+      ));
+}
 
 ThemeData lightTheme() {
   return ThemeData(

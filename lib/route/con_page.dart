@@ -47,11 +47,11 @@ Future<List<String>> getCons(String url) async {
     }
 
     if (element.attributes['poster'].toString() != "null") {
-      list.add('https:' + element.attributes['poster'].toString());
+      list.add('https:${element.attributes['poster']}');
       continue;
     }
     if (element.attributes['src'].toString() != "null") {
-      list.add('https:' + element.attributes['src'].toString());
+      list.add('https:${element.attributes['src']}');
       continue;
     }
   }
@@ -89,6 +89,7 @@ class _ConPageState extends State<ConPage> {
           children: [
             if (widget.item.imageUrl.endsWith('mp4'))
               Container(
+                margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: const SizedBox(
                     width: 100,
                     height: 100,
@@ -97,10 +98,10 @@ class _ConPageState extends State<ConPage> {
                       color: Colors.red,
                       size: 50,
                     )),
-                margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               )
             else
               Container(
+                  margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                   child: SizedBox(
                       width: 100,
                       height: 100,
@@ -112,27 +113,26 @@ class _ConPageState extends State<ConPage> {
                                     value: downloadProgress.progress),
                         errorWidget: (context, url, error) =>
                             const Icon(Icons.error),
-                      )),
-                  margin: const EdgeInsets.fromLTRB(20, 20, 20, 0)),
+                      ))),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
+                  width: MediaQuery.of(context).size.width - 40 - 100,
                   child: Text(
                     widget.item.title,
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.clip,
                   ),
-                  width: MediaQuery.of(context).size.width - 40 - 100,
                 ),
                 SizedBox(
+                  width: MediaQuery.of(context).size.width - 40 - 100,
                   child: Text(
                     widget.item.maker,
                     style: const TextStyle(fontSize: 15),
                   ),
-                  width: MediaQuery.of(context).size.width - 40 - 100,
                 ),
               ],
             )
@@ -200,11 +200,11 @@ Widget img(List<String> data, int position) {
 
   if (data[position].endsWith('mp4')) {
     return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: const SizedBox(
           width: 100,
           height: 100,
           child: Icon(Icons.play_circle, color: Colors.red, size: 50)),
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
     );
   } else if (data[position].endsWith('.thumbnail.jpg')) {
     return Stack(
@@ -221,6 +221,7 @@ Widget img(List<String> data, int position) {
     );
   } else {
     return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: SizedBox(
         width: 100,
         height: 100,
@@ -231,7 +232,6 @@ Widget img(List<String> data, int position) {
           errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
     );
   }
 }
