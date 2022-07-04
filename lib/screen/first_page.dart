@@ -13,6 +13,7 @@ import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../utility/custom_tab.dart';
 
@@ -119,11 +120,15 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     return result;
   }
 
-  Fluttertoast.showToast(
-      msg: "다운로드를 시작하겠습니다!",
-      gravity: ToastGravity.BOTTOM,
-      toastLength: Toast.LENGTH_SHORT,
-      backgroundColor: Colors.black87);
+  if (Platform.isAndroid || Platform.isIOS) {
+    Fluttertoast.showToast(
+        msg: "다운로드를 시작하겠습니다!",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.black87);
+  } else {
+    // Desktop Platform Implements
+  }
 
   int randomValue = Random.secure().nextInt(2147483647);
   while (nowRunning.containsValue(randomValue)) {
@@ -131,9 +136,20 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   }
 
   nowRunning[titleText] = randomValue;
-  await _progressNotification(titleText, 0, 1);
+  if (Platform.isAndroid || Platform.isIOS) {
+    await _progressNotification(titleText, 0, 1);
+  }
 
-  var directory = '/storage/emulated/0/Download/$titleText/';
+  var directory = '';
+  if (Platform.isAndroid) {
+    directory = '/storage/emulated/0/Download/$titleText/';
+  } else if (Platform.isIOS) {
+    directory = '';
+  } else {
+    directory = '${(await getDownloadsDirectory() as Directory).path}/';
+    debugPrint("---- $directory ----");
+  }
+
   var videoDir = '${directory}videos/';
   var outputPalettePath = '';
 
@@ -268,7 +284,9 @@ Future<DownloadTask> _startDownload(String myUrl) async {
       }
     }
     count++;
-    await _progressNotification(titleText, count, arcacon.length);
+    if (Platform.isAndroid || Platform.isIOS) {
+      await _progressNotification(titleText, count, arcacon.length);
+    }
   }
 
   try {
@@ -277,11 +295,14 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     debugPrint("오류: 원본 영상 파일을 제거할 수 없음\n$ex");
   }
 
-  await _progressNotification(titleText, 1, 1);
+  if (Platform.isAndroid || Platform.isIOS) {
+    await _progressNotification(titleText, 1, 1);
 
-  await Future.delayed(const Duration(milliseconds: 500));
-  await flutterLocalNotificationsPlugin.cancel(nowRunning[titleText]!);
-  await _showNotification(titleText);
+    await Future.delayed(const Duration(milliseconds: 500));
+    await flutterLocalNotificationsPlugin.cancel(nowRunning[titleText]!);
+    await _showNotification(titleText);
+  }
+
   nowRunning.remove(titleText);
   result.result = Result.success;
   return result;
@@ -430,36 +451,56 @@ Future<void> onPressStartDownload(String url) async {
   var result = await _startDownload(url);
   if (result.result == Result.success) {
     if (result.errorCount == 0) {
-      Fluttertoast.showToast(
-          msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
-          gravity: ToastGravity.BOTTOM,
-          toastLength: Toast.LENGTH_SHORT,
-          backgroundColor: Colors.indigoAccent);
+      if (Platform.isAndroid || Platform.isIOS) {
+        Fluttertoast.showToast(
+            msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
+            gravity: ToastGravity.BOTTOM,
+            toastLength: Toast.LENGTH_SHORT,
+            backgroundColor: Colors.indigoAccent);
+      } else {
+        // Desktop Platform Implements
+      }
     } else {
-      Fluttertoast.showToast(
-          msg:
-              "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
-          gravity: ToastGravity.BOTTOM,
-          toastLength: Toast.LENGTH_SHORT,
-          backgroundColor: Colors.green);
+      if (Platform.isAndroid || Platform.isIOS) {
+        Fluttertoast.showToast(
+            msg:
+                "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+            gravity: ToastGravity.BOTTOM,
+            toastLength: Toast.LENGTH_SHORT,
+            backgroundColor: Colors.green);
+      } else {
+        // Desktop Platform Implements
+      }
     }
   } else if (result.result == Result.connectError) {
-    Fluttertoast.showToast(
-        msg: "해당 주소로 이동할 수 없습니다...",
-        gravity: ToastGravity.BOTTOM,
-        toastLength: Toast.LENGTH_SHORT,
-        backgroundColor: Colors.red);
+    if (Platform.isAndroid || Platform.isIOS) {
+      Fluttertoast.showToast(
+          msg: "해당 주소로 이동할 수 없습니다...",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.red);
+    } else {
+      // Desktop Platform Implements
+    }
   } else if (result.result == Result.noPermission) {
-    Fluttertoast.showToast(
-        msg: "허용되지 않은 권한이 있어요...",
-        gravity: ToastGravity.BOTTOM,
-        toastLength: Toast.LENGTH_SHORT,
-        backgroundColor: Colors.deepOrangeAccent);
+    if (Platform.isAndroid || Platform.isIOS) {
+      Fluttertoast.showToast(
+          msg: "허용되지 않은 권한이 있어요...",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.deepOrangeAccent);
+    } else {
+      // Desktop Platform Implements
+    }
   } else if (result.result == Result.alreadyRunning) {
-    Fluttertoast.showToast(
-        msg: "이미 다운로드가 진행중인 아카콘입니다!",
-        gravity: ToastGravity.BOTTOM,
-        toastLength: Toast.LENGTH_SHORT,
-        backgroundColor: Colors.red);
+    if (Platform.isAndroid || Platform.isIOS) {
+      Fluttertoast.showToast(
+          msg: "이미 다운로드가 진행중인 아카콘입니다!",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.red);
+    } else {
+      // Desktop Platform Implements
+    }
   }
 }
