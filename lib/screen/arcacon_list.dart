@@ -52,7 +52,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
         String title = element.children[0].children[1].children[0].text;
         if (element.children[0].children[1].children[0].outerHtml
             .contains('[email&nbsp;protected]')) {
-          debugPrint('$title-> 제목 변환');
+          // debugPrint('$title-> 제목 변환');
           title = element.children[0].children[1].children[0].outerHtml
               .replaceAll('<div class="title">', '');
           title = title.replaceAll('</div>', '');
@@ -61,7 +61,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
 
         String count = element.children[0].children[1].children[1].text;
         String maker = element.children[0].children[1].children[2].text;
-        debugPrint(title);
+        // debugPrint(title);
         previewList.add(
           PreviewArcaconItem(
               "https://arca.live${element.attributes['href']!}",
@@ -87,7 +87,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
     }
     nowWorkingPage = targetPage;
     String url = "https://arca.live/e/?p=$targetPage";
-    debugPrint(url);
+    // debugPrint(url);
 
     http.Client client = http.Client();
     http.Response response = await client.get(Uri.parse(url));
@@ -101,7 +101,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
       String title = element.children[0].children[1].children[0].text;
       if (element.children[0].children[1].children[0].outerHtml
           .contains('[email&nbsp;protected]')) {
-        debugPrint('$title-> 제목 변환');
+        // debugPrint('$title-> 제목 변환');
         title = element.children[0].children[1].children[0].outerHtml
             .replaceAll('<div class="title">', '');
         title = title.replaceAll('</div>', '');
@@ -110,7 +110,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
 
       String count = element.children[0].children[1].children[1].text;
       String maker = element.children[0].children[1].children[2].text;
-      debugPrint(title);
+      //debugPrint(title);
       previewList.add(PreviewArcaconItem(
           "https://arca.live${element.attributes['href']!}",
           "https:${element.children[0].children[0].attributes['src']!}",
@@ -136,13 +136,19 @@ class ArcaconPageState extends State<ArcaconPage>
   Future<void> requestNew() async {
     previewList.clear();
     setState(() {
-      items = loadPage(true);
-      if (scrollController.offset >
-          scrollController.position.maxScrollExtent -
-              MediaQuery.of(context).size.height *
-                  MediaQuery.of(context).devicePixelRatio) {
-        requestMore().then((value) => setState(() {}));
-      }
+      items = loadPage(true).whenComplete(() {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          for (int i = 0; i < 5; i++) {
+            if (scrollController.offset >
+                scrollController.position.maxScrollExtent -
+                    MediaQuery.of(context).size.height *
+                        MediaQuery.of(context).devicePixelRatio) {
+              await requestMore();
+              setState(() {});
+            }
+          }
+        });
+      });
     });
   }
 
@@ -158,8 +164,20 @@ class ArcaconPageState extends State<ArcaconPage>
   @override
   void initState() {
     super.initState();
-    items = loadPage(true).whenComplete(() => requestMore());
     scrollController = ScrollController();
+    items = loadPage(true).whenComplete(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        for (int i = 0; i < 5; i++) {
+          if (scrollController.offset >
+              scrollController.position.maxScrollExtent -
+                  MediaQuery.of(context).size.height *
+                      MediaQuery.of(context).devicePixelRatio) {
+            await requestMore();
+            setState(() {});
+          }
+        }
+      });
+    });
 
     scrollController.addListener(() {
       if (scrollController.offset >
@@ -182,11 +200,8 @@ class ArcaconPageState extends State<ArcaconPage>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('목록'),
-        elevation: 0,
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        title: const Text('탐색'),
       ),
-      backgroundColor: Theme.of(context).backgroundColor,
       body: Center(
         child: FutureBuilder(
           future: items,
@@ -205,78 +220,73 @@ class ArcaconPageState extends State<ArcaconPage>
                     controller: scrollController,
                     itemBuilder: (context, position) {
                       return Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6)),
                         borderOnForeground: false,
-                        elevation: 10,
-                        child: GestureDetector(
+                        child: InkWell(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(12.0)),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ConPage(
-                                        item: snapshot.data![position],
-                                      )),
+                                builder: (context) => ConPage(
+                                  item: snapshot.data![position],
+                                ),
+                              ),
                             );
                           },
-                          child: Container(
-                            color: Colors.transparent,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (snapshot.data![position].imageUrl
-                                    .endsWith('mp4'))
-                                  Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: const SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: Icon(Icons.play_circle,
-                                            color: Colors.red, size: 50)),
-                                  )
-                                else
-                                  Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: CachedNetworkImage(
-                                        imageUrl:
-                                            snapshot.data![position].imageUrl,
-                                        progressIndicatorBuilder: (context, url,
-                                                downloadProgress) =>
-                                            CircularProgressIndicator(
-                                                value:
-                                                    downloadProgress.progress),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(Icons.error),
-                                      ),
-                                    ),
-                                  ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (snapshot.data![position].imageUrl
+                                  .endsWith('mp4'))
                                 Container(
                                   margin:
-                                      const EdgeInsets.fromLTRB(5, 10, 5, 0),
-                                  child: Text(
-                                    snapshot.data![position].title,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  child: const SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: Icon(Icons.play_circle,
+                                          color: Colors.red, size: 50)),
+                                )
+                              else
                                 Container(
-                                  margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                                  child: Text(
-                                    snapshot.data![position].maker,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.normal),
-                                    overflow: TextOverflow.ellipsis,
+                                  margin:
+                                      const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  child: SizedBox(
+                                    width: 100,
+                                    height: 100,
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          snapshot.data![position].imageUrl,
+                                      progressIndicatorBuilder: (context, url,
+                                              downloadProgress) =>
+                                          CircularProgressIndicator(
+                                              value: downloadProgress.progress),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(5, 10, 5, 0),
+                                child: Text(
+                                  snapshot.data![position].title,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                child: Text(
+                                  snapshot.data![position].maker,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.normal),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
