@@ -151,7 +151,6 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   }
 
   var videoDir = '${directory}videos/';
-  var outputPalettePath = '';
 
   for (var con in arcacon) {
     if (con.endsWith('.png')) {
@@ -209,74 +208,86 @@ Future<DownloadTask> _startDownload(String myUrl) async {
           '${(count + 1).toString().padLeft(arcacon.length.toString().length, '0')}.gif';
       var res = await downloadFile(con, fileName + fileType, videoDir);
       if (res == false) result.errorCount++;
-      outputPalettePath = '${videoDir}palette.png';
+      var outputPalettePath = '${videoDir}palette.png';
 
-      var fps = 25.0;
+      if (Platform.isAndroid || Platform.isIOS) {
+        var fps = 25.0;
 
-      var l = await FFprobeKit.execute(
-          "-v 0 -of compact=p=0 -select_streams 0 -show_entries stream=r_frame_rate '${videoDir + fileName + fileType}'");
-      await l.getOutput().then((value) => {
-            if (value != null)
-              {
-                value = value.replaceAll("r_frame_rate=", ""),
-                fps = double.parse(value.split('/')[0]) /
-                    double.parse(value.split('/')[1]),
-                debugPrint("프레임: $value ($fps)"),
-              }
-          });
+        var l = await FFprobeKit.execute(
+            "-v 0 -of compact=p=0 -select_streams 0 -show_entries stream=r_frame_rate '${videoDir + fileName + fileType}'");
+        await l.getOutput().then((value) => {
+              if (value != null)
+                {
+                  value = value.replaceAll("r_frame_rate=", ""),
+                  fps = double.parse(value.split('/')[0]) /
+                      double.parse(value.split('/')[1]),
+                  debugPrint("프레임: $value ($fps)"),
+                }
+            });
 
-      while (fps > 50) {
-        fps = fps / 2;
-        debugPrint("프레임 변경: $fps");
+        while (fps > 50) {
+          fps = fps / 2;
+          debugPrint("프레임 변경: $fps");
+        }
+
+        await FFmpegKit.executeWithArguments([
+          '-y',
+          '-i',
+          videoDir + fileName + fileType,
+          '-vf',
+          'scale=100:-1:flags=lanczos,palettegen',
+          '-hide_banner',
+          '-loglevel',
+          'error',
+          '${videoDir}palette.png'
+        ]).then((session) async {
+          final returnCode = await session.getReturnCode();
+
+          if (ReturnCode.isSuccess(returnCode)) {
+            debugPrint(
+                "$fileName$fileType 팔레트 추출 성공 ${returnCode!.getValue()}");
+          } else if (ReturnCode.isCancel(returnCode)) {
+            debugPrint(
+                "$fileName$fileType 팔레트 추출 취소 ${returnCode!.getValue()}");
+          } else {
+            debugPrint(
+                "$fileName$fileType 팔레트 추출 오류 ${returnCode!.getValue()}");
+          }
+        });
+        await FFmpegKit.executeWithArguments([
+          '-y',
+          '-i',
+          videoDir + fileName + fileType,
+          '-i',
+          '${videoDir}palette.png',
+          '-filter_complex',
+          'scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
+          '-hide_banner',
+          '-loglevel',
+          'error',
+          '-r',
+          fps.toString(),
+          directory + convertedFileName
+        ]).then((session) async {
+          final returnCode = await session.getReturnCode();
+
+          if (ReturnCode.isSuccess(returnCode)) {
+            debugPrint(
+                "$fileName$fileType gif 변환 성공 ${returnCode!.getValue()}");
+          } else if (ReturnCode.isCancel(returnCode)) {
+            debugPrint(
+                "$fileName$fileType gif 변환 취소 ${returnCode!.getValue()}");
+          } else {
+            debugPrint(
+                "$fileName$fileType gif 변환 오류 ${returnCode!.getValue()}");
+            result.errorCount++;
+          }
+        });
+      } else {
+        // TODO: Windows Implements
+
       }
 
-      await FFmpegKit.executeWithArguments([
-        '-y',
-        '-i',
-        videoDir + fileName + fileType,
-        '-vf',
-        'scale=100:-1:flags=lanczos,palettegen',
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        '${videoDir}palette.png'
-      ]).then((session) async {
-        final returnCode = await session.getReturnCode();
-
-        if (ReturnCode.isSuccess(returnCode)) {
-          debugPrint("$fileName$fileType 팔레트 추출 성공 ${returnCode!.getValue()}");
-        } else if (ReturnCode.isCancel(returnCode)) {
-          debugPrint("$fileName$fileType 팔레트 추출 취소 ${returnCode!.getValue()}");
-        } else {
-          debugPrint("$fileName$fileType 팔레트 추출 오류 ${returnCode!.getValue()}");
-        }
-      });
-      await FFmpegKit.executeWithArguments([
-        '-y',
-        '-i',
-        videoDir + fileName + fileType,
-        '-i',
-        '${videoDir}palette.png',
-        '-filter_complex',
-        'scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        '-r',
-        fps.toString(),
-        directory + convertedFileName
-      ]).then((session) async {
-        final returnCode = await session.getReturnCode();
-
-        if (ReturnCode.isSuccess(returnCode)) {
-          debugPrint("$fileName$fileType gif 변환 성공 ${returnCode!.getValue()}");
-        } else if (ReturnCode.isCancel(returnCode)) {
-          debugPrint("$fileName$fileType gif 변환 취소 ${returnCode!.getValue()}");
-        } else {
-          debugPrint("$fileName$fileType gif 변환 오류 ${returnCode!.getValue()}");
-          result.errorCount++;
-        }
-      });
       try {
         File(outputPalettePath).deleteSync(recursive: false);
       } catch (ex) {
@@ -364,12 +375,9 @@ class FirstPage extends StatelessWidget {
       },
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-            elevation: 0,
             centerTitle: true,
             title: const Text('아카콘 다운로더'),
           ),
-          backgroundColor: Theme.of(context).backgroundColor,
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -378,18 +386,16 @@ class FirstPage extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 20, right: 20),
                   child: TextField(
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelStyle: TextStyle(fontSize: 20),
-                        labelText: '아카콘 링크'),
+                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(fontSize: 20),
+                      labelText: '아카콘 링크',
+                    ),
                     controller: textController,
                     keyboardType: TextInputType.url,
                     focusNode: textFocus,
                   ),
                 ),
-                const SizedBox(
-                  width: 0,
-                  height: 4,
-                ),
+                const SizedBox(width: 0, height: 8),
                 ElevatedButton(
                     onPressed: () async {
                       ClipboardData? data =
@@ -410,22 +416,16 @@ class FirstPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 FloatingActionButton(
-                  backgroundColor: const Color(0xFF9A9895),
                   onPressed: () async {
                     launchURL(context, 'https://arca.live/e/?p=1');
                   },
-                  tooltip: '웹에서 검색',
                   mini: true,
-                  child: const Icon(
-                    Icons.search,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.search),
                 ),
                 const SizedBox(
                   height: 10,
                 ),
                 FloatingActionButton(
-                  backgroundColor: const Color(0xFF9A9895),
                   onPressed: () async => {
                     if (textController.text.isEmpty)
                       {
@@ -438,9 +438,8 @@ class FirstPage extends StatelessWidget {
                     else
                       {onPressStartDownload(textController.text)}
                   },
-                  tooltip: '다운로드 시작',
                   mini: true,
-                  child: const Icon(Icons.download, color: Colors.white),
+                  child: const Icon(Icons.download),
                 ),
               ])),
     );

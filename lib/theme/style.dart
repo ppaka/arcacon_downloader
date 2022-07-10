@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'color_schemes.g.dart';
 
 ThemeData testTheme() {
   const seedColor = Color(0xFF4F5464);
@@ -65,4 +66,20 @@ ThemeData darkTheme() {
       ),
       appBarTheme:
           const AppBarTheme(backgroundColor: Color.fromRGBO(50, 50, 50, 1)));
+}
+
+ThemeData material3Test() {
+  return ThemeData(
+    fontFamily: 'NotoSansKR',
+    useMaterial3: true,
+    colorScheme: lightColorScheme,
+  );
+}
+
+ThemeData material3TestDark() {
+  return ThemeData(
+    fontFamily: 'NotoSansKR',
+    useMaterial3: true,
+    colorScheme: darkColorScheme,
+  );
 }

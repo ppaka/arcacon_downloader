@@ -147,6 +147,7 @@ class _ConPageState extends State<ConPage> {
               },
               child: const Text('다운로드')),
         ),
+        const SizedBox(height: 8),
         SizedBox(
           width: MediaQuery.of(context).size.width - 40,
           child: OutlinedButton(
@@ -196,7 +197,7 @@ class _ConPageState extends State<ConPage> {
 }
 
 Widget img(List<String> data, int position) {
-  print(data[position]);
+  // debugPrint(data[position]);
 
   if (data[position].endsWith('mp4')) {
     return Container(
