@@ -68,18 +68,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.1
-  msix: ^2.8.18
-
-msix_config:
-  display_name: 아카콘 다운로더
-  publisher_display_name: ppaka
-  identity_name: com.ppaka.ArcaconDownloader
-  msix_version: 1.3.0.0
-  logo_path: D:\Projects\AndroidStudio\arcacon_downloader\lib\res\logo.png
-  capabilities: internetClient
-  languages: ko-kr
-  certificate_path: C:\Program Files\OpenSSL-Win64\bin\CERTIFICATE.pfx
-  certificate_password: jnarcacon
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

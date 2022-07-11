@@ -23,6 +23,14 @@ class PreviewArcaconItem {
       this.pageUrl, this.imageUrl, this.title, this.count, this.maker);
 }
 
+late ScrollController scrollController;
+
+void scrollToZero() {
+  scrollController.animateTo(0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOutQuart);
+}
+
 Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
   if (loadFirstPage) {
     return Future<List<PreviewArcaconItem>>(() async {
@@ -159,8 +167,6 @@ class ArcaconPageState extends State<ArcaconPage>
     });
   }
 
-  late ScrollController scrollController;
-
   @override
   void initState() {
     super.initState();
@@ -191,8 +197,8 @@ class ArcaconPageState extends State<ArcaconPage>
 
   @override
   void dispose() {
-    scrollController.dispose();
     super.dispose();
+    scrollController.dispose();
   }
 
   @override
