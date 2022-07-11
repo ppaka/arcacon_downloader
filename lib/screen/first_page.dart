@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:arcacon_downloader/screen/base_page.dart';
 import 'package:arcacon_downloader/utility/string_converter.dart';
 import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
@@ -39,7 +40,7 @@ Future<bool> downloadFile(String url, String fileName, String dir) async {
   }
 }
 
-enum Result { noPermission, connectError, success, alreadyRunning }
+enum Result { noPermission, connectError, success, alreadyRunning, pipError }
 
 void cancelAllTasks() {
   FFmpegKit.cancel();
@@ -82,11 +83,13 @@ Future<DownloadTask> _startDownload(String myUrl) async {
       'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div')!;
 
   int totalCount = 0;
+  bool downloadVideo = false;
 
   links.getElementsByTagName('video').forEach((element) {
     /*var eachUrl = 'https:' + element.attributes['src'].toString();
     arcacon.add(eachUrl);*/
     totalCount++;
+    downloadVideo = true;
   });
   links.getElementsByTagName('img').forEach((element) {
     /*var eachUrl = 'https:' + element.attributes['src'].toString();
@@ -96,7 +99,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
 
   List<String> arcacon = [];
 
-  debugPrint(totalCount.toString());
+  debugPrint('Total: $totalCount');
 
   for (var element in links.children) {
     if (element.toString().startsWith('<div')) {
@@ -127,7 +130,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         toastLength: Toast.LENGTH_SHORT,
         backgroundColor: Colors.black87);
   } else {
-    // Desktop Platform Implements
+    showToast(Colors.black87, Icons.download_rounded, "다운로드를 시작하겠습니다!", null);
   }
 
   int randomValue = Random.secure().nextInt(2147483647);
@@ -141,13 +144,61 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   }
 
   var directory = '';
+  var pyDirectory = '';
   if (Platform.isAndroid) {
     directory = '/storage/emulated/0/Download/$titleText/';
   } else if (Platform.isIOS) {
     directory = '';
   } else {
-    directory = '${(await getDownloadsDirectory() as Directory).path}/';
-    debugPrint("---- $directory ----");
+    directory =
+        '${(await getDownloadsDirectory() as Directory).path}/$titleText/';
+    // debugPrint("---- $directory ----");
+
+    var exePath = Platform.resolvedExecutable.toString();
+    var exeDirectory =
+        exePath.replaceRange(exePath.lastIndexOf('\\') + 1, null, '');
+    pyDirectory = '$exeDirectory\\res\\';
+
+    if (downloadVideo) {
+      debugPrint('-----imageio 설치-----');
+      var processRes =
+          await Process.run('python', ['-m', 'pip', 'install', 'imageio']);
+      debugPrint(processRes.stdout);
+      debugPrint(processRes.stderr);
+      debugPrint(processRes.exitCode.toString());
+      debugPrint('-----imageio 종료-----');
+
+      if (processRes.exitCode != 0) {
+        result.result = Result.pipError;
+        return result;
+      }
+
+      debugPrint('-----imageio[ffmpeg] 설치-----');
+      processRes = await Process.run(
+          'python', ['-m', 'pip', 'install', 'imageio[ffmpeg]']);
+      debugPrint(processRes.stdout);
+      debugPrint(processRes.stderr);
+      debugPrint(processRes.exitCode.toString());
+      debugPrint('-----imageio[ffmpeg] 종료-----');
+
+      if (processRes.exitCode != 0) {
+        result.result = Result.pipError;
+        return result;
+      }
+
+      debugPrint('-----ffmpeg-python 설치-----');
+      processRes = await Process.run(
+          'python', ['-m', 'pip', 'install', 'ffmpeg-python']);
+      debugPrint(processRes.stdout);
+      debugPrint(processRes.stderr);
+      debugPrint(processRes.exitCode.toString());
+      debugPrint('-----ffmpeg-python 종료-----');
+
+      if (processRes.exitCode != 0) {
+        result.result = Result.pipError;
+        return result;
+      }
+    }
   }
 
   var videoDir = '${directory}videos/';
@@ -284,8 +335,15 @@ Future<DownloadTask> _startDownload(String myUrl) async {
           }
         });
       } else {
-        // TODO: Windows Implements
-
+        var processRes = await Process.run('python', [
+          '${pyDirectory}convert.py',
+          videoDir + fileName + fileType,
+          directory + convertedFileName,
+          outputPalettePath
+        ]);
+        debugPrint(processRes.stdout.toString());
+        debugPrint(processRes.stderr.toString());
+        debugPrint(processRes.exitCode.toString());
       }
 
       try {
@@ -430,17 +488,21 @@ class FirstPage extends StatelessWidget {
                   height: 10,
                 ),
                 FloatingActionButton(
-                  onPressed: () async => {
-                    if (textController.text.isEmpty)
-                      {
+                  onPressed: () async {
+                    if (textController.text.isEmpty) {
+                      if (Platform.isAndroid || Platform.isIOS) {
                         Fluttertoast.showToast(
                             msg: "주소를 입력해주세요!",
                             gravity: ToastGravity.BOTTOM,
                             toastLength: Toast.LENGTH_SHORT,
-                            backgroundColor: Colors.redAccent[400])
+                            backgroundColor: Colors.redAccent[400]);
+                      } else {
+                        showToast(Colors.redAccent, Icons.warning_rounded,
+                            "주소를 입력해주세요!", null);
                       }
-                    else
-                      {onPressStartDownload(textController.text)}
+                    } else {
+                      onPressStartDownload(textController.text);
+                    }
                   },
                   mini: true,
                   child: const Icon(Icons.download),
@@ -461,7 +523,8 @@ Future<void> onPressStartDownload(String url) async {
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.indigoAccent);
       } else {
-        // Desktop Platform Implements
+        showToast(Colors.indigoAccent, Icons.check_rounded,
+            "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!", null);
       }
     } else {
       if (Platform.isAndroid || Platform.isIOS) {
@@ -472,7 +535,11 @@ Future<void> onPressStartDownload(String url) async {
             toastLength: Toast.LENGTH_SHORT,
             backgroundColor: Colors.green);
       } else {
-        // Desktop Platform Implements
+        showToast(
+            Colors.green,
+            Icons.check_rounded,
+            "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+            null);
       }
     }
   } else if (result.result == Result.connectError) {
@@ -483,7 +550,7 @@ Future<void> onPressStartDownload(String url) async {
           toastLength: Toast.LENGTH_SHORT,
           backgroundColor: Colors.red);
     } else {
-      // Desktop Platform Implements
+      showToast(Colors.red, Icons.error_rounded, "해당 주소로 이동할 수 없습니다...", null);
     }
   } else if (result.result == Result.noPermission) {
     if (Platform.isAndroid || Platform.isIOS) {
@@ -493,7 +560,8 @@ Future<void> onPressStartDownload(String url) async {
           toastLength: Toast.LENGTH_SHORT,
           backgroundColor: Colors.deepOrangeAccent);
     } else {
-      // Desktop Platform Implements
+      showToast(Colors.deepOrangeAccent, Icons.warning_rounded,
+          "허용되지 않은 권한이 있어요...", null);
     }
   } else if (result.result == Result.alreadyRunning) {
     if (Platform.isAndroid || Platform.isIOS) {
@@ -503,7 +571,19 @@ Future<void> onPressStartDownload(String url) async {
           toastLength: Toast.LENGTH_SHORT,
           backgroundColor: Colors.red);
     } else {
-      // Desktop Platform Implements
+      showToast(Colors.red, Icons.notifications_rounded,
+          "이미 다운로드가 진행중인 아카콘입니다!", null);
+    }
+  } else if (result.result == Result.pipError) {
+    if (Platform.isAndroid || Platform.isIOS) {
+      Fluttertoast.showToast(
+          msg: "파이썬 pip 모듈을 설치하는데 오류가 발생했습니다...",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.red);
+    } else {
+      showToast(Colors.red, Icons.error_outline_rounded,
+          "파이썬 pip 모듈을 설치하는데 오류가 발생했습니다...", null);
     }
   }
 }
