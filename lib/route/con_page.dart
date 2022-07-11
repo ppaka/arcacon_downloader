@@ -214,17 +214,20 @@ Widget img(List<String> data, int position) {
           child: Icon(Icons.play_circle, color: Colors.red, size: 50)),
     );
   } else if (data[position].endsWith('.thumbnail.jpg')) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomEnd,
-      children: [
-        CachedNetworkImage(
-          imageUrl: data[position],
-          progressIndicatorBuilder: (context, url, downloadProgress) =>
-              CircularProgressIndicator(value: downloadProgress.progress),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
-        ),
-        const Icon(Icons.play_circle, color: Colors.red, size: 24),
-      ],
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      child: Stack(
+        alignment: AlignmentDirectional.bottomEnd,
+        children: [
+          CachedNetworkImage(
+            imageUrl: data[position],
+            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                CircularProgressIndicator(value: downloadProgress.progress),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+          const Icon(Icons.play_circle, color: Colors.red, size: 24),
+        ],
+      ),
     );
   } else {
     return Container(
