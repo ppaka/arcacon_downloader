@@ -31,7 +31,7 @@ Future<bool> downloadFile(String url, String fileName, String dir) async {
     Dio dio = Dio();
     await dio.download(url, dir + fileName, deleteOnError: false);
     dio.close();
-    debugPrint('$fileName 파일 다운로드 완료');
+    // debugPrint('$fileName 파일 다운로드 완료');
     return true;
   } catch (ex) {
     debugPrint('$fileName 오류: $ex');
@@ -417,7 +417,11 @@ class FirstPage extends StatelessWidget {
               children: [
                 FloatingActionButton(
                   onPressed: () async {
-                    launchURL(context, 'https://arca.live/e/?p=1');
+                    if (Platform.isAndroid || Platform.isIOS) {
+                      launchURL(context, 'https://arca.live/e/?p=1');
+                    } else {
+                      launchURLtoBrowser(context, 'https://arca.live/e/?p=1');
+                    }
                   },
                   mini: true,
                   child: const Icon(Icons.search),
