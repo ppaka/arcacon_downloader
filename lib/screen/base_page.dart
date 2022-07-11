@@ -1,6 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../screen/first_page.dart';
 import '../screen/arcacon_list.dart';
+
+late FToast fToast;
+
+showToast(Color color, IconData icon, String text, Duration? duration) {
+  duration ??= const Duration(seconds: 2);
+
+  Widget toast = Container(
+    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(25.0),
+      color: color,
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon),
+        const SizedBox(
+          width: 12.0,
+        ),
+        Text(text),
+      ],
+    ),
+  );
+
+  fToast.removeCustomToast();
+
+  fToast.showToast(
+    child: toast,
+    gravity: ToastGravity.BOTTOM,
+    toastDuration: duration,
+  );
+}
 
 class BasePage extends StatefulWidget {
   const BasePage({Key? key, required this.title}) : super(key: key);
@@ -22,8 +55,10 @@ class _BasePageState extends State<BasePage>
 
   @override
   void initState() {
-    _controller = TabController(length: 2, vsync: this);
     super.initState();
+    _controller = TabController(length: 2, vsync: this);
+    fToast = FToast();
+    fToast.init(context);
   }
 
   @override

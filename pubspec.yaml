@@ -37,7 +37,7 @@ dependencies:
   html: ^0.15.0
   http: ^0.13.4
   path: ^1.8.0
-  permission_handler: ^9.2.0
+  permission_handler: ^10.0.0
   fluttertoast: ^8.0.8
   flutter_custom_tabs: ^1.0.3
   flutter_local_notifications: ^9.2.0
