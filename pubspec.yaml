@@ -52,6 +52,12 @@ dependencies:
   ffmpeg_cli: ^0.1.0
   url_launcher: ^6.1.4
 
+  window_size:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding.git
+      path: plugins/window_size
+      ref: 5c51870ced62a00e809ba4b81a846a052d241c9f
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
