@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:window_size/window_size.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +12,9 @@ void main() {
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
   runApp(const ArcaconDownloader());
+  if (!Platform.isAndroid && !Platform.isIOS) {
+    setWindowTitle("아카콘 다운로더");
+  }
 }
 
 class ArcaconDownloader extends StatelessWidget {
