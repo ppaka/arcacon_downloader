@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arcacon_downloader/utility/string_converter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
@@ -152,7 +154,11 @@ class _ConPageState extends State<ConPage> {
           width: MediaQuery.of(context).size.width - 40,
           child: OutlinedButton(
               onPressed: () {
-                launchURL(context, widget.item.pageUrl);
+                if (Platform.isAndroid || Platform.isIOS) {
+                  launchURL(context, widget.item.pageUrl);
+                } else {
+                  launchURLtoBrowser(context, widget.item.pageUrl);
+                }
               },
               child: const Text('웹에서 열기')),
         ),
