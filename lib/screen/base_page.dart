@@ -63,8 +63,8 @@ class _BasePageState extends State<BasePage>
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
+    _controller.dispose();
   }
 
   late TabController _controller;
@@ -73,42 +73,12 @@ class _BasePageState extends State<BasePage>
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
-      initialIndex: 0,
-      child: MediaQuery.of(context).size.width < 900
-          ? Scaffold(
-              body: TabBarView(
-                controller: _controller,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [FirstPage(), const ArcaconPage()],
-              ),
-              bottomNavigationBar: NavigationBar(
-                onDestinationSelected: (value) {
-                  setState(() {
-                    currentPageIndex = value;
-                    _controller.animateTo(currentPageIndex);
-                  });
-                },
-                selectedIndex: currentPageIndex,
-                destinations: const <Widget>[
-                  NavigationDestination(
-                    selectedIcon: Icon(Icons.download_rounded),
-                    icon: Icon(Icons.download_outlined),
-                    label: '다운로드',
-                    tooltip: '',
-                  ),
-                  NavigationDestination(
-                    selectedIcon: Icon(Icons.explore_rounded),
-                    icon: Icon(Icons.explore_outlined),
-                    label: '탐색',
-                    tooltip: '',
-                  ),
-                ],
-              ),
-            )
-          : Scaffold(
-              body: Row(
-                children: [
+        length: 2,
+        initialIndex: 0,
+        child: Scaffold(
+            body: Row(
+              children: [
+                if (MediaQuery.of(context).size.width >= 640)
                   NavigationRail(
                     onDestinationSelected: (value) {
                       setState(() {
@@ -131,18 +101,45 @@ class _BasePageState extends State<BasePage>
                       ),
                     ],
                   ),
-                  const VerticalDivider(thickness: 1, width: 1),
-                  // This is the main content.
-                  Expanded(
-                    child: TabBarView(
-                      controller: _controller,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [FirstPage(), const ArcaconPage()],
-                    ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _controller,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [FirstPage(), const ArcaconPage()],
                   ),
-                ],
-              ),
+                )
+              ],
             ),
-    );
+            bottomNavigationBar: MediaQuery.of(context).size.width < 640
+                ? NavigationBar(
+                    height: 65,
+                    labelBehavior:
+                        NavigationDestinationLabelBehavior.onlyShowSelected,
+                    onDestinationSelected: (value) {
+                      if (currentPageIndex == value && value == 1) {
+                        scrollToZero();
+                      }
+                      setState(() {
+                        currentPageIndex = value;
+                        _controller.animateTo(currentPageIndex);
+                      });
+                    },
+                    selectedIndex: currentPageIndex,
+                    destinations: const <Widget>[
+                      NavigationDestination(
+                        selectedIcon: Icon(Icons.download),
+                        icon: Icon(Icons.download_outlined),
+                        label: '다운로드',
+                        tooltip: '',
+                      ),
+                      NavigationDestination(
+                        selectedIcon: Icon(Icons.explore),
+                        icon: Icon(Icons.explore_outlined),
+                        label: '탐색',
+                        tooltip: '',
+                      ),
+                    ],
+                  )
+                : null));
   }
 }

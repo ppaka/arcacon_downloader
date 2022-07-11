@@ -220,6 +220,8 @@ Widget img(List<String> data, int position) {
         alignment: AlignmentDirectional.bottomEnd,
         children: [
           CachedNetworkImage(
+            width: 100,
+            height: 100,
             imageUrl: data[position],
             progressIndicatorBuilder: (context, url, downloadProgress) =>
                 CircularProgressIndicator(value: downloadProgress.progress),
@@ -236,6 +238,8 @@ Widget img(List<String> data, int position) {
         width: 100,
         height: 100,
         child: CachedNetworkImage(
+          width: 100,
+          height: 100,
           imageUrl: data[position],
           progressIndicatorBuilder: (context, url, downloadProgress) =>
               CircularProgressIndicator(value: downloadProgress.progress),
