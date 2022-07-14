@@ -460,7 +460,7 @@ class FirstPage extends StatelessWidget {
                           await Clipboard.getData('text/plain');
                       if (data != null) {
                         if (data.text != null) {
-                          textController.text = data.text!;
+                          textController.text = data.text as String;
                         }
                       }
                     },

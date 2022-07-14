@@ -11,10 +11,14 @@ void main() {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
-  runApp(const ArcaconDownloader());
-  if (!Platform.isAndroid && !Platform.isIOS) {
-    setWindowTitle("아카콘 다운로더");
-  }
+  WidgetsFlutterBinding.ensureInitialized();
+
+  Future.delayed(const Duration(milliseconds: 200), () {
+    runApp(const ArcaconDownloader());
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      setWindowTitle("아카콘 다운로더");
+    }
+  });
 }
 
 class ArcaconDownloader extends StatelessWidget {

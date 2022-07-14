@@ -51,10 +51,12 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
       var lastPageNumber = lastPageLinkBody!.replaceAll('/e/?p=', '');
       lastPage = int.parse(lastPageNumber);
 
+      previewList.clear();
+
       dom.Element? parsed = document.querySelector(
           'body > div.root-container > div.content-wrapper.clearfix > article > div > div > div.emoticon-list');
-      parsed!.children.removeAt(0);
-      previewList.clear();
+      if (parsed == null) return previewList;
+      parsed.children.removeAt(0);
 
       for (var element in parsed.children) {
         String title = element.children[0].children[1].children[0].text;
@@ -174,6 +176,9 @@ class ArcaconPageState extends State<ArcaconPage>
     items = loadPage(true).whenComplete(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         for (int i = 0; i < 5; i++) {
+          if (!scrollController.position.hasContentDimensions) {
+            return;
+          }
           if (scrollController.offset >
               scrollController.position.maxScrollExtent -
                   MediaQuery.of(context).size.height *
@@ -186,6 +191,9 @@ class ArcaconPageState extends State<ArcaconPage>
     });
 
     scrollController.addListener(() {
+      if (!scrollController.position.hasContentDimensions) {
+        return;
+      }
       if (scrollController.offset >
           scrollController.position.maxScrollExtent -
               MediaQuery.of(context).size.height *
