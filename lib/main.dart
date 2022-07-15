@@ -13,12 +13,10 @@ void main() {
   });
   WidgetsFlutterBinding.ensureInitialized();
 
-  Future.delayed(const Duration(milliseconds: 200), () {
-    runApp(const ArcaconDownloader());
-    if (!Platform.isAndroid && !Platform.isIOS) {
-      setWindowTitle("아카콘 다운로더");
-    }
-  });
+  runApp(const ArcaconDownloader());
+  if (!Platform.isAndroid && !Platform.isIOS) {
+    setWindowTitle("아카콘 다운로더");
+  }
 }
 
 class ArcaconDownloader extends StatelessWidget {
