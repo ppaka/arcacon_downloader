@@ -11,6 +11,7 @@ import 'package:html/dom.dart' as dom;
 import '../screen/arcacon_list.dart';
 import '../screen/first_page.dart';
 import '../utility/custom_tab.dart';
+import 'image_detail.dart';
 
 Future<List<String>> getCons(String url) async {
   var client = http.Client();
@@ -84,38 +85,54 @@ class _ConPageState extends State<ConPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Column(children: [
         Row(
           children: [
-            if (widget.item.imageUrl.endsWith('mp4'))
-              Container(
-                margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: const SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Icon(
-                      Icons.play_circle,
-                      color: Colors.red,
-                      size: 50,
-                    )),
-              )
-            else
-              Container(
-                  margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  child: SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: CachedNetworkImage(
-                        imageUrl: widget.item.imageUrl,
-                        progressIndicatorBuilder:
-                            (context, url, downloadProgress) =>
-                                CircularProgressIndicator(
-                                    value: downloadProgress.progress),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
-                      ))),
+            widget.item.imageUrl.endsWith('mp4')
+                ? Container(
+                    margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: const SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: Icon(
+                          Icons.play_circle,
+                          color: Colors.red,
+                          size: 50,
+                        )),
+                  )
+                : Container(
+                    margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: GestureDetector(
+                      onTap: () {
+                        navigateToImageDetailPage(
+                            context, widget.item.imageUrl, 'mainConImage');
+                      },
+                      child: Hero(
+                        tag: 'mainConImage',
+                        child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: CachedNetworkImage(
+                            imageUrl: widget.item.imageUrl,
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) =>
+                                    CircularProgressIndicator(
+                                        value: downloadProgress.progress),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +194,7 @@ class _ConPageState extends State<ConPage> {
                 return Expanded(
                     child: GridView.builder(
                   itemBuilder: (context, position) {
-                    return img(snapshot.data!, position);
+                    return img(context, snapshot.data!, position);
                   },
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: snapshot.data!.length,
@@ -202,9 +219,8 @@ class _ConPageState extends State<ConPage> {
   }
 }
 
-Widget img(List<String> data, int position) {
+Widget img(BuildContext context, List<String> data, int position) {
   // debugPrint(data[position]);
-
   if (data[position].endsWith('mp4')) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -216,19 +232,34 @@ Widget img(List<String> data, int position) {
   } else if (data[position].endsWith('.thumbnail.jpg')) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-      child: Stack(
-        alignment: AlignmentDirectional.bottomEnd,
-        children: [
-          CachedNetworkImage(
-            width: 100,
-            height: 100,
-            imageUrl: data[position],
-            progressIndicatorBuilder: (context, url, downloadProgress) =>
-                CircularProgressIndicator(value: downloadProgress.progress),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+      child: SizedBox(
+        width: 100,
+        height: 100,
+        child: GestureDetector(
+          onTap: () {
+            navigateToImageDetailPage(
+                context, data[position], position.toString());
+          },
+          child: Stack(
+            alignment: AlignmentDirectional.bottomEnd,
+            children: [
+              Hero(
+                  tag: position.toString(),
+                  child: CachedNetworkImage(
+                    width: 100,
+                    height: 100,
+                    imageUrl: data[position],
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) =>
+                            CircularProgressIndicator(
+                                value: downloadProgress.progress),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                  )),
+              const Icon(Icons.play_circle, color: Colors.red, size: 24),
+            ],
           ),
-          const Icon(Icons.play_circle, color: Colors.red, size: 24),
-        ],
+        ),
       ),
     );
   } else {
@@ -237,15 +268,52 @@ Widget img(List<String> data, int position) {
       child: SizedBox(
         width: 100,
         height: 100,
-        child: CachedNetworkImage(
-          width: 100,
-          height: 100,
-          imageUrl: data[position],
-          progressIndicatorBuilder: (context, url, downloadProgress) =>
-              CircularProgressIndicator(value: downloadProgress.progress),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+        child: GestureDetector(
+          onTap: () {
+            navigateToImageDetailPage(
+                context, data[position], position.toString());
+          },
+          child: Hero(
+            tag: position.toString(),
+            child: CachedNetworkImage(
+              width: 100,
+              height: 100,
+              imageUrl: data[position],
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  CircularProgressIndicator(value: downloadProgress.progress),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+void navigateToImageDetailPage(BuildContext context, String url, String tag) {
+  Navigator.push(
+    context,
+    PageRouteBuilder(
+      opaque: false,
+      transitionDuration: const Duration(milliseconds: 300),
+      reverseTransitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return FadeTransition(
+          opacity: Tween<double>(
+            begin: 0,
+            end: 1,
+          ).chain(CurveTween(curve: Curves.easeInOutSine)).animate(animation),
+          child: Semantics(
+            scopesRoute: true,
+            explicitChildNodes: true,
+            child: DetailScreen(
+              url: url,
+              tag: tag,
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }

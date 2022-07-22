@@ -81,6 +81,9 @@ class _BasePageState extends State<BasePage>
                 if (MediaQuery.of(context).size.width >= 640)
                   NavigationRail(
                     onDestinationSelected: (value) {
+                      if (currentPageIndex == value && value == 1) {
+                        scrollToZero();
+                      }
                       setState(() {
                         currentPageIndex = value;
                         _controller.animateTo(currentPageIndex);

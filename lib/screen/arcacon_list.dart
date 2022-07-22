@@ -13,6 +13,7 @@ int nowWorkingPage = -1;
 late int lastPage;
 List<PreviewArcaconItem> previewList = [];
 late Future<List<PreviewArcaconItem>> items;
+bool sortByRank = false;
 
 class PreviewArcaconItem {
   final String pageUrl;
@@ -36,7 +37,9 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
     return Future<List<PreviewArcaconItem>>(() async {
       int targetPage = 1;
       nowWorkingPage = 1;
-      String url = "https://arca.live/e/?p=$targetPage";
+      String url = !sortByRank
+          ? "https://arca.live/e/?p=$targetPage"
+          : "https://arca.live/e/?p=$targetPage&sort=rank";
 
       http.Client client = http.Client();
       http.Response response = await client.get(Uri.parse(url));
@@ -49,6 +52,7 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
           .children[0]
           .attributes['href'];
       var lastPageNumber = lastPageLinkBody!.replaceAll('/e/?p=', '');
+      lastPageNumber = lastPageNumber.replaceAll('/e/?sort=rank&p=', '');
       lastPage = int.parse(lastPageNumber);
 
       previewList.clear();
@@ -96,7 +100,9 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
       return previewList;
     }
     nowWorkingPage = targetPage;
-    String url = "https://arca.live/e/?p=$targetPage";
+    String url = !sortByRank
+        ? "https://arca.live/e/?p=$targetPage"
+        : "https://arca.live/e/?p=$targetPage&sort=rank";
     // debugPrint(url);
 
     http.Client client = http.Client();
@@ -215,6 +221,30 @@ class ArcaconPageState extends State<ArcaconPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('탐색'),
+        actions: [
+          //IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
+          PopupMenuButton(
+              tooltip: '',
+              icon: const Icon(Icons.filter_list),
+              itemBuilder: (context) {
+                return <PopupMenuEntry<String>>[
+                  PopupMenuItem(
+                    child: const Text('등록순'),
+                    onTap: () {
+                      sortByRank = false;
+                      requestNew();
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: const Text('판매순'),
+                    onTap: () {
+                      sortByRank = true;
+                      requestNew();
+                    },
+                  )
+                ];
+              }),
+        ],
       ),
       body: Center(
         child: FutureBuilder(
