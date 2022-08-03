@@ -51,9 +51,8 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
           .children[lastPageDocu.children.length - 1]
           .children[0]
           .attributes['href'];
-      var lastPageNumber = lastPageLinkBody!.replaceAll('/e/?p=', '');
-      lastPageNumber = lastPageNumber.replaceAll('/e/?sort=rank&p=', '');
-      lastPage = int.parse(lastPageNumber);
+      var lastPageNumber = Uri.parse(lastPageLinkBody!).queryParameters['p'];
+      lastPage = int.parse(lastPageNumber!);
 
       previewList.clear();
 

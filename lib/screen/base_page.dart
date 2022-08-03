@@ -4,6 +4,7 @@ import '../screen/first_page.dart';
 import '../screen/arcacon_list.dart';
 
 late FToast fToast;
+int _length = 2;
 
 showToast(Color color, IconData icon, String text, Duration? duration) {
   duration ??= const Duration(seconds: 2);
@@ -56,7 +57,7 @@ class _BasePageState extends State<BasePage>
   @override
   void initState() {
     super.initState();
-    _controller = TabController(length: 2, vsync: this);
+    _controller = TabController(length: _length, vsync: this);
     fToast = FToast();
     fToast.init(context);
   }
@@ -73,76 +74,92 @@ class _BasePageState extends State<BasePage>
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 2,
-        initialIndex: 0,
-        child: Scaffold(
-            body: Row(
-              children: [
-                if (MediaQuery.of(context).size.width >= 640)
-                  NavigationRail(
-                    onDestinationSelected: (value) {
-                      if (currentPageIndex == value && value == 1) {
-                        scrollToZero();
-                      }
-                      setState(() {
-                        currentPageIndex = value;
-                        _controller.animateTo(currentPageIndex);
-                      });
-                    },
-                    selectedIndex: currentPageIndex,
-                    labelType: NavigationRailLabelType.selected,
-                    destinations: const <NavigationRailDestination>[
-                      NavigationRailDestination(
-                        selectedIcon: Icon(Icons.download_rounded),
-                        icon: Icon(Icons.download_outlined),
-                        label: Text('다운로드'),
-                      ),
-                      NavigationRailDestination(
-                        selectedIcon: Icon(Icons.explore_rounded),
-                        icon: Icon(Icons.explore_outlined),
-                        label: Text('탐색'),
-                      ),
-                    ],
-                  ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _controller,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [FirstPage(), const ArcaconPage()],
-                  ),
+      length: _length,
+      initialIndex: 0,
+      child: Scaffold(
+          body: Row(
+            children: [
+              if (MediaQuery.of(context).size.width >= 640)
+                NavigationRail(
+                  onDestinationSelected: (value) {
+                    if (currentPageIndex == value && value == 1) {
+                      scrollToZero();
+                    }
+                    setState(() {
+                      currentPageIndex = value;
+                      _controller.animateTo(currentPageIndex);
+                    });
+                  },
+                  selectedIndex: currentPageIndex,
+                  labelType: NavigationRailLabelType.selected,
+                  destinations: const <NavigationRailDestination>[
+                    NavigationRailDestination(
+                      selectedIcon: Icon(Icons.download_rounded),
+                      icon: Icon(Icons.download_outlined),
+                      label: Text('다운로드'),
+                    ),
+                    NavigationRailDestination(
+                      selectedIcon: Icon(Icons.explore_rounded),
+                      icon: Icon(Icons.explore_outlined),
+                      label: Text('탐색'),
+                    ),
+                    // NavigationRailDestination(
+                    //   selectedIcon: Icon(Icons.search_rounded),
+                    //   icon: Icon(Icons.search_outlined),
+                    //   label: Text('검색'),
+                    // ),
+                  ],
+                ),
+              Expanded(
+                child: TabBarView(
+                  controller: _controller,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    FirstPage(),
+                    const ArcaconPage(),
+                    //const SearchPage()
+                  ],
+                ),
+              )
+            ],
+          ),
+          bottomNavigationBar: MediaQuery.of(context).size.width < 640
+              ? NavigationBar(
+                  height: 65,
+                  labelBehavior:
+                      NavigationDestinationLabelBehavior.onlyShowSelected,
+                  onDestinationSelected: (value) {
+                    if (currentPageIndex == value && value == 1) {
+                      scrollToZero();
+                    }
+                    setState(() {
+                      currentPageIndex = value;
+                      _controller.animateTo(currentPageIndex);
+                    });
+                  },
+                  selectedIndex: currentPageIndex,
+                  destinations: const <Widget>[
+                    NavigationDestination(
+                      selectedIcon: Icon(Icons.download),
+                      icon: Icon(Icons.download_outlined),
+                      label: '다운로드',
+                      tooltip: '',
+                    ),
+                    NavigationDestination(
+                      selectedIcon: Icon(Icons.explore),
+                      icon: Icon(Icons.explore_outlined),
+                      label: '탐색',
+                      tooltip: '',
+                    ),
+                    // NavigationDestination(
+                    //   selectedIcon: Icon(Icons.search_rounded),
+                    //   icon: Icon(Icons.search_outlined),
+                    //   label: '검색',
+                    //   tooltip: '',
+                    // ),
+                  ],
                 )
-              ],
-            ),
-            bottomNavigationBar: MediaQuery.of(context).size.width < 640
-                ? NavigationBar(
-                    height: 65,
-                    labelBehavior:
-                        NavigationDestinationLabelBehavior.onlyShowSelected,
-                    onDestinationSelected: (value) {
-                      if (currentPageIndex == value && value == 1) {
-                        scrollToZero();
-                      }
-                      setState(() {
-                        currentPageIndex = value;
-                        _controller.animateTo(currentPageIndex);
-                      });
-                    },
-                    selectedIndex: currentPageIndex,
-                    destinations: const <Widget>[
-                      NavigationDestination(
-                        selectedIcon: Icon(Icons.download),
-                        icon: Icon(Icons.download_outlined),
-                        label: '다운로드',
-                        tooltip: '',
-                      ),
-                      NavigationDestination(
-                        selectedIcon: Icon(Icons.explore),
-                        icon: Icon(Icons.explore_outlined),
-                        label: '탐색',
-                        tooltip: '',
-                      ),
-                    ],
-                  )
-                : null));
+              : null),
+    );
   }
 }
