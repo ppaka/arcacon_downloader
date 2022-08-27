@@ -219,18 +219,37 @@ class ArcaconPageState extends State<ArcaconPage>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('탐색'),
+        title: const TextField(),
         actions: [
-          //IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
           PopupMenuButton(
               tooltip: '',
-              icon: const Icon(Icons.filter_list),
+              icon: const Icon(Icons.filter_list_rounded),
+              itemBuilder: (context) {
+                return <PopupMenuEntry<String>>[
+                  PopupMenuItem(
+                    child: const Text('제목'),
+                    onTap: () {},
+                  ),
+                  PopupMenuItem(
+                    child: const Text('판매자'),
+                    onTap: () {},
+                  ),
+                  PopupMenuItem(
+                    child: const Text('태그'),
+                    onTap: () {},
+                  ),
+                ];
+              }),
+          PopupMenuButton(
+              tooltip: '',
+              icon: const Icon(Icons.sort_rounded),
               itemBuilder: (context) {
                 return <PopupMenuEntry<String>>[
                   PopupMenuItem(
                     child: const Text('등록순'),
                     onTap: () {
                       sortByRank = false;
+                      scrollController.jumpTo(0);
                       requestNew();
                     },
                   ),
@@ -238,9 +257,10 @@ class ArcaconPageState extends State<ArcaconPage>
                     child: const Text('판매순'),
                     onTap: () {
                       sortByRank = true;
+                      scrollController.jumpTo(0);
                       requestNew();
                     },
-                  )
+                  ),
                 ];
               }),
         ],
