@@ -15,6 +15,11 @@ List<PreviewArcaconItem> previewList = [];
 late Future<List<PreviewArcaconItem>> items;
 bool sortByRank = false;
 
+enum SearchFilter { title, nickname, tag }
+
+SearchFilter searchFilter = SearchFilter.title;
+String searchString = "";
+
 class PreviewArcaconItem {
   final String pageUrl;
   final String imageUrl;
@@ -37,9 +42,22 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
     return Future<List<PreviewArcaconItem>>(() async {
       int targetPage = 1;
       nowWorkingPage = 1;
-      String url = !sortByRank
-          ? "https://arca.live/e/?p=$targetPage"
-          : "https://arca.live/e/?p=$targetPage&sort=rank";
+      String url = "https://arca.live/e/?p=$targetPage";
+
+      if (searchString != "") {
+        if (searchFilter == SearchFilter.title) {
+          url += "&target=title";
+          url += "&keyword=$searchString";
+        } else if (searchFilter == SearchFilter.nickname) {
+          url += "&target=nickname";
+          url += "&keyword=$searchString";
+        } else {
+          url += "&target=tag";
+          url += "&keyword=$searchString";
+        }
+      }
+
+      if (sortByRank) url += "&sort=rank";
 
       http.Client client = http.Client();
       http.Response response = await client.get(Uri.parse(url));
@@ -99,9 +117,23 @@ Future<List<PreviewArcaconItem>> loadPage(bool loadFirstPage) {
       return previewList;
     }
     nowWorkingPage = targetPage;
-    String url = !sortByRank
-        ? "https://arca.live/e/?p=$targetPage"
-        : "https://arca.live/e/?p=$targetPage&sort=rank";
+    String url = "https://arca.live/e/?p=$targetPage";
+
+    if (searchString != "") {
+      if (searchFilter == SearchFilter.title) {
+        url += "&target=title";
+        url += "&keyword=$searchString";
+      } else if (searchFilter == SearchFilter.nickname) {
+        url += "&target=nickname";
+        url += "&keyword=$searchString";
+      } else {
+        url += "&target=tag";
+        url += "&keyword=$searchString";
+      }
+    }
+
+    if (sortByRank) url += "&sort=rank";
+
     // debugPrint(url);
 
     http.Client client = http.Client();
@@ -148,12 +180,14 @@ class ArcaconPage extends StatefulWidget {
 
 class ArcaconPageState extends State<ArcaconPage>
     with AutomaticKeepAliveClientMixin {
+  late TextEditingController searchTextController;
   Future<void> requestNew() async {
     previewList.clear();
     setState(() {
       items = loadPage(true).whenComplete(() {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           for (int i = 0; i < 5; i++) {
+            if (!scrollController.hasClients) break;
             if (scrollController.offset >
                 scrollController.position.maxScrollExtent -
                     MediaQuery.of(context).size.height *
@@ -178,9 +212,11 @@ class ArcaconPageState extends State<ArcaconPage>
   void initState() {
     super.initState();
     scrollController = ScrollController();
+    searchTextController = TextEditingController();
     items = loadPage(true).whenComplete(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         for (int i = 0; i < 5; i++) {
+          if (!scrollController.hasClients) break;
           if (!scrollController.position.hasContentDimensions) {
             return;
           }
@@ -212,6 +248,7 @@ class ArcaconPageState extends State<ArcaconPage>
   void dispose() {
     super.dispose();
     scrollController.dispose();
+    searchTextController.dispose();
   }
 
   @override
@@ -219,24 +256,72 @@ class ArcaconPageState extends State<ArcaconPage>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const TextField(),
+        title: TextField(
+          controller: searchTextController,
+          onSubmitted: (value) {
+            searchString = value;
+            if (scrollController.hasClients) {
+              scrollController.jumpTo(0);
+            }
+            requestNew();
+          },
+          decoration: InputDecoration(
+              suffixIcon:
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.search))),
+        ),
         actions: [
           PopupMenuButton(
               tooltip: '',
               icon: const Icon(Icons.filter_list_rounded),
               itemBuilder: (context) {
                 return <PopupMenuEntry<String>>[
-                  PopupMenuItem(
+                  PopupMenuItem<String>(
+                    value: '제목',
                     child: const Text('제목'),
-                    onTap: () {},
+                    onTap: () {
+                      searchFilter = SearchFilter.title;
+                      if (searchString != "") {
+                        try {
+                          if (scrollController.hasClients) {
+                            scrollController.jumpTo(0);
+                          }
+                        } finally {
+                          requestNew();
+                        }
+                      }
+                    },
                   ),
-                  PopupMenuItem(
+                  PopupMenuItem<String>(
+                    value: '판매자',
                     child: const Text('판매자'),
-                    onTap: () {},
+                    onTap: () {
+                      searchFilter = SearchFilter.nickname;
+                      if (searchString != "") {
+                        try {
+                          if (scrollController.hasClients) {
+                            scrollController.jumpTo(0);
+                          }
+                        } finally {
+                          requestNew();
+                        }
+                      }
+                    },
                   ),
-                  PopupMenuItem(
+                  PopupMenuItem<String>(
+                    value: '태그',
                     child: const Text('태그'),
-                    onTap: () {},
+                    onTap: () {
+                      searchFilter = SearchFilter.tag;
+                      if (searchString != "") {
+                        try {
+                          if (scrollController.hasClients) {
+                            scrollController.jumpTo(0);
+                          }
+                        } finally {
+                          requestNew();
+                        }
+                      }
+                    },
                   ),
                 ];
               }),
@@ -249,16 +334,26 @@ class ArcaconPageState extends State<ArcaconPage>
                     child: const Text('등록순'),
                     onTap: () {
                       sortByRank = false;
-                      scrollController.jumpTo(0);
-                      requestNew();
+                      try {
+                        if (scrollController.hasClients) {
+                          scrollController.jumpTo(0);
+                        }
+                      } finally {
+                        requestNew();
+                      }
                     },
                   ),
                   PopupMenuItem(
                     child: const Text('판매순'),
                     onTap: () {
                       sortByRank = true;
-                      scrollController.jumpTo(0);
-                      requestNew();
+                      try {
+                        if (scrollController.hasClients) {
+                          scrollController.jumpTo(0);
+                        }
+                      } finally {
+                        requestNew();
+                      }
                     },
                   ),
                 ];
@@ -368,7 +463,14 @@ class ArcaconPageState extends State<ArcaconPage>
                 ),
               );
             } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
+              if (snapshot.data == null) {
+                return Text(
+                  "아무 데이터도 찾을 수 없었습니다... \n ${snapshot.error}",
+                  textAlign: TextAlign.center,
+                );
+              } else {
+                return Text("${snapshot.error}");
+              }
             }
             return const CircularProgressIndicator();
           },
