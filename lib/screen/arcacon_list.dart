@@ -256,21 +256,25 @@ class ArcaconPageState extends State<ArcaconPage>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: SizedBox(
-          height: 44,
-          child: TextField(
-            controller: searchTextController,
-            onSubmitted: (value) {
-              searchString = value;
-              if (scrollController.hasClients) {
-                scrollController.jumpTo(0);
-              }
-              requestNew();
-            },
-            decoration: InputDecoration(
-                suffixIcon: IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.search))),
-          ),
+        title: TextField(
+          controller: searchTextController,
+          onSubmitted: (value) {
+            searchString = value;
+            if (scrollController.hasClients) {
+              scrollController.jumpTo(0);
+            }
+            requestNew();
+          },
+          decoration: InputDecoration(
+              suffixIcon: IconButton(
+                  onPressed: () {
+                    searchString = searchTextController.text;
+                    if (scrollController.hasClients) {
+                      scrollController.jumpTo(0);
+                    }
+                    requestNew();
+                  },
+                  icon: const Icon(Icons.search))),
         ),
         actions: [
           PopupMenuButton(
