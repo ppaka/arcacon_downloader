@@ -419,97 +419,109 @@ Future<void> _showNotification(String conTitle) async {
       payload: 'item x');
 }
 
-class FirstPage extends StatelessWidget {
-  FirstPage({Key? key}) : super(key: key);
+class FirstPage extends StatefulWidget {
+  const FirstPage({Key? key}) : super(key: key);
 
+  @override
+  State<FirstPage> createState() => _FirstPageState();
+}
+
+class _FirstPageState extends State<FirstPage>
+    with AutomaticKeepAliveClientMixin {
   final TextEditingController textController = TextEditingController();
-  final FocusNode textFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        textFocus.unfocus();
-      },
-      child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: const Text('아카콘 다운로더'),
-          ),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20),
-                  child: TextField(
+    super.build(context);
+    return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('아카콘 다운로더'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: TextField(
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(fontSize: 20),
                       labelText: '아카콘 링크',
                     ),
                     controller: textController,
-                    keyboardType: TextInputType.url,
-                    focusNode: textFocus,
-                  ),
-                ),
-                const SizedBox(width: 0, height: 8),
-                ElevatedButton(
-                    onPressed: () async {
-                      ClipboardData? data =
-                          await Clipboard.getData('text/plain');
-                      if (data != null) {
-                        if (data.text != null) {
-                          textController.text = data.text as String;
-                        }
+                    keyboardType: TextInputType.url),
+              ),
+              const SizedBox(width: 0, height: 8),
+              ElevatedButton(
+                  onPressed: () async {
+                    ClipboardData? data = await Clipboard.getData('text/plain');
+                    if (data != null) {
+                      if (data.text != null) {
+                        textController.text = data.text as String;
                       }
-                    },
-                    child: const Text('붙여넣기')),
-              ],
-            ),
+                    }
+                  },
+                  child: const Text('붙여넣기')),
+            ],
           ),
-          floatingActionButton: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  onPressed: () async {
+        ),
+        floatingActionButton: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                onPressed: () async {
+                  if (Platform.isAndroid || Platform.isIOS) {
+                    launchURL(context, 'https://arca.live/e/?p=1');
+                  } else {
+                    launchURLtoBrowser(context, 'https://arca.live/e/?p=1');
+                  }
+                },
+                mini: true,
+                child: const Icon(Icons.search),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              FloatingActionButton(
+                onPressed: () async {
+                  if (textController.text.isEmpty) {
                     if (Platform.isAndroid || Platform.isIOS) {
-                      launchURL(context, 'https://arca.live/e/?p=1');
+                      Fluttertoast.showToast(
+                          msg: "주소를 입력해주세요!",
+                          gravity: ToastGravity.BOTTOM,
+                          toastLength: Toast.LENGTH_SHORT,
+                          backgroundColor: Colors.redAccent[400]);
                     } else {
-                      launchURLtoBrowser(context, 'https://arca.live/e/?p=1');
+                      showToast(Colors.redAccent, Icons.warning_rounded,
+                          "주소를 입력해주세요!", null);
                     }
-                  },
-                  mini: true,
-                  child: const Icon(Icons.search),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                FloatingActionButton(
-                  onPressed: () async {
-                    if (textController.text.isEmpty) {
-                      if (Platform.isAndroid || Platform.isIOS) {
-                        Fluttertoast.showToast(
-                            msg: "주소를 입력해주세요!",
-                            gravity: ToastGravity.BOTTOM,
-                            toastLength: Toast.LENGTH_SHORT,
-                            backgroundColor: Colors.redAccent[400]);
-                      } else {
-                        showToast(Colors.redAccent, Icons.warning_rounded,
-                            "주소를 입력해주세요!", null);
-                      }
-                    } else {
-                      onPressStartDownload(textController.text);
-                    }
-                  },
-                  mini: true,
-                  child: const Icon(Icons.download),
-                ),
-              ])),
-    );
+                  } else {
+                    onPressStartDownload(textController.text);
+                  }
+                },
+                mini: true,
+                child: const Icon(Icons.download),
+              ),
+            ]));
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 Future<void> onPressStartDownload(String url) async {

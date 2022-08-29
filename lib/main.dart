@@ -28,13 +28,18 @@ class ArcaconDownloader extends StatelessWidget {
       statusBarColor: Colors.transparent,
     ));
 
-    return MaterialApp(
-      title: '아카콘 다운로더',
-      theme: material3Test(),
-      darkTheme: material3TestDark(),
-      themeMode: ThemeMode.system,
-      debugShowCheckedModeBanner: false,
-      home: const BasePage(title: '아카콘 다운로더'),
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: MaterialApp(
+        title: '아카콘 다운로더',
+        theme: material3Test(),
+        darkTheme: material3TestDark(),
+        themeMode: ThemeMode.system,
+        debugShowCheckedModeBanner: false,
+        home: const BasePage(title: '아카콘 다운로더'),
+      ),
     );
   }
 }

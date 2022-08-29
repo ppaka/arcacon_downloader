@@ -266,6 +266,7 @@ class ArcaconPageState extends State<ArcaconPage>
             requestNew();
           },
           decoration: InputDecoration(
+              labelText: '검색',
               suffixIcon: IconButton(
                   onPressed: () {
                     searchString = searchTextController.text;
@@ -390,6 +391,7 @@ class ArcaconPageState extends State<ArcaconPage>
                           borderRadius:
                               const BorderRadius.all(Radius.circular(12.0)),
                           onTap: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
                             Navigator.push(
                               context,
                               MaterialPageRoute(

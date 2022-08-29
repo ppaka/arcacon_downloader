@@ -103,21 +103,15 @@ class _BasePageState extends State<BasePage>
                       icon: Icon(Icons.explore_outlined),
                       label: Text('탐색'),
                     ),
-                    // NavigationRailDestination(
-                    //   selectedIcon: Icon(Icons.search_rounded),
-                    //   icon: Icon(Icons.search_outlined),
-                    //   label: Text('검색'),
-                    // ),
                   ],
                 ),
               Expanded(
                 child: TabBarView(
                   controller: _controller,
                   physics: const NeverScrollableScrollPhysics(),
-                  children: [
+                  children: const [
                     FirstPage(),
-                    const ArcaconPage(),
-                    //const SearchPage()
+                    ArcaconPage(),
                   ],
                 ),
               )
@@ -151,12 +145,6 @@ class _BasePageState extends State<BasePage>
                       label: '탐색',
                       tooltip: '',
                     ),
-                    // NavigationDestination(
-                    //   selectedIcon: Icon(Icons.search_rounded),
-                    //   icon: Icon(Icons.search_outlined),
-                    //   label: '검색',
-                    //   tooltip: '',
-                    // ),
                   ],
                 )
               : null),
