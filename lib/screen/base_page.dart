@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../screen/first_page.dart';
 import '../screen/arcacon_list.dart';
+import 'arcacon_alert.dart';
 
 late FToast fToast;
 int _length = 2;
@@ -111,7 +112,8 @@ class _BasePageState extends State<BasePage>
                   physics: const NeverScrollableScrollPhysics(),
                   children: const [
                     FirstPage(),
-                    ArcaconPage(),
+                    ArcaconAlert(),
+                    // ArcaconPage(),
                   ],
                 ),
               )
