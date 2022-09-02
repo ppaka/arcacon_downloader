@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:arcacon_downloader/screen/update_checker.dart';
 import 'package:window_size/window_size.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +38,7 @@ class ArcaconDownloader extends StatelessWidget {
         darkTheme: material3TestDark(),
         themeMode: ThemeMode.system,
         debugShowCheckedModeBanner: false,
-        home: const UpdateChecker(),
+        home: const BasePage(title: '아카콘 다운로더'),
       ),
     );
   }
