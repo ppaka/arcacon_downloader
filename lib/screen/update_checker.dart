@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_autoupdate/flutter_autoupdate.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:version/version.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class UpdateChecker extends StatefulWidget {
   const UpdateChecker({Key? key}) : super(key: key);
@@ -47,14 +47,11 @@ class _UpdateCheckerState extends State<UpdateChecker> {
           'https://storage.googleapis.com/download-dev.feedmepos.com/version_android_sample.json';
     } else if (Platform.isWindows) {
       versionUrl =
-          'https://storage.googleapis.com/download-dev.feedmepos.com/version_windows_sample.json';
+          'https://github.com/ppaka/arcacon_downloader/blob/master/updateinfoplatformwindows.json';
     }
 
-    /// Android/Windows
     var manager = UpdateManager(versionUrl: versionUrl);
 
-    /// iOS
-    // var manager = UpdateManager(appId: 1500009417, countryCode: 'my');
     try {
       result = await manager.fetchUpdates();
       setState(() {
