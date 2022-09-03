@@ -492,6 +492,7 @@ class _FirstPageState extends State<FirstPage>
                   }
                 },
                 mini: true,
+                heroTag: UniqueKey().toString(),
                 child: const Icon(Icons.search),
               ),
               const SizedBox(
@@ -515,6 +516,7 @@ class _FirstPageState extends State<FirstPage>
                   }
                 },
                 mini: true,
+                heroTag: UniqueKey().toString(),
                 child: const Icon(Icons.download),
               ),
             ]));

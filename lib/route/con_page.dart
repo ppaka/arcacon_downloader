@@ -83,6 +83,7 @@ class _ConPageState extends State<ConPage> {
 
   @override
   Widget build(BuildContext context) {
+    var key = UniqueKey().toString();
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -113,10 +114,10 @@ class _ConPageState extends State<ConPage> {
                     child: GestureDetector(
                       onTap: () {
                         navigateToImageDetailPage(
-                            context, widget.item.imageUrl, 'mainConImage');
+                            context, widget.item.imageUrl, key);
                       },
                       child: Hero(
-                        tag: 'mainConImage',
+                        tag: key,
                         child: SizedBox(
                           width: 100,
                           height: 100,
@@ -230,6 +231,7 @@ Widget img(BuildContext context, List<String> data, int position) {
           child: Icon(Icons.play_circle, color: Colors.red, size: 50)),
     );
   } else if (data[position].endsWith('.thumbnail.jpg')) {
+    var key = UniqueKey().toString();
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: SizedBox(
@@ -237,14 +239,13 @@ Widget img(BuildContext context, List<String> data, int position) {
         height: 100,
         child: GestureDetector(
           onTap: () {
-            navigateToImageDetailPage(
-                context, data[position], position.toString());
+            navigateToImageDetailPage(context, data[position], key);
           },
           child: Stack(
             alignment: AlignmentDirectional.bottomEnd,
             children: [
               Hero(
-                  tag: position.toString(),
+                  tag: key,
                   child: CachedNetworkImage(
                     width: 100,
                     height: 100,
@@ -263,6 +264,7 @@ Widget img(BuildContext context, List<String> data, int position) {
       ),
     );
   } else {
+    var key = UniqueKey().toString();
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: SizedBox(
@@ -270,11 +272,10 @@ Widget img(BuildContext context, List<String> data, int position) {
         height: 100,
         child: GestureDetector(
           onTap: () {
-            navigateToImageDetailPage(
-                context, data[position], position.toString());
+            navigateToImageDetailPage(context, data[position], key);
           },
           child: Hero(
-            tag: position.toString(),
+            tag: key,
             child: CachedNetworkImage(
               width: 100,
               height: 100,

@@ -29,10 +29,10 @@ class PreviewArcaconItem {
       this.pageUrl, this.imageUrl, this.title, this.count, this.maker);
 }
 
-late ScrollController scrollController;
+ScrollController? scrollController;
 
 void scrollToZero() {
-  scrollController.animateTo(0,
+  scrollController?.animateTo(0,
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOutQuart);
 }
@@ -187,9 +187,9 @@ class ArcaconPageState extends State<ArcaconPage>
       items = loadPage(true).whenComplete(() {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           for (int i = 0; i < 5; i++) {
-            if (!scrollController.hasClients) break;
-            if (scrollController.offset >
-                scrollController.position.maxScrollExtent -
+            if (!scrollController!.hasClients) break;
+            if (scrollController!.offset >
+                scrollController!.position.maxScrollExtent -
                     MediaQuery.of(context).size.height *
                         MediaQuery.of(context).devicePixelRatio) {
               await requestMore();
@@ -216,12 +216,12 @@ class ArcaconPageState extends State<ArcaconPage>
     items = loadPage(true).whenComplete(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         for (int i = 0; i < 5; i++) {
-          if (!scrollController.hasClients) break;
-          if (!scrollController.position.hasContentDimensions) {
+          if (!scrollController!.hasClients) break;
+          if (!scrollController!.position.hasContentDimensions) {
             return;
           }
-          if (scrollController.offset >
-              scrollController.position.maxScrollExtent -
+          if (scrollController!.offset >
+              scrollController!.position.maxScrollExtent -
                   MediaQuery.of(context).size.height *
                       MediaQuery.of(context).devicePixelRatio) {
             await requestMore();
@@ -231,12 +231,12 @@ class ArcaconPageState extends State<ArcaconPage>
       });
     });
 
-    scrollController.addListener(() {
-      if (!scrollController.position.hasContentDimensions) {
+    scrollController?.addListener(() {
+      if (!scrollController!.position.hasContentDimensions) {
         return;
       }
-      if (scrollController.offset >
-          scrollController.position.maxScrollExtent -
+      if (scrollController!.offset >
+          scrollController!.position.maxScrollExtent -
               MediaQuery.of(context).size.height *
                   MediaQuery.of(context).devicePixelRatio) {
         requestMore().then((value) => setState(() {}));
@@ -247,7 +247,7 @@ class ArcaconPageState extends State<ArcaconPage>
   @override
   void dispose() {
     super.dispose();
-    scrollController.dispose();
+    scrollController?.dispose();
     searchTextController.dispose();
   }
 
@@ -260,8 +260,8 @@ class ArcaconPageState extends State<ArcaconPage>
           controller: searchTextController,
           onSubmitted: (value) {
             searchString = value;
-            if (scrollController.hasClients) {
-              scrollController.jumpTo(0);
+            if (scrollController!.hasClients) {
+              scrollController?.jumpTo(0);
             }
             requestNew();
           },
@@ -270,8 +270,8 @@ class ArcaconPageState extends State<ArcaconPage>
               suffixIcon: IconButton(
                   onPressed: () {
                     searchString = searchTextController.text;
-                    if (scrollController.hasClients) {
-                      scrollController.jumpTo(0);
+                    if (scrollController!.hasClients) {
+                      scrollController?.jumpTo(0);
                     }
                     requestNew();
                   },
@@ -290,8 +290,8 @@ class ArcaconPageState extends State<ArcaconPage>
                       searchFilter = SearchFilter.title;
                       if (searchString != "") {
                         try {
-                          if (scrollController.hasClients) {
-                            scrollController.jumpTo(0);
+                          if (scrollController!.hasClients) {
+                            scrollController?.jumpTo(0);
                           }
                         } finally {
                           requestNew();
@@ -306,8 +306,8 @@ class ArcaconPageState extends State<ArcaconPage>
                       searchFilter = SearchFilter.nickname;
                       if (searchString != "") {
                         try {
-                          if (scrollController.hasClients) {
-                            scrollController.jumpTo(0);
+                          if (scrollController!.hasClients) {
+                            scrollController?.jumpTo(0);
                           }
                         } finally {
                           requestNew();
@@ -322,8 +322,8 @@ class ArcaconPageState extends State<ArcaconPage>
                       searchFilter = SearchFilter.tag;
                       if (searchString != "") {
                         try {
-                          if (scrollController.hasClients) {
-                            scrollController.jumpTo(0);
+                          if (scrollController!.hasClients) {
+                            scrollController?.jumpTo(0);
                           }
                         } finally {
                           requestNew();
@@ -343,8 +343,8 @@ class ArcaconPageState extends State<ArcaconPage>
                     onTap: () {
                       sortByRank = false;
                       try {
-                        if (scrollController.hasClients) {
-                          scrollController.jumpTo(0);
+                        if (scrollController!.hasClients) {
+                          scrollController?.jumpTo(0);
                         }
                       } finally {
                         requestNew();
@@ -356,8 +356,8 @@ class ArcaconPageState extends State<ArcaconPage>
                     onTap: () {
                       sortByRank = true;
                       try {
-                        if (scrollController.hasClients) {
-                          scrollController.jumpTo(0);
+                        if (scrollController!.hasClients) {
+                          scrollController?.jumpTo(0);
                         }
                       } finally {
                         requestNew();
