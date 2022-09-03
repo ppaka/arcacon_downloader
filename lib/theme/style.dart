@@ -30,11 +30,11 @@ ThemeData lightTheme() {
     primaryColor: Colors.white,
     primaryIconTheme: const IconThemeData(color: Colors.white),
     brightness: Brightness.light,
-    backgroundColor: Colors.white,
     dividerColor: Colors.white54,
     colorScheme: const ColorScheme.light(
       primary: Color.fromRGBO(79, 84, 100, 1),
       secondary: Colors.white,
+      background: Colors.white,
     ),
     appBarTheme:
         const AppBarTheme(backgroundColor: Color.fromRGBO(79, 84, 100, 1)),
@@ -58,11 +58,11 @@ ThemeData darkTheme() {
       primaryColor: Colors.black,
       primaryIconTheme: const IconThemeData(color: Colors.white),
       brightness: Brightness.dark,
-      backgroundColor: const Color.fromRGBO(36, 36, 40, 1),
       dividerColor: Colors.black12,
       colorScheme: const ColorScheme.dark(
         primary: Colors.white,
         secondary: Color.fromRGBO(154, 152, 149, 1),
+        background: Color.fromRGBO(36, 36, 40, 1),
       ),
       appBarTheme:
           const AppBarTheme(backgroundColor: Color.fromRGBO(50, 50, 50, 1)));
