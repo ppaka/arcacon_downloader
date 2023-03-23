@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'color_schemes.g.dart';
 
-ThemeData testTheme() {
+/* ThemeData testTheme() {
   const seedColor = Color(0xFF4F5464);
 
   return ThemeData(
@@ -11,7 +10,7 @@ ThemeData testTheme() {
       textTheme: GoogleFonts.notoSansNKoTextTheme(
         ThemeData.dark().textTheme,
       ));
-}
+} */
 
 ThemeData lightTheme() {
   return ThemeData(
@@ -68,7 +67,7 @@ ThemeData darkTheme() {
           const AppBarTheme(backgroundColor: Color.fromRGBO(50, 50, 50, 1)));
 }
 
-ThemeData material3Test() {
+ThemeData material3() {
   return ThemeData(
     fontFamily: 'NotoSansKR',
     useMaterial3: true,
@@ -76,7 +75,7 @@ ThemeData material3Test() {
   );
 }
 
-ThemeData material3TestDark() {
+ThemeData material3Dark() {
   return ThemeData(
     fontFamily: 'NotoSansKR',
     useMaterial3: true,
