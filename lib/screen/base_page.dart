@@ -6,7 +6,7 @@ import '../screen/arcacon_alert.dart';
 import '../screen/task_list.dart';
 
 late FToast fToast;
-bool _isGooglePlay = true;
+bool _isGooglePlay = false;
 List<Widget> pages = [
   const FirstPage(),
   if (_isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),

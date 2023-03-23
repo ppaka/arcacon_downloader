@@ -108,10 +108,10 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
   @override
   void initState() {
     super.initState();
-    /* WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       var hasUpdate = await checkUpdate();
       if (hasUpdate) showUpdateDialog();
-    }); */
+    });
   }
 
   @override
