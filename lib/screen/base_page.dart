@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../screen/first_page.dart';
 import '../screen/arcacon_list.dart';
-// import '../screen/arcacon_alert.dart';
+import '../screen/arcacon_alert.dart';
+import '../screen/task_list.dart';
 
 late FToast fToast;
-int _length = 2;
+bool _isGooglePlay = true;
+List<Widget> pages = [
+  const FirstPage(),
+  if (_isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),
+  // const TaskList()
+];
 
 showToast(Color color, IconData icon, String text, Duration? duration) {
   duration ??= const Duration(seconds: 2);
@@ -58,7 +64,7 @@ class _BasePageState extends State<BasePage>
   @override
   void initState() {
     super.initState();
-    _controller = TabController(length: _length, vsync: this);
+    _controller = TabController(length: pages.length, vsync: this);
     fToast = FToast();
     fToast.init(context);
   }
@@ -75,7 +81,7 @@ class _BasePageState extends State<BasePage>
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: _length,
+      length: pages.length,
       initialIndex: 0,
       child: Scaffold(
           body: Row(
@@ -104,17 +110,18 @@ class _BasePageState extends State<BasePage>
                       icon: Icon(Icons.explore_outlined),
                       label: Text('탐색'),
                     ),
+                    /* NavigationRailDestination(
+                      selectedIcon: Icon(Icons.download_done_rounded),
+                      icon: Icon(Icons.download_done_outlined),
+                      label: Text('작업'),
+                    ), */
                   ],
                 ),
               Expanded(
                 child: TabBarView(
                   controller: _controller,
                   physics: const NeverScrollableScrollPhysics(),
-                  children: const [
-                    FirstPage(),
-                    // ArcaconAlert(),
-                    ArcaconPage(),
-                  ],
+                  children: pages,
                 ),
               )
             ],
@@ -147,6 +154,11 @@ class _BasePageState extends State<BasePage>
                       label: '탐색',
                       tooltip: '',
                     ),
+                    /* NavigationDestination(
+                      selectedIcon: Icon(Icons.download_done_rounded),
+                      icon: Icon(Icons.download_done_outlined),
+                      label: '작업',
+                    ), */
                   ],
                 )
               : null),
