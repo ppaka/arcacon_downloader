@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:arcacon_downloader/utility/custom_tab.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:window_size/window_size.dart';
@@ -17,13 +18,15 @@ void main() async {
   });
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MaterialApp(
-      title: '아카콘 다운로더',
-      theme: material3(),
-      darkTheme: material3Dark(),
-      themeMode: ThemeMode.system,
-      debugShowCheckedModeBanner: false,
-      home: const ArcaconDownloader()));
+  runApp(const MaterialApp(
+    localizationsDelegates: [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: [Locale('en', 'US'), Locale('ko', 'KR')],
+    home: ArcaconDownloader(),
+  ));
   if (Platform.isWindows) {
     setWindowTitle('아카콘 다운로더');
   }
@@ -85,7 +88,7 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text('무시'),
+                child: const Text('나중에'),
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -105,10 +108,10 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    /* WidgetsBinding.instance.addPostFrameCallback((_) async {
       var hasUpdate = await checkUpdate();
       if (hasUpdate) showUpdateDialog();
-    });
+    }); */
   }
 
   @override
@@ -126,7 +129,7 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
         theme: material3(),
         darkTheme: material3Dark(),
         themeMode: ThemeMode.system,
-        debugShowCheckedModeBanner: false,
+        // debugShowCheckedModeBanner: false,
         home: const BasePage(title: '아카콘 다운로더'),
       ),
     );
