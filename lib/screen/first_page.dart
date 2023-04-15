@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
@@ -98,6 +99,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   });
 
   List<String> arcacon = [];
+  List<String> arcaconTrueUrl = [];
 
   debugPrint('Total: $totalCount');
 
@@ -107,11 +109,17 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     }
 
     if (element.attributes['data-src'].toString() != "null") {
-      arcacon.add('https:${element.attributes['data-src']}');
+      var uri = 'https:${element.attributes['data-src']}';
+      var convertedUri = uri.replaceRange(uri.indexOf('?'), uri.length, '');
+      arcacon.add(convertedUri);
+      arcaconTrueUrl.add(uri);
       continue;
     }
     if (element.attributes['src'].toString() != "null") {
-      arcacon.add('https:${element.attributes['src']}');
+      var uri = 'https:${element.attributes['src']}';
+      var convertedUri = uri.replaceRange(uri.indexOf('?'), uri.length, '');
+      arcacon.add(convertedUri);
+      arcaconTrueUrl.add(uri);
       continue;
     }
   }
@@ -203,12 +211,13 @@ Future<DownloadTask> _startDownload(String myUrl) async {
 
   var videoDir = '${directory}videos/';
 
-  for (var con in arcacon) {
+  for (int i = 0; i < arcacon.length; i++) {
+    var con = arcacon[i];
     if (con.endsWith('.png')) {
       var fileType = '.png';
 
       var res = await downloadFile(
-          con,
+          arcaconTrueUrl[i],
           (count + 1)
                   .toString()
                   .padLeft(arcacon.length.toString().length, '0')
@@ -219,7 +228,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     } else if (con.endsWith('.jpeg')) {
       var fileType = '.jpeg';
       var res = await downloadFile(
-          con,
+          arcaconTrueUrl[i],
           (count + 1)
                   .toString()
                   .padLeft(arcacon.length.toString().length, '0')
@@ -230,7 +239,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     } else if (con.endsWith('.jpg')) {
       var fileType = '.jpg';
       var res = await downloadFile(
-          con,
+          arcaconTrueUrl[i],
           (count + 1)
                   .toString()
                   .padLeft(arcacon.length.toString().length, '0')
@@ -241,7 +250,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     } else if (con.endsWith('.gif')) {
       var fileType = '.gif';
       var res = await downloadFile(
-          con,
+          arcaconTrueUrl[i],
           (count + 1)
                   .toString()
                   .padLeft(arcacon.length.toString().length, '0')
@@ -257,7 +266,7 @@ Future<DownloadTask> _startDownload(String myUrl) async {
           .toString();
       var convertedFileName =
           '${(count + 1).toString().padLeft(arcacon.length.toString().length, '0')}.gif';
-      var res = await downloadFile(con, fileName + fileType, videoDir);
+      var res = await downloadFile(arcaconTrueUrl[i], fileName + fileType, videoDir);
       if (res == false) result.errorCount++;
       var outputPalettePath = '${videoDir}palette.png';
 
