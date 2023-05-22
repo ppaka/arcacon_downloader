@@ -71,16 +71,16 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
           return AlertDialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Column(
-              children: const <Widget>[
+            title: const Column(
+              children: <Widget>[
                 Text('업데이트 발견'),
               ],
             ),
             //
-            content: Column(
+            content: const Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const <Widget>[
+              children: <Widget>[
                 Text(
                   '새 업데이트가 있습니다!',
                 ),

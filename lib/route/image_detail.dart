@@ -9,23 +9,37 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-      },
-      child: Scaffold(
-        backgroundColor: Color.fromARGB((255 * 0.8).floor(), 0, 0, 0),
-        body: Center(
-          child: Hero(
-            tag: tag,
-            child: SizedBox(
-              width: 100,
-              height: 100,
-              child: CachedNetworkImage(
-                imageUrl: url,
-                progressIndicatorBuilder: (context, url, downloadProgress) =>
-                    CircularProgressIndicator(value: downloadProgress.progress),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+    return InteractiveViewer(
+      constrained: true,
+      boundaryMargin: const EdgeInsets.all(-50),
+      minScale: 1,
+      maxScale: 20,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          color: Color.fromARGB((255 * 0.8).floor(), 0, 0, 0),
+          child: AbsorbPointer(
+            child: Center(
+              child: SizedBox(
+                width: 100,
+                height: 100,
+                child: Hero(
+                  tag: tag,
+                  child: CachedNetworkImage(
+                    imageUrl: url,
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) =>
+                            CircularProgressIndicator(
+                                value: downloadProgress.progress),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                  ),
+                ),
               ),
             ),
           ),

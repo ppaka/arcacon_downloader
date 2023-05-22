@@ -13,16 +13,21 @@ import '../screen/first_page.dart';
 import '../utility/custom_tab.dart';
 import 'image_detail.dart';
 
-Future<List<String>> getCons(String url) async {
+class ConLists {
+  List<String> arcacon = [];
+  List<String> arcaconTrueUrl = [];
+}
+
+Future<ConLists> getCons(String url) async {
   var client = http.Client();
-  List<String> list = <String>[];
+  var lists = ConLists();
 
   http.Response response;
   try {
     response = await client.get(Uri.parse(url));
   } catch (ex) {
     debugPrint(ex.toString());
-    return list;
+    return lists;
   }
 
   var document = parser.parse(response.body);
@@ -50,18 +55,24 @@ Future<List<String>> getCons(String url) async {
     }
 
     if (element.attributes['poster'].toString() != "null") {
-      list.add('https:${element.attributes['poster']}');
+      var uri = 'https:${element.attributes['poster']}';
+      var convertedUri = uri.replaceRange(uri.indexOf('?'), uri.length, '');
+      lists.arcacon.add(convertedUri);
+      lists.arcaconTrueUrl.add(uri);
       continue;
     }
     if (element.attributes['src'].toString() != "null") {
-      list.add('https:${element.attributes['src']}');
+      var uri = 'https:${element.attributes['src']}';
+      var convertedUri = uri.replaceRange(uri.indexOf('?'), uri.length, '');
+      lists.arcacon.add(convertedUri);
+      lists.arcaconTrueUrl.add(uri);
       continue;
     }
   }
-  return list;
+  return lists;
 }
 
-late Future<List<String>> items;
+late Future<ConLists> items;
 
 class ConPage extends StatefulWidget {
   ConPage({Key? key, PreviewArcaconItem? item}) : super(key: key) {
@@ -97,7 +108,7 @@ class _ConPageState extends State<ConPage> {
       body: Column(children: [
         Row(
           children: [
-            widget.item.imageUrl.endsWith('mp4')
+            widget.item.imageUrl.contains('.mp4')
                 ? Container(
                     margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                     child: const SizedBox(
@@ -190,7 +201,7 @@ class _ConPageState extends State<ConPage> {
           ),
           child: FutureBuilder(
             future: items,
-            builder: (context, AsyncSnapshot<List<String>> snapshot) {
+            builder: (context, AsyncSnapshot<ConLists> snapshot) {
               if (snapshot.hasData) {
                 return Expanded(
                     child: GridView.builder(
@@ -198,7 +209,7 @@ class _ConPageState extends State<ConPage> {
                     return img(context, snapshot.data!, position);
                   },
                   physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.length,
+                  itemCount: snapshot.data!.arcacon.length,
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 100,
                     mainAxisSpacing: 7, //수평 Padding
@@ -220,9 +231,9 @@ class _ConPageState extends State<ConPage> {
   }
 }
 
-Widget img(BuildContext context, List<String> data, int position) {
+Widget img(BuildContext context, ConLists data, int position) {
   // debugPrint(data[position]);
-  if (data[position].endsWith('mp4')) {
+  if (data.arcacon[position].contains('.mp4')) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: const SizedBox(
@@ -230,7 +241,7 @@ Widget img(BuildContext context, List<String> data, int position) {
           height: 100,
           child: Icon(Icons.play_circle, color: Colors.red, size: 50)),
     );
-  } else if (data[position].endsWith('.thumbnail.jpg')) {
+  } else if (data.arcacon[position].endsWith('.thumbnail.jpg')) {
     var key = UniqueKey().toString();
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -239,7 +250,8 @@ Widget img(BuildContext context, List<String> data, int position) {
         height: 100,
         child: GestureDetector(
           onTap: () {
-            navigateToImageDetailPage(context, data[position], key);
+            navigateToImageDetailPage(
+                context, data.arcaconTrueUrl[position], key);
           },
           child: Stack(
             alignment: AlignmentDirectional.bottomEnd,
@@ -249,7 +261,7 @@ Widget img(BuildContext context, List<String> data, int position) {
                   child: CachedNetworkImage(
                     width: 100,
                     height: 100,
-                    imageUrl: data[position],
+                    imageUrl: data.arcaconTrueUrl[position],
                     progressIndicatorBuilder:
                         (context, url, downloadProgress) =>
                             CircularProgressIndicator(
@@ -272,14 +284,15 @@ Widget img(BuildContext context, List<String> data, int position) {
         height: 100,
         child: GestureDetector(
           onTap: () {
-            navigateToImageDetailPage(context, data[position], key);
+            navigateToImageDetailPage(
+                context, data.arcaconTrueUrl[position], key);
           },
           child: Hero(
             tag: key,
             child: CachedNetworkImage(
               width: 100,
               height: 100,
-              imageUrl: data[position],
+              imageUrl: data.arcaconTrueUrl[position],
               progressIndicatorBuilder: (context, url, downloadProgress) =>
                   CircularProgressIndicator(value: downloadProgress.progress),
               errorWidget: (context, url, error) => const Icon(Icons.error),

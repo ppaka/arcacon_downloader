@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
@@ -266,7 +265,8 @@ Future<DownloadTask> _startDownload(String myUrl) async {
           .toString();
       var convertedFileName =
           '${(count + 1).toString().padLeft(arcacon.length.toString().length, '0')}.gif';
-      var res = await downloadFile(arcaconTrueUrl[i], fileName + fileType, videoDir);
+      var res =
+          await downloadFile(arcaconTrueUrl[i], fileName + fileType, videoDir);
       if (res == false) result.errorCount++;
       var outputPalettePath = '${videoDir}palette.png';
 
