@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:arcacon_downloader/utility/custom_tab.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:video_player_win/video_player_win_plugin.dart';
 import 'package:window_size/window_size.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import './screen/base_page.dart';
 import './theme/style.dart';
 
 void main() async {
+  if (!kIsWeb && Platform.isWindows) WindowsVideoPlayer.registerWith();
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);

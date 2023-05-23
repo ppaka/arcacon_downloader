@@ -440,11 +440,6 @@ class _FirstPageState extends State<FirstPage>
   final TextEditingController textController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     textController.dispose();
     super.dispose();

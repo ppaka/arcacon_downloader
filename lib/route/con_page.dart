@@ -13,14 +13,16 @@ import '../screen/first_page.dart';
 import '../utility/custom_tab.dart';
 import 'image_detail.dart';
 
-class ConLists {
-  List<String> arcacon = [];
-  List<String> arcaconTrueUrl = [];
+class ArcaconUrl {
+  String imageUrl = '';
+  String trueImageUrl = '';
+  String videoUrl = '';
+  String trueVideoUrl = '';
 }
 
-Future<ConLists> getCons(String url) async {
+Future<List<ArcaconUrl>> getCons(String url) async {
   var client = http.Client();
-  var lists = ConLists();
+  List<ArcaconUrl> lists = [];
 
   http.Response response;
   try {
@@ -53,26 +55,39 @@ Future<ConLists> getCons(String url) async {
     if (element.toString().startsWith('<div')) {
       break;
     }
-
+    var newItem = ArcaconUrl();
+    // poster가 있는 경우 -> 비디오
     if (element.attributes['poster'].toString() != "null") {
-      var uri = 'https:${element.attributes['poster']}';
-      var convertedUri = uri.replaceRange(uri.indexOf('?'), uri.length, '');
-      lists.arcacon.add(convertedUri);
-      lists.arcaconTrueUrl.add(uri);
+      var url = 'https:${element.attributes['poster']}';
+      var convertedUrl = url.replaceRange(url.indexOf('?'), url.length, '');
+      var videoUrl = 'https:${element.attributes['data-src']}';
+      var convertedVideoUrl =
+          videoUrl.replaceRange(videoUrl.indexOf('?'), videoUrl.length, '');
+
+      newItem.imageUrl = url;
+      newItem.trueImageUrl = convertedUrl;
+      newItem.videoUrl = videoUrl;
+      newItem.trueVideoUrl = convertedVideoUrl;
+
+      lists.add(newItem);
       continue;
     }
+    // src만 있는 경우 -> 일반 이미지
     if (element.attributes['src'].toString() != "null") {
-      var uri = 'https:${element.attributes['src']}';
-      var convertedUri = uri.replaceRange(uri.indexOf('?'), uri.length, '');
-      lists.arcacon.add(convertedUri);
-      lists.arcaconTrueUrl.add(uri);
+      var url = 'https:${element.attributes['src']}';
+      var convertedUrl = url.replaceRange(url.indexOf('?'), url.length, '');
+
+      newItem.imageUrl = url;
+      newItem.trueImageUrl = convertedUrl;
+
+      lists.add(newItem);
       continue;
     }
   }
   return lists;
 }
 
-late Future<ConLists> items;
+late Future<List<ArcaconUrl>> items;
 
 class ConPage extends StatefulWidget {
   ConPage({Key? key, PreviewArcaconItem? item}) : super(key: key) {
@@ -105,83 +120,109 @@ class _ConPageState extends State<ConPage> {
           },
         ),
       ),
-      body: Column(children: [
-        Row(
-          children: [
-            widget.item.imageUrl.contains('.mp4')
-                ? Container(
-                    margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: const SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: Icon(
-                          Icons.play_circle,
-                          color: Colors.red,
-                          size: 50,
-                        )),
-                  )
-                : Container(
-                    margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: GestureDetector(
-                      onTap: () {
-                        navigateToImageDetailPage(
-                            context, widget.item.imageUrl, key);
-                      },
-                      child: Hero(
-                        tag: key,
-                        child: SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: CachedNetworkImage(
-                            imageUrl: widget.item.imageUrl,
-                            progressIndicatorBuilder:
-                                (context, url, downloadProgress) =>
-                                    CircularProgressIndicator(
-                                        value: downloadProgress.progress),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
+      body: Column(
+        children: [
+          Row(
+            children: [
+              // 아이콘이 mp4일 때
+              widget.item.imageUrl.contains('.mp4')
+                  ? Container(
+                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: GestureDetector(
+                        onTap: () {
+                          navigateToImageDetailPage(
+                            context,
+                            widget.item.imageUrl,
+                            key,
+                          );
+                        },
+                        child: Hero(
+                          tag: key,
+                          child: const SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: Icon(
+                              Icons.play_circle,
+                              color: Colors.red,
+                              size: 50,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: GestureDetector(
+                        onTap: () {
+                          navigateToImageDetailPage(
+                            context,
+                            widget.item.imageUrl,
+                            key,
+                          );
+                        },
+                        child: Hero(
+                          tag: key,
+                          child: SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: CachedNetworkImage(
+                              imageUrl: widget.item.imageUrl,
+                              progressIndicatorBuilder:
+                                  (context, url, downloadProgress) {
+                                return CircularProgressIndicator(
+                                  value: downloadProgress.progress,
+                                );
+                              },
+                              errorWidget: (context, url, error) {
+                                return const Icon(Icons.error);
+                              },
+                            ),
                           ),
                         ),
                       ),
                     ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 40 - 100,
+                    child: Text(
+                      widget.item.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
                   ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width - 40 - 100,
-                  child: Text(
-                    widget.item.title,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.clip,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 40 - 100,
+                    child: Text(
+                      widget.item.maker,
+                      style: const TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width - 40 - 100,
-                  child: Text(
-                    widget.item.maker,
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: MediaQuery.of(context).size.width - 40,
-          child: ElevatedButton(
+                ],
+              )
+            ],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: MediaQuery.of(context).size.width - 40,
+            child: ElevatedButton(
               onPressed: () {
                 onPressStartDownload(widget.item.pageUrl);
               },
-              child: const Text('다운로드')),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: MediaQuery.of(context).size.width - 40,
-          child: OutlinedButton(
+              child: const Text('다운로드'),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: MediaQuery.of(context).size.width - 40,
+            child: OutlinedButton(
               onPressed: () {
                 if (Platform.isAndroid || Platform.isIOS) {
                   launchURL(context, widget.item.pageUrl);
@@ -189,51 +230,54 @@ class _ConPageState extends State<ConPage> {
                   launchURLtoBrowser(context, widget.item.pageUrl);
                 }
               },
-              child: const Text('웹에서 열기')),
-        ),
-        const SizedBox(height: 20),
-        ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
+              child: const Text('웹에서 열기'),
+            ),
           ),
-          child: FutureBuilder(
-            future: items,
-            builder: (context, AsyncSnapshot<ConLists> snapshot) {
-              if (snapshot.hasData) {
-                return Expanded(
+          const SizedBox(height: 20),
+          ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+              },
+            ),
+            child: FutureBuilder(
+              future: items,
+              builder: (context, AsyncSnapshot<List<ArcaconUrl>> snapshot) {
+                if (snapshot.hasData) {
+                  return Expanded(
                     child: GridView.builder(
-                  itemBuilder: (context, position) {
-                    return img(context, snapshot.data!, position);
-                  },
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.arcacon.length,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 100,
-                    mainAxisSpacing: 7, //수평 Padding
-                    crossAxisSpacing: 7, //수직 Padding
-                    mainAxisExtent: 100,
-                    //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
-                  ),
-                  shrinkWrap: true,
-                ));
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-              return const CircularProgressIndicator();
-            },
-          ),
-        )
-      ]),
+                      itemBuilder: (context, position) {
+                        return img(context, snapshot.data!, position);
+                      },
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 100,
+                        mainAxisSpacing: 7, //수평 Padding
+                        crossAxisSpacing: 7, //수직 Padding
+                        mainAxisExtent: 100,
+                        //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
+                      ),
+                      shrinkWrap: true,
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+                return const CircularProgressIndicator();
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 }
 
-Widget img(BuildContext context, ConLists data, int position) {
-  // debugPrint(data[position]);
-  if (data.arcacon[position].contains('.mp4')) {
+Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
+  if (data[position].imageUrl == '') {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: const SizedBox(
@@ -241,7 +285,7 @@ Widget img(BuildContext context, ConLists data, int position) {
           height: 100,
           child: Icon(Icons.play_circle, color: Colors.red, size: 50)),
     );
-  } else if (data.arcacon[position].endsWith('.thumbnail.jpg')) {
+  } else if (data[position].imageUrl.contains('.thumbnail.')) {
     var key = UniqueKey().toString();
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -250,8 +294,8 @@ Widget img(BuildContext context, ConLists data, int position) {
         height: 100,
         child: GestureDetector(
           onTap: () {
-            navigateToImageDetailPage(
-                context, data.arcaconTrueUrl[position], key);
+            navigateToImageDetailPageWithArcaconUrl(
+                context, data[position], key);
           },
           child: Stack(
             alignment: AlignmentDirectional.bottomEnd,
@@ -261,7 +305,7 @@ Widget img(BuildContext context, ConLists data, int position) {
                   child: CachedNetworkImage(
                     width: 100,
                     height: 100,
-                    imageUrl: data.arcaconTrueUrl[position],
+                    imageUrl: data[position].imageUrl,
                     progressIndicatorBuilder:
                         (context, url, downloadProgress) =>
                             CircularProgressIndicator(
@@ -284,15 +328,14 @@ Widget img(BuildContext context, ConLists data, int position) {
         height: 100,
         child: GestureDetector(
           onTap: () {
-            navigateToImageDetailPage(
-                context, data.arcaconTrueUrl[position], key);
+            navigateToImageDetailPage(context, data[position].imageUrl, key);
           },
           child: Hero(
             tag: key,
             child: CachedNetworkImage(
               width: 100,
               height: 100,
-              imageUrl: data.arcaconTrueUrl[position],
+              imageUrl: data[position].imageUrl,
               progressIndicatorBuilder: (context, url, downloadProgress) =>
                   CircularProgressIndicator(value: downloadProgress.progress),
               errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -321,10 +364,34 @@ void navigateToImageDetailPage(BuildContext context, String url, String tag) {
           child: Semantics(
             scopesRoute: true,
             explicitChildNodes: true,
+            child: DetailScreen(url: url, tag: tag, videoUrl: ''),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+void navigateToImageDetailPageWithArcaconUrl(
+    BuildContext context, ArcaconUrl url, String tag) {
+  Navigator.push(
+    context,
+    PageRouteBuilder(
+      opaque: false,
+      transitionDuration: const Duration(milliseconds: 300),
+      reverseTransitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
+        return FadeTransition(
+          opacity: Tween<double>(
+            begin: 0,
+            end: 1,
+          ).chain(CurveTween(curve: Curves.easeInOutSine)).animate(animation),
+          child: Semantics(
+            scopesRoute: true,
+            explicitChildNodes: true,
             child: DetailScreen(
-              url: url,
-              tag: tag,
-            ),
+                url: url.imageUrl, tag: tag, videoUrl: url.videoUrl),
           ),
         );
       },

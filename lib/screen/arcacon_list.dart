@@ -406,7 +406,7 @@ class ArcaconPageState extends State<ArcaconPage>
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               if (snapshot.data![position].imageUrl
-                                  .endsWith('mp4'))
+                                  .contains('mp4'))
                                 Container(
                                   margin:
                                       const EdgeInsets.fromLTRB(0, 10, 0, 0),
