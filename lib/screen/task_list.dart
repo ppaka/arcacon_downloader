@@ -7,9 +7,19 @@ class TaskList extends StatefulWidget {
   State<TaskList> createState() => _TaskListState();
 }
 
-class _TaskListState extends State<TaskList> {
+class _TaskListState extends State<TaskList>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('작업 목록'),
+        centerTitle: true,
+      ),
+      body: Center(),
+    );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
