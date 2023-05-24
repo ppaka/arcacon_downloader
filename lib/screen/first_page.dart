@@ -53,6 +53,12 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     result.result = Result.noPermission;
     return result;
   }
+
+  var request2 = await Permission.notification.request();
+  if (request2.isDenied) {
+    print('알림 권한 없음');
+  }
+
   var client = http.Client();
 
   http.Response response;
@@ -355,10 +361,12 @@ Future<DownloadTask> _startDownload(String myUrl) async {
         debugPrint(processRes.exitCode.toString());
       }
 
-      try {
-        File(outputPalettePath).deleteSync(recursive: false);
-      } catch (ex) {
-        debugPrint("오류: 팔레트 파일을 제거할 수 없음\n$ex");
+      if (await File(outputPalettePath).exists()) {
+        try {
+          await File(outputPalettePath).delete(recursive: false);
+        } catch (ex) {
+          debugPrint("오류: 팔레트 파일을 제거할 수 없음\n$ex");
+        }
       }
     }
     count++;
@@ -367,10 +375,12 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     }
   }
 
-  try {
-    Directory(videoDir).deleteSync(recursive: true);
-  } catch (ex) {
-    debugPrint("오류: 원본 영상 파일을 제거할 수 없음\n$ex");
+  if (await Directory(videoDir).exists()) {
+    try {
+      await Directory(videoDir).delete(recursive: true);
+    } catch (ex) {
+      debugPrint("오류: 원본 영상 파일을 제거할 수 없음\n$ex");
+    }
   }
 
   if (Platform.isAndroid || Platform.isIOS) {
