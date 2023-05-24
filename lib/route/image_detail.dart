@@ -16,7 +16,6 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   late VideoPlayerController _videoPlayerController;
-  late Future<void> _initializeVideoPlayerFuture;
   String videoUrl = '';
 
   @override
