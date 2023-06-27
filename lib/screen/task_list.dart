@@ -11,12 +11,13 @@ class _TaskListState extends State<TaskList>
     with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('작업 목록'),
         centerTitle: true,
       ),
-      body: Center(),
+      body: const Center(),
     );
   }
 
