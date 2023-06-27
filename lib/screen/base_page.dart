@@ -3,14 +3,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../screen/first_page.dart';
 import '../screen/arcacon_list.dart';
 import '../screen/arcacon_alert.dart';
-import '../screen/task_list.dart';
+// import '../screen/task_list.dart';
 
 late FToast fToast;
 bool _isGooglePlay = false;
 List<Widget> pages = [
   const FirstPage(),
   if (_isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),
-  const TaskList()
+  // const TaskList()
 ];
 
 showToast(Color color, IconData icon, String text, Duration? duration) {
@@ -110,11 +110,11 @@ class _BasePageState extends State<BasePage>
                       icon: Icon(Icons.explore_outlined),
                       label: Text('탐색'),
                     ),
-                    NavigationRailDestination(
-                      selectedIcon: Icon(Icons.download_done_rounded),
-                      icon: Icon(Icons.download_done_outlined),
-                      label: Text('작업'),
-                    ),
+                    // NavigationRailDestination(
+                    //   selectedIcon: Icon(Icons.download_done_rounded),
+                    //   icon: Icon(Icons.download_done_outlined),
+                    //   label: Text('작업'),
+                    // ),
                   ],
                 ),
               Expanded(
@@ -154,12 +154,12 @@ class _BasePageState extends State<BasePage>
                       label: '탐색',
                       tooltip: '',
                     ),
-                    NavigationDestination(
-                      selectedIcon: Icon(Icons.download_done_rounded),
-                      icon: Icon(Icons.download_done_outlined),
-                      label: '작업',
-                      tooltip: '',
-                    ),
+                    // NavigationDestination(
+                    //   selectedIcon: Icon(Icons.download_done_rounded),
+                    //   icon: Icon(Icons.download_done_outlined),
+                    //   label: '작업',
+                    //   tooltip: '',
+                    // ),
                   ],
                 )
               : null),
