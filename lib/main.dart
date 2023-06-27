@@ -20,14 +20,17 @@ void main() async {
   });
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const MaterialApp(
-    localizationsDelegates: [
+  runApp(MaterialApp(
+    localizationsDelegates: const [
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
-    supportedLocales: [Locale('en', 'US'), Locale('ko', 'KR')],
-    home: ArcaconDownloader(),
+    supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
+    themeMode: ThemeMode.system,
+    theme: mat3LightTheme(),
+    darkTheme: mat3DarkTheme(),
+    home: const ArcaconDownloader(),
   ));
   if (Platform.isWindows) {
     setWindowTitle('아카콘 다운로더');
@@ -66,40 +69,31 @@ class ArcaconDownloader extends StatefulWidget {
 
 class _ArcaconDownloaderState extends State<ArcaconDownloader> {
   void showUpdateDialog() {
-    showDialog(
+    showDialog<String>(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: const Column(
-              children: <Widget>[
-                Text('업데이트 발견'),
-              ],
-            ),
-            //
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '새 업데이트가 있습니다!',
-                ),
-              ],
-            ),
+            title: const Text('업데이트 발견'),
+            content: const Text('새 업데이트가 있습니다!'),
             actions: <Widget>[
               TextButton(
                 child: const Text('나중에'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
               ),
               TextButton(
                 child: const Text('다운로드'),
                 onPressed: () {
-                  launchURLtoBrowser(context,
-                      'https://github.com/ppaka/arcacon_downloader/releases/latest');
+                  if (Platform.isAndroid) {
+                    launchURLtoBrowser(context,
+                        'https://github.com/ppaka/arcacon_downloader/releases/latest/download/app-release.apk');
+                  } else if (Platform.isWindows) {
+                    launchURLtoBrowser(context,
+                        'https://github.com/ppaka/arcacon_downloader/releases/latest/download/Windows.zip');
+                  } else {
+                    launchURLtoBrowser(context,
+                        'https://github.com/ppaka/arcacon_downloader/releases/latest/');
+                  }
                 },
               ),
             ],
@@ -128,9 +122,9 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
       },
       child: MaterialApp(
         title: '아카콘 다운로더',
-        theme: material3(),
-        darkTheme: material3Dark(),
         themeMode: ThemeMode.system,
+        theme: mat3LightTheme(),
+        darkTheme: mat3DarkTheme(),
         // debugShowCheckedModeBanner: false,
         home: const BasePage(title: '아카콘 다운로더'),
       ),
