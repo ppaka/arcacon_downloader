@@ -255,8 +255,8 @@ class _ConPageState extends State<ConPage> {
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 100,
-                        mainAxisSpacing: 7, //수평 Padding
-                        crossAxisSpacing: 7, //수직 Padding
+                        mainAxisSpacing: 1, //수평 Padding
+                        crossAxisSpacing: 1, //수직 Padding
                         mainAxisExtent: 100,
                         //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
                       ),
@@ -277,9 +277,10 @@ class _ConPageState extends State<ConPage> {
 }
 
 Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
+  var margin = const EdgeInsets.fromLTRB(0, 10, 0, 10);
   if (data[position].imageUrl == '') {
     return Container(
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      margin: margin,
       child: const SizedBox(
           width: 100,
           height: 100,
@@ -288,7 +289,7 @@ Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
   } else if (data[position].imageUrl.contains('.thumbnail.')) {
     var key = UniqueKey().toString();
     return Container(
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      margin: margin,
       child: SizedBox(
         width: 100,
         height: 100,
@@ -313,7 +314,11 @@ Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
                     errorWidget: (context, url, error) =>
                         const Icon(Icons.error),
                   )),
-              const Icon(Icons.play_circle, color: Colors.red, size: 24),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 9, 1),
+                child: const Icon(Icons.play_circle,
+                    color: Colors.redAccent, size: 24),
+              ),
             ],
           ),
         ),
@@ -322,7 +327,7 @@ Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
   } else {
     var key = UniqueKey().toString();
     return Container(
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      margin: margin,
       child: SizedBox(
         width: 100,
         height: 100,
