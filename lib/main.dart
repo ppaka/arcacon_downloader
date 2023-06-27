@@ -84,15 +84,22 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
               TextButton(
                 child: const Text('다운로드'),
                 onPressed: () {
-                  if (Platform.isAndroid) {
-                    launchURLtoBrowser(context,
-                        'https://github.com/ppaka/arcacon_downloader/releases/latest/download/app-release.apk');
-                  } else if (Platform.isWindows) {
-                    launchURLtoBrowser(context,
-                        'https://github.com/ppaka/arcacon_downloader/releases/latest/download/Windows.zip');
+                  if (isGooglePlay) {
+                    if (Platform.isAndroid) {
+                      launchURLtoBrowser(context,
+                          'https://play.google.com/store/apps/details?id=com.ppaka.ArcaconDownloader');
+                    }
                   } else {
-                    launchURLtoBrowser(context,
-                        'https://github.com/ppaka/arcacon_downloader/releases/latest/');
+                    if (Platform.isAndroid) {
+                      launchURLtoBrowser(context,
+                          'https://github.com/ppaka/arcacon_downloader/releases/latest/download/app-release.apk');
+                    } else if (Platform.isWindows) {
+                      launchURLtoBrowser(context,
+                          'https://github.com/ppaka/arcacon_downloader/releases/latest/download/Windows.zip');
+                    } else {
+                      launchURLtoBrowser(context,
+                          'https://github.com/ppaka/arcacon_downloader/releases/latest/');
+                    }
                   }
                 },
               ),
