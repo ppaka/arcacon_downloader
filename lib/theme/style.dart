@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 import 'color_schemes.g.dart';
 
-/* ThemeData testTheme() {
+ThemeData mat3DarkTheme() {
   const seedColor = Color(0xFF4F5464);
 
   return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-          seedColor: seedColor, brightness: Brightness.dark),
-      textTheme: GoogleFonts.notoSansNKoTextTheme(
-        ThemeData.dark().textTheme,
-      ));
-} */
+    fontFamily: 'NotoSansKR',
+    useMaterial3: true,
+    colorScheme:
+        ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.dark),
+  );
+}
+
+ThemeData mat3LightTheme() {
+  const seedColor = Color(0xFF4F5464);
+
+  return ThemeData(
+    fontFamily: 'NotoSansKR',
+    useMaterial3: true,
+    colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor, brightness: Brightness.light),
+  );
+}
 
 ThemeData lightTheme() {
   return ThemeData(
@@ -35,36 +46,39 @@ ThemeData lightTheme() {
       secondary: Colors.white,
       background: Colors.white,
     ),
-    appBarTheme:
-        const AppBarTheme(backgroundColor: Color.fromRGBO(79, 84, 100, 1)),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color.fromRGBO(79, 84, 100, 1),
+    ),
   );
 }
 
 ThemeData darkTheme() {
   return ThemeData(
-      primarySwatch: const MaterialColor(0xFF323232, <int, Color>{
-        50: Color.fromARGB(255, 142, 142, 142),
-        100: Color.fromARGB(255, 132, 132, 132),
-        200: Color.fromARGB(255, 112, 112, 112),
-        300: Color.fromARGB(255, 91, 91, 91),
-        400: Color.fromARGB(255, 70, 70, 70),
-        500: Color.fromARGB(255, 50, 50, 50),
-        600: Color.fromARGB(255, 45, 45, 45),
-        700: Color.fromARGB(255, 40, 40, 40),
-        800: Color.fromARGB(255, 35, 35, 35),
-        900: Color.fromARGB(255, 30, 30, 30),
-      }),
-      primaryColor: Colors.black,
-      primaryIconTheme: const IconThemeData(color: Colors.white),
-      brightness: Brightness.dark,
-      dividerColor: Colors.black12,
-      colorScheme: const ColorScheme.dark(
-        primary: Colors.white,
-        secondary: Color.fromRGBO(154, 152, 149, 1),
-        background: Color.fromRGBO(36, 36, 40, 1),
-      ),
-      appBarTheme:
-          const AppBarTheme(backgroundColor: Color.fromRGBO(50, 50, 50, 1)));
+    primarySwatch: const MaterialColor(0xFF323232, <int, Color>{
+      50: Color.fromARGB(255, 142, 142, 142),
+      100: Color.fromARGB(255, 132, 132, 132),
+      200: Color.fromARGB(255, 112, 112, 112),
+      300: Color.fromARGB(255, 91, 91, 91),
+      400: Color.fromARGB(255, 70, 70, 70),
+      500: Color.fromARGB(255, 50, 50, 50),
+      600: Color.fromARGB(255, 45, 45, 45),
+      700: Color.fromARGB(255, 40, 40, 40),
+      800: Color.fromARGB(255, 35, 35, 35),
+      900: Color.fromARGB(255, 30, 30, 30),
+    }),
+    primaryColor: Colors.black,
+    primaryIconTheme: const IconThemeData(color: Colors.white),
+    brightness: Brightness.dark,
+    dividerColor: Colors.black12,
+    colorScheme: const ColorScheme.dark(
+      primary: Colors.white,
+      secondary: Color.fromRGBO(154, 152, 149, 1),
+      background: Color.fromRGBO(36, 36, 40, 1),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color.fromRGBO(50, 50, 50, 1),
+    ),
+  );
 }
 
 ThemeData material3() {
