@@ -3,7 +3,7 @@ description: 아카콘 다운로더
 
 publish_to: 'none'
 
-version: 1.6.0+29
+version: 1.6.1+30
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
@@ -32,7 +32,6 @@ dependencies:
   dio: ^5.0.0
   ffmpeg_kit_flutter: ^5.1.0
   video_player: ^2.6.1
-  video_thumbnail: ^0.5.0
   cached_network_image:
     git:
       url: https://github.com/prashantsolankispaceo/cached_network_image.git
