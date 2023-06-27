@@ -474,7 +474,7 @@ class ArcaconPageState extends State<ArcaconPage>
             } else if (snapshot.hasError) {
               if (snapshot.data == null) {
                 return Text(
-                  "아무 데이터도 찾을 수 없었습니다... \n ${snapshot.error}",
+                  "아무 데이터도 찾을 수 없었습니다...\n${snapshot.error}",
                   textAlign: TextAlign.center,
                 );
               } else {
