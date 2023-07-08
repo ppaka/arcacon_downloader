@@ -32,7 +32,9 @@ showToast(Color color, IconData icon, String text, Color textColor,
         ),
         Text(
           text,
-          style: TextStyle(color: textColor),
+          style: TextStyle(
+            color: textColor,
+          ),
         ),
       ],
     ),
