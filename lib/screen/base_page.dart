@@ -13,7 +13,8 @@ List<Widget> pages = [
   // const TaskList()
 ];
 
-showToast(Color color, IconData icon, String text, Duration? duration) {
+showToast(Color color, IconData icon, String text, Color textColor,
+    Duration? duration) {
   duration ??= const Duration(seconds: 2);
 
   Widget toast = Container(
@@ -29,7 +30,10 @@ showToast(Color color, IconData icon, String text, Duration? duration) {
         const SizedBox(
           width: 12.0,
         ),
-        Text(text),
+        Text(
+          text,
+          style: TextStyle(color: textColor),
+        ),
       ],
     ),
   );

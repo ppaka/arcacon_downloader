@@ -138,12 +138,20 @@ Future<DownloadTask> _startDownload(String myUrl) async {
 
   if (Platform.isAndroid || Platform.isIOS) {
     Fluttertoast.showToast(
-        msg: "다운로드를 시작하겠습니다!",
-        gravity: ToastGravity.BOTTOM,
-        toastLength: Toast.LENGTH_SHORT,
-        backgroundColor: Colors.black87);
+      msg: "다운로드를 시작하겠습니다!",
+      gravity: ToastGravity.BOTTOM,
+      toastLength: Toast.LENGTH_SHORT,
+      backgroundColor: Colors.black87,
+      textColor: Colors.white,
+    );
   } else {
-    showToast(Colors.black87, Icons.download_rounded, "다운로드를 시작하겠습니다!", null);
+    showToast(
+      Colors.black87,
+      Icons.download_rounded,
+      "다운로드를 시작하겠습니다!",
+      Colors.white,
+      null,
+    );
   }
 
   int randomValue = Random.secure().nextInt(2147483647);
@@ -517,13 +525,20 @@ class _FirstPageState extends State<FirstPage>
                   if (textController.text.isEmpty) {
                     if (Platform.isAndroid || Platform.isIOS) {
                       Fluttertoast.showToast(
-                          msg: "주소를 입력해주세요!",
-                          gravity: ToastGravity.BOTTOM,
-                          toastLength: Toast.LENGTH_SHORT,
-                          backgroundColor: Colors.redAccent[400]);
+                        msg: "주소를 입력해주세요!",
+                        gravity: ToastGravity.BOTTOM,
+                        toastLength: Toast.LENGTH_SHORT,
+                        backgroundColor: Colors.redAccent[400],
+                        textColor: Colors.white,
+                      );
                     } else {
-                      showToast(Colors.redAccent, Icons.warning_rounded,
-                          "주소를 입력해주세요!", null);
+                      showToast(
+                        Colors.redAccent,
+                        Icons.warning_rounded,
+                        "주소를 입력해주세요!",
+                        Colors.white,
+                        null,
+                      );
                     }
                   } else {
                     onPressStartDownload(textController.text);
@@ -546,39 +561,58 @@ Future<void> onPressStartDownload(String url) async {
     if (result.errorCount == 0) {
       if (Platform.isAndroid || Platform.isIOS) {
         Fluttertoast.showToast(
-            msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
-            gravity: ToastGravity.BOTTOM,
-            toastLength: Toast.LENGTH_SHORT,
-            backgroundColor: Colors.indigoAccent);
+          msg: "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.indigoAccent,
+          textColor: Colors.white,
+        );
       } else {
-        showToast(Colors.indigoAccent, Icons.check_rounded,
-            "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!", null);
+        showToast(
+          Colors.indigoAccent,
+          Icons.check_rounded,
+          "다운로드가 완료되었어요\nDownload 폴더를 확인해보세요!",
+          Colors.white,
+          null,
+        );
       }
     } else {
       if (Platform.isAndroid || Platform.isIOS) {
         Fluttertoast.showToast(
-            msg:
-                "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
-            gravity: ToastGravity.BOTTOM,
-            toastLength: Toast.LENGTH_SHORT,
-            backgroundColor: Colors.green);
+          msg:
+              "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+          gravity: ToastGravity.BOTTOM,
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
       } else {
         showToast(
-            Colors.green,
-            Icons.check_rounded,
-            "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
-            null);
+          Colors.green,
+          Icons.check_rounded,
+          "${result.errorCount}개의 오류가 발생했지만... 다운로드 작업을 완료했어요\nDownloads 폴더를 확인해보세요!",
+          Colors.white,
+          null,
+        );
       }
     }
   } else if (result.result == Result.connectError) {
     if (Platform.isAndroid || Platform.isIOS) {
       Fluttertoast.showToast(
-          msg: "해당 주소로 이동할 수 없습니다...",
-          gravity: ToastGravity.BOTTOM,
-          toastLength: Toast.LENGTH_SHORT,
-          backgroundColor: Colors.red);
+        msg: "해당 주소로 이동할 수 없습니다...",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } else {
-      showToast(Colors.red, Icons.error_rounded, "해당 주소로 이동할 수 없습니다...", null);
+      showToast(
+        Colors.red,
+        Icons.error_rounded,
+        "해당 주소로 이동할 수 없습니다...",
+        Colors.white,
+        null,
+      );
     }
   } else if (result.result == Result.noPermission) {
     if (Platform.isAndroid || Platform.isIOS) {
@@ -586,32 +620,52 @@ Future<void> onPressStartDownload(String url) async {
           msg: "허용되지 않은 권한이 있어요...",
           gravity: ToastGravity.BOTTOM,
           toastLength: Toast.LENGTH_SHORT,
-          backgroundColor: Colors.deepOrangeAccent);
+          backgroundColor: Colors.deepOrangeAccent,
+          textColor: Colors.white);
     } else {
-      showToast(Colors.deepOrangeAccent, Icons.warning_rounded,
-          "허용되지 않은 권한이 있어요...", null);
+      showToast(
+        Colors.deepOrangeAccent,
+        Icons.warning_rounded,
+        "허용되지 않은 권한이 있어요...",
+        Colors.white,
+        null,
+      );
     }
   } else if (result.result == Result.alreadyRunning) {
     if (Platform.isAndroid || Platform.isIOS) {
       Fluttertoast.showToast(
-          msg: "이미 다운로드가 진행중인 아카콘입니다!",
-          gravity: ToastGravity.BOTTOM,
-          toastLength: Toast.LENGTH_SHORT,
-          backgroundColor: Colors.red);
+        msg: "이미 다운로드가 진행중인 아카콘입니다!",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } else {
-      showToast(Colors.red, Icons.notifications_rounded,
-          "이미 다운로드가 진행중인 아카콘입니다!", null);
+      showToast(
+        Colors.red,
+        Icons.notifications_rounded,
+        "이미 다운로드가 진행중인 아카콘입니다!",
+        Colors.white,
+        null,
+      );
     }
   } else if (result.result == Result.pipError) {
     if (Platform.isAndroid || Platform.isIOS) {
       Fluttertoast.showToast(
-          msg: "파이썬 pip 모듈을 설치하는데 오류가 발생했습니다...",
-          gravity: ToastGravity.BOTTOM,
-          toastLength: Toast.LENGTH_SHORT,
-          backgroundColor: Colors.red);
+        msg: "파이썬 pip 모듈을 설치하는데 오류가 발생했습니다...",
+        gravity: ToastGravity.BOTTOM,
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } else {
-      showToast(Colors.red, Icons.error_outline_rounded,
-          "파이썬 pip 모듈을 설치하는데 오류가 발생했습니다...", null);
+      showToast(
+        Colors.red,
+        Icons.error_outline_rounded,
+        "파이썬 pip 모듈을 설치하는데 오류가 발생했습니다...",
+        Colors.white,
+        null,
+      );
     }
   }
 }
