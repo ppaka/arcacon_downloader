@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:arcacon_downloader/utility/custom_tab.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -44,13 +45,41 @@ Future<bool> checkUpdate() async {
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonData = json.decode(response.body);
       var pi = await PackageInfo.fromPlatform();
+      var currentVersion = pi.version;
+      var webVersion = (jsonData['tag_name'] as String).split('-').first;
 
-      var version = (jsonData['tag_name'] as String).split('-').first;
-      if (pi.version != version) {
-        return true;
-      } else {
-        return false;
+      var arrX = currentVersion.split('.');
+      var arrY = webVersion.split('.');
+
+      var length = max(arrX.length, arrY.length);
+      var needUpdate = false;
+
+      for (int i = 0; i < length; i++) {
+        int x,y;
+        try {
+          x = int.parse(arrX[i]);
+        } on IndexError {
+          x = 0;
+        }
+
+        try {
+          y = int.parse(arrY[i]);
+        } on IndexError {
+          y = 0;
+        }
+
+        if (x > y){
+          // 앱 버전이 큼
+          needUpdate = false;
+        } else if (x < y){
+          // 비교 버전이 큼
+          needUpdate = true;
+        } else{
+          needUpdate = false;
+        }
       }
+
+      return needUpdate;
     } else {
       throw Exception('업데이트 확인 실패');
     }
