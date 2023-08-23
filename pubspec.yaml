@@ -3,7 +3,7 @@ description: 아카콘 다운로더
 
 publish_to: 'none'
 
-version: 1.6.1+30
+version: 1.6.2+31
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
@@ -28,7 +28,7 @@ dependencies:
   permission_handler: ^10.0.0
   fluttertoast: ^8.0.8
   flutter_custom_tabs: ^1.0.3
-  flutter_local_notifications: ^14.1.0
+  flutter_local_notifications: ^15.1.0+1
   dio: ^5.0.0
   ffmpeg_kit_flutter: ^5.1.0
   video_player: ^2.6.1
