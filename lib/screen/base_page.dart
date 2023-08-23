@@ -6,7 +6,7 @@ import '../screen/arcacon_alert.dart';
 // import '../screen/task_list.dart';
 
 late FToast fToast;
-bool isGooglePlay = false;
+bool isGooglePlay = true;
 List<Widget> pages = [
   const FirstPage(),
   if (isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),
@@ -26,7 +26,10 @@ showToast(Color color, IconData icon, String text, Color textColor,
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon),
+        Icon(
+          icon,
+          color: textColor,
+        ),
         const SizedBox(
           width: 12.0,
         ),
