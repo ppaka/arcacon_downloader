@@ -3,14 +3,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../screen/first_page.dart';
 import '../screen/arcacon_list.dart';
 import '../screen/arcacon_alert.dart';
-// import '../screen/task_list.dart';
+import '../screen/task_list.dart';
 
 late FToast fToast;
-bool isGooglePlay = true;
+bool isGooglePlay = false;
 List<Widget> pages = [
   const FirstPage(),
   if (isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),
-  // const TaskList()
+  const TaskList(),
 ];
 
 showToast(Color color, IconData icon, String text, Color textColor,
@@ -107,23 +107,23 @@ class _BasePageState extends State<BasePage>
                     });
                   },
                   selectedIndex: currentPageIndex,
-                  labelType: NavigationRailLabelType.selected,
+                  labelType: NavigationRailLabelType.all,
                   destinations: const <NavigationRailDestination>[
                     NavigationRailDestination(
-                      selectedIcon: Icon(Icons.download_rounded),
-                      icon: Icon(Icons.download_outlined),
-                      label: Text('다운로드'),
+                      selectedIcon: Icon(Icons.home_rounded),
+                      icon: Icon(Icons.home_outlined),
+                      label: Text('홈'),
                     ),
                     NavigationRailDestination(
                       selectedIcon: Icon(Icons.explore_rounded),
                       icon: Icon(Icons.explore_outlined),
                       label: Text('탐색'),
                     ),
-                    // NavigationRailDestination(
-                    //   selectedIcon: Icon(Icons.download_done_rounded),
-                    //   icon: Icon(Icons.download_done_outlined),
-                    //   label: Text('작업'),
-                    // ),
+                    NavigationRailDestination(
+                      selectedIcon: Icon(Icons.download_done_rounded),
+                      icon: Icon(Icons.download_done_outlined),
+                      label: Text('작업'),
+                    ),
                   ],
                 ),
               Expanded(
@@ -137,9 +137,8 @@ class _BasePageState extends State<BasePage>
           ),
           bottomNavigationBar: MediaQuery.of(context).size.width < 640
               ? NavigationBar(
-                  height: 65,
-                  labelBehavior:
-                      NavigationDestinationLabelBehavior.onlyShowSelected,
+                  height: 70,
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
                   onDestinationSelected: (value) {
                     if (currentPageIndex == value && value == 1) {
                       scrollToZero();
@@ -152,23 +151,23 @@ class _BasePageState extends State<BasePage>
                   selectedIndex: currentPageIndex,
                   destinations: const <Widget>[
                     NavigationDestination(
-                      selectedIcon: Icon(Icons.download),
-                      icon: Icon(Icons.download_outlined),
-                      label: '다운로드',
+                      selectedIcon: Icon(Icons.home_rounded),
+                      icon: Icon(Icons.home_outlined),
+                      label: '홈',
                       tooltip: '',
                     ),
                     NavigationDestination(
-                      selectedIcon: Icon(Icons.explore),
+                      selectedIcon: Icon(Icons.explore_rounded),
                       icon: Icon(Icons.explore_outlined),
                       label: '탐색',
                       tooltip: '',
                     ),
-                    // NavigationDestination(
-                    //   selectedIcon: Icon(Icons.download_done_rounded),
-                    //   icon: Icon(Icons.download_done_outlined),
-                    //   label: '작업',
-                    //   tooltip: '',
-                    // ),
+                    NavigationDestination(
+                      selectedIcon: Icon(Icons.download_done_rounded),
+                      icon: Icon(Icons.download_done_outlined),
+                      label: '작업',
+                      tooltip: '',
+                    ),
                   ],
                 )
               : null),

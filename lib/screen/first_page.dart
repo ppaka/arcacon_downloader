@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:arcacon_downloader/screen/base_page.dart';
+import 'package:arcacon_downloader/task_item.dart';
 import 'package:arcacon_downloader/utility/string_converter.dart';
 import 'package:ffmpeg_kit_flutter/ffprobe_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
@@ -85,6 +86,16 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     titleText = titleText.replaceAll(invalidChar, '');
   }
 
+  dom.Element? maker = document.querySelector(
+      'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.info-row.clearfix > div.member-info');
+
+  var makerText = maker!.outerHtml.split('\n')[1];
+  if (makerText.contains('[email&nbsp;protected]')) {
+    makerText = convertEncodedTitleForDownload(makerText);
+  }
+
+  makerText = makerText.trim();
+
   dom.Element links = document.querySelector(
       'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div')!;
 
@@ -130,6 +141,11 @@ Future<DownloadTask> _startDownload(String myUrl) async {
   }
 
   int count = 0;
+  var taskItem = TaskItem();
+  taskItem.arcaconUrl = myUrl;
+  taskItem.title = titleText;
+  taskItem.maker = makerText;
+  taskItem.progress = 0;
 
   if (nowRunning.containsKey(titleText)) {
     result.result = Result.alreadyRunning;
@@ -228,7 +244,6 @@ Future<DownloadTask> _startDownload(String myUrl) async {
     var con = arcacon[i];
     if (con.endsWith('.png')) {
       var fileType = '.png';
-
       var res = await downloadFile(
           arcaconTrueUrl[i],
           (count + 1)
@@ -289,81 +304,94 @@ Future<DownloadTask> _startDownload(String myUrl) async {
 
         var l = await FFprobeKit.execute(
             "-v 0 -of compact=p=0 -select_streams 0 -show_entries stream=r_frame_rate '${videoDir + fileName + fileType}'");
-        await l.getOutput().then((value) => {
-              if (value != null)
-                {
-                  value = value.replaceAll("r_frame_rate=", ""),
-                  fps = double.parse(value.split('/')[0]) /
-                      double.parse(value.split('/')[1]),
-                  debugPrint("프레임: $value ($fps)"),
-                }
-            });
+        await l.getOutput().then(
+              (value) => {
+                if (value != null)
+                  {
+                    value = value.replaceAll("r_frame_rate=", ""),
+                    fps = double.parse(value.split('/')[0]) /
+                        double.parse(value.split('/')[1]),
+                    debugPrint("프레임: $value ($fps)"),
+                  }
+              },
+            );
 
         while (fps > 50) {
           fps = fps / 2;
           debugPrint("프레임 변경: $fps");
         }
 
-        await FFmpegKit.executeWithArguments([
-          '-y',
-          '-i',
-          videoDir + fileName + fileType,
-          '-vf',
-          'scale=100:-1:flags=lanczos,palettegen',
-          '-hide_banner',
-          '-loglevel',
-          'error',
-          '${videoDir}palette.png'
-        ]).then((session) async {
-          final returnCode = await session.getReturnCode();
+        await FFmpegKit.executeWithArguments(
+          [
+            '-y',
+            '-i',
+            videoDir + fileName + fileType,
+            '-vf',
+            'scale=100:-1:flags=lanczos,palettegen',
+            '-hide_banner',
+            '-loglevel',
+            'error',
+            '${videoDir}palette.png'
+          ],
+        ).then(
+          (session) async {
+            final returnCode = await session.getReturnCode();
 
-          if (ReturnCode.isSuccess(returnCode)) {
-            debugPrint(
-                "$fileName$fileType 팔레트 추출 성공 ${returnCode!.getValue()}");
-          } else if (ReturnCode.isCancel(returnCode)) {
-            debugPrint(
-                "$fileName$fileType 팔레트 추출 취소 ${returnCode!.getValue()}");
-          } else {
-            debugPrint(
-                "$fileName$fileType 팔레트 추출 오류 ${returnCode!.getValue()}");
-          }
-        });
-        await FFmpegKit.executeWithArguments([
-          '-y',
-          '-i',
-          videoDir + fileName + fileType,
-          '-i',
-          '${videoDir}palette.png',
-          '-filter_complex',
-          'scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
-          '-hide_banner',
-          '-loglevel',
-          'error',
-          '-r',
-          fps.toString(),
-          directory + convertedFileName
-        ]).then((session) async {
-          final returnCode = await session.getReturnCode();
+            if (ReturnCode.isSuccess(returnCode)) {
+              debugPrint(
+                  "$fileName$fileType 팔레트 추출 성공 ${returnCode!.getValue()}");
+            } else if (ReturnCode.isCancel(returnCode)) {
+              debugPrint(
+                  "$fileName$fileType 팔레트 추출 취소 ${returnCode!.getValue()}");
+            } else {
+              debugPrint(
+                  "$fileName$fileType 팔레트 추출 오류 ${returnCode!.getValue()}");
+            }
+          },
+        );
+        await FFmpegKit.executeWithArguments(
+          [
+            '-y',
+            '-i',
+            videoDir + fileName + fileType,
+            '-i',
+            '${videoDir}palette.png',
+            '-filter_complex',
+            'scale=100:-1:flags=lanczos[x];[x][1:v]paletteuse',
+            '-hide_banner',
+            '-loglevel',
+            'error',
+            '-r',
+            fps.toString(),
+            directory + convertedFileName
+          ],
+        ).then(
+          (session) async {
+            final returnCode = await session.getReturnCode();
 
-          if (ReturnCode.isSuccess(returnCode)) {
-            debugPrint(
-                "$fileName$fileType gif 변환 성공 ${returnCode!.getValue()}");
-          } else if (ReturnCode.isCancel(returnCode)) {
-            debugPrint(
-                "$fileName$fileType gif 변환 취소 ${returnCode!.getValue()}");
-          } else {
-            debugPrint(
-                "$fileName$fileType gif 변환 오류 ${returnCode!.getValue()}");
-            result.errorCount++;
-          }
-        });
+            if (ReturnCode.isSuccess(returnCode)) {
+              debugPrint(
+                  "$fileName$fileType gif 변환 성공 ${returnCode!.getValue()}");
+            } else if (ReturnCode.isCancel(returnCode)) {
+              debugPrint(
+                  "$fileName$fileType gif 변환 취소 ${returnCode!.getValue()}");
+            } else {
+              debugPrint(
+                  "$fileName$fileType gif 변환 오류 ${returnCode!.getValue()}");
+              result.errorCount++;
+            }
+          },
+        );
       } else {
-        var processRes = await Process.run('python', [
-          '${pyDirectory}convert.py',
-          videoDir + fileName + fileType,
-          directory + convertedFileName,
-          outputPalettePath
-        ]);
+        var processRes = await Process.run(
+          'python',
+          [
+            '${pyDirectory}convert.py',
+            videoDir + fileName + fileType,
+            directory + convertedFileName,
+            outputPalettePath
+          ],
+        );
         debugPrint(processRes.stdout.toString());
         debugPrint(processRes.stderr.toString());
         debugPrint(processRes.exitCode.toString());
