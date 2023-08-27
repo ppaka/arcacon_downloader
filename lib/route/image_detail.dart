@@ -26,12 +26,15 @@ class _DetailScreenState extends State<DetailScreen> {
     }
 
     if (videoUrl != '') {
-      _videoPlayerController = VideoPlayerController.network(videoUrl)
-        ..initialize().then((_) {
-          _videoPlayerController.setLooping(true);
-          _videoPlayerController.play();
-          setState(() {});
-        });
+      _videoPlayerController =
+          VideoPlayerController.networkUrl(Uri.parse(videoUrl))
+            ..initialize().then(
+              (_) {
+                _videoPlayerController.setLooping(true);
+                _videoPlayerController.play();
+                setState(() {});
+              },
+            );
     }
 
     super.initState();
