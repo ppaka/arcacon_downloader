@@ -44,7 +44,7 @@ dependencies:
   video_player_win: ^2.2.2
   flutter_localizations:
     sdk: flutter
-
+  get: ^4.6.5
   window_size:
     git:
       url: https://github.com/google/flutter-desktop-embedding.git

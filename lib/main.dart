@@ -8,6 +8,7 @@ import 'package:window_size/window_size.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './screen/base_page.dart';
@@ -21,7 +22,7 @@ void main() async {
   });
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MaterialApp(
+  runApp(GetMaterialApp(
     localizationsDelegates: const [
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
@@ -55,7 +56,7 @@ Future<bool> checkUpdate() async {
       var needUpdate = false;
 
       for (int i = 0; i < length; i++) {
-        int x,y;
+        int x, y;
         try {
           x = int.parse(arrX[i]);
         } on IndexError {
@@ -68,13 +69,13 @@ Future<bool> checkUpdate() async {
           y = 0;
         }
 
-        if (x > y){
+        if (x > y) {
           // 앱 버전이 큼
           needUpdate = false;
-        } else if (x < y){
+        } else if (x < y) {
           // 비교 버전이 큼
           needUpdate = true;
-        } else{
+        } else {
           needUpdate = false;
         }
       }
