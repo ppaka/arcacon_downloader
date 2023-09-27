@@ -25,12 +25,12 @@ dependencies:
   html: ^0.15.0
   http: ^1.1.0
   path: ^1.8.0
-  permission_handler: ^10.0.0
+  permission_handler: ^11.0.0
   fluttertoast: ^8.0.8
   flutter_custom_tabs: ^1.0.3
   flutter_local_notifications: ^15.1.0+1
   dio: ^5.0.0
-  ffmpeg_kit_flutter: ^5.1.0
+  ffmpeg_kit_flutter: ^6.0.2
   video_player: ^2.6.1
   cached_network_image:
     git:
