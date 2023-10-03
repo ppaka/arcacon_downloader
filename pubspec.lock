@@ -108,14 +108,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.8"
+  device_info_plus:
+    dependency: "direct main"
+    description:
+      name: device_info_plus
+      sha256: "86add5ef97215562d2e090535b0a16f197902b10c369c558a100e74ea06e8659"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.0.3"
+  device_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_plus_platform_interface
+      sha256: d3b01d5868b50ae571cd1dc6e502fc94d956b665756180f7b16ead09e836fd64
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   dio:
     dependency: "direct main"
     description:
       name: dio
-      sha256: ce75a1b40947fea0a0e16ce73337122a86762e38b982e1ccb909daa3b9bc4197
+      sha256: "417e2a6f9d83ab396ec38ff4ea5da6c254da71e4db765ad737a42af6930140b7"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.2"
+    version: "5.3.3"
   fake_async:
     dependency: transitive
     description:
@@ -144,10 +160,10 @@ packages:
     dependency: "direct main"
     description:
       name: ffmpeg_kit_flutter
-      sha256: "0ac4fc8dc083967464b9b4ed04ecf74b4e01e053e5a7d1277d9c295d2fc27859"
+      sha256: "843aae41823ca94a0988d975b4b6cdc6948744b9b7e2707d81a3a9cd237b0100"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.2"
+    version: "6.0.3"
   ffmpeg_kit_flutter_platform_interface:
     dependency: transitive
     description:
@@ -190,10 +206,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_custom_tabs
-      sha256: f74d1eba7f28a4d87bc8e9e123a398ca196af080428fd951268dbbf7a9ec4ae2
+      sha256: e90e5b7cad5648aeb0e1ed04aa3c0cada62d86f3b5d4aaef488ab7de61ec2a9f
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   flutter_custom_tabs_platform_interface:
     dependency: transitive
     description:
@@ -269,10 +285,10 @@ packages:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: e20ff62b158b96f392bfc8afe29dee1503c94fbea2cbe8186fd59b756b8ae982
+      sha256: f0b8d115a13ecf827013ec9fc883390ccc0e87a96ed5347a3114cac177ef18e8
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.0"
+    version: "6.1.0"
   html:
     dependency: "direct main"
     description:
@@ -453,10 +469,10 @@ packages:
     dependency: transitive
     description:
       name: permission_handler_android
-      sha256: "6901d50f4d4b9a27e1749dbd4adbf06aa00d90a21a2db563405d5ce27ee120ac"
+      sha256: ace7d15a3d1a4a0b91c041d01e5405df221edb9de9116525efc773c74e6fc790
       url: "https://pub.dev"
     source: hosted
-    version: "11.0.0"
+    version: "11.0.5"
   permission_handler_apple:
     dependency: transitive
     description:
@@ -505,14 +521,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.6"
-  riverpod:
-    dependency: transitive
-    description:
-      name: riverpod
-      sha256: a600120d6f213a9922860eea1abc32597436edd5b2c4e73b91410f8c2af67d22
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
   rxdart:
     dependency: transitive
     description:
@@ -558,14 +566,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
-  state_notifier:
-    dependency: transitive
-    description:
-      name: state_notifier
-      sha256: b8677376aa54f2d7c58280d5a007f9e8774f1968d1fb1c096adcb4792fba29bb
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   stream_channel:
     dependency: transitive
     description:
@@ -706,10 +706,10 @@ packages:
     dependency: "direct main"
     description:
       name: video_player
-      sha256: d3910a8cefc0de8a432a4411dcf85030e885d8fef3ddea291f162253a05dbf01
+      sha256: "74b86e63529cf5885130c639d74cd2f9232e7c8a66cbecbddd1dcb9dbd060d1e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.1"
+    version: "2.7.2"
   video_player_android:
     dependency: transitive
     description:
@@ -722,10 +722,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_avfoundation
-      sha256: c3b123a5a56c9812b9029f840c65b92fd65083eb08d69be016b01e8aa018f77d
+      sha256: "6387c2de77763b45104256b3b00b660089be4f909ded8631457dc11bf635e38f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.10"
+    version: "2.5.0"
   video_player_platform_interface:
     dependency: transitive
     description:
@@ -738,18 +738,18 @@ packages:
     dependency: transitive
     description:
       name: video_player_web
-      sha256: "66fc0d56554143fee4c623f70e45e4272b94fd246283cb67edabb9d1e4122a4f"
+      sha256: "2dd24f7ba46bfb5d070e9c795001db95e0ca5f2a3d025e98f287c10c9f0fd62f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   video_player_win:
     dependency: "direct main"
     description:
       name: video_player_win
-      sha256: f752953e9f805d045c11204665d794b6d923bfb1257426421881c2c1b3ea3354
+      sha256: "56afaf991161ca681d2d28f02a6dbf7f2b84b6f91d6a03f74b7bf8af857ef1ad"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.2"
+    version: "2.3.1"
   web:
     dependency: transitive
     description:
@@ -762,10 +762,18 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "9e82a402b7f3d518fb9c02d0e9ae45952df31b9bf34d77baf19da2de03fc2aaa"
+      sha256: "350a11abd2d1d97e0cc7a28a81b781c08002aa2864d9e3f192ca0ffa18b06ed3"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.7"
+    version: "5.0.9"
+  win32_registry:
+    dependency: transitive
+    description:
+      name: win32_registry
+      sha256: "41fd8a189940d8696b1b810efb9abcf60827b6cbfab90b0c43e8439e3a39d85a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
   window_size:
     dependency: "direct main"
     description:

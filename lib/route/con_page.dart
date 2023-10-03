@@ -20,90 +20,116 @@ class ArcaconUrl {
   String trueVideoUrl = '';
 }
 
-Future<List<ArcaconUrl>> getCons(String url) async {
-  var client = http.Client();
-  List<ArcaconUrl> lists = [];
-
-  http.Response response;
-  try {
-    response = await client.get(Uri.parse(url));
-  } catch (ex) {
-    debugPrint(ex.toString());
-    return lists;
-  }
-
-  var document = parser.parse(response.body);
-  dom.Element? title = document.querySelector(
-      'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
-
-  var titleText = title!.outerHtml.split('\n')[1];
-
-  if (titleText.contains('[email&nbsp;protected]')) {
-    titleText = convertEncodedTitleForList(titleText);
-  }
-
-  titleText = titleText.trim();
-  var invalidChar = RegExp(r'[\/:*?"<>|]');
-  if (invalidChar.hasMatch(titleText)) {
-    titleText = titleText.replaceAll(invalidChar, '');
-  }
-
-  dom.Element links = document.querySelector(
-      'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div')!;
-
-  for (var element in links.children) {
-    if (element.toString().startsWith('<div')) {
-      break;
-    }
-    var newItem = ArcaconUrl();
-    // poster가 있는 경우 -> 비디오
-    if (element.attributes['poster'].toString() != "null") {
-      var url = 'https:${element.attributes['poster']}';
-      var convertedUrl = url.replaceRange(url.indexOf('?'), url.length, '');
-      var videoUrl = 'https:${element.attributes['data-src']}';
-      var convertedVideoUrl =
-          videoUrl.replaceRange(videoUrl.indexOf('?'), videoUrl.length, '');
-
-      newItem.imageUrl = url;
-      newItem.trueImageUrl = convertedUrl;
-      newItem.videoUrl = videoUrl;
-      newItem.trueVideoUrl = convertedVideoUrl;
-
-      lists.add(newItem);
-      continue;
-    }
-    // src만 있는 경우 -> 일반 이미지
-    if (element.attributes['src'].toString() != "null") {
-      var url = 'https:${element.attributes['src']}';
-      var convertedUrl = url.replaceRange(url.indexOf('?'), url.length, '');
-
-      newItem.imageUrl = url;
-      newItem.trueImageUrl = convertedUrl;
-
-      lists.add(newItem);
-      continue;
-    }
-  }
-  return lists;
-}
-
 late Future<List<ArcaconUrl>> items;
 
+// ignore: must_be_immutable
 class ConPage extends StatefulWidget {
   ConPage({Key? key, PreviewArcaconItem? item}) : super(key: key) {
     this.item = item!;
   }
 
-  late final PreviewArcaconItem item;
+  late PreviewArcaconItem item;
 
   @override
   State<ConPage> createState() => _ConPageState();
 }
 
 class _ConPageState extends State<ConPage> {
+  Future<List<ArcaconUrl>> getCons(String url) async {
+    var client = http.Client();
+    List<ArcaconUrl> lists = [];
+
+    http.Response response;
+    try {
+      response = await client.get(Uri.parse(url));
+    } catch (ex) {
+      debugPrint(ex.toString());
+      return lists;
+    }
+
+    var document = parser.parse(response.body);
+    dom.Element? title = document.querySelector(
+        'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
+
+    var titleText = title!.outerHtml.split('\n')[1];
+
+    if (titleText.contains('[email&nbsp;protected]')) {
+      titleText = convertEncodedTitleForList(titleText);
+    }
+
+    titleText = titleText.trim();
+    var invalidChar = RegExp(r'[\/:*?"<>|]');
+    if (invalidChar.hasMatch(titleText)) {
+      titleText = titleText.replaceAll(invalidChar, '');
+    }
+
+    dom.Element? maker = document.querySelector(
+        'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.info-row.clearfix > div.member-info');
+
+    var makerText = maker!.outerHtml.split('\n')[1];
+
+    if (makerText.contains('[email&nbsp;protected]')) {
+      makerText = convertEncodedTitleForList(makerText);
+    }
+
+    makerText = makerText.trim();
+    var makerInvalidChar = RegExp(r'[\/:*?"<>|]');
+    if (makerInvalidChar.hasMatch(makerText)) {
+      makerText = makerText.replaceAll(makerInvalidChar, '');
+    }
+
+    widget.item.title = titleText;
+    widget.item.maker = makerText;
+    debugPrint(titleText);
+    debugPrint(makerText);
+
+    dom.Element links = document.querySelector(
+        'body > div > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-body > div')!;
+
+    for (var element in links.children) {
+      if (element.toString().startsWith('<div')) {
+        break;
+      }
+      var newItem = ArcaconUrl();
+      // poster가 있는 경우 -> 비디오
+      if (element.attributes['poster'].toString() != "null") {
+        var url = 'https:${element.attributes['poster']}';
+        var convertedUrl = url.replaceRange(url.indexOf('?'), url.length, '');
+        var videoUrl = 'https:${element.attributes['data-src']}';
+        var convertedVideoUrl =
+            videoUrl.replaceRange(videoUrl.indexOf('?'), videoUrl.length, '');
+
+        newItem.imageUrl = url;
+        newItem.trueImageUrl = convertedUrl;
+        newItem.videoUrl = videoUrl;
+        newItem.trueVideoUrl = convertedVideoUrl;
+
+        lists.add(newItem);
+        continue;
+      }
+      // src만 있는 경우 -> 일반 이미지
+      if (element.attributes['src'].toString() != "null") {
+        var url = 'https:${element.attributes['src']}';
+        var convertedUrl = url.replaceRange(url.indexOf('?'), url.length, '');
+
+        newItem.imageUrl = url;
+        newItem.trueImageUrl = convertedUrl;
+
+        lists.add(newItem);
+        continue;
+      }
+    }
+    return lists;
+  }
+
   @override
   void initState() {
     items = getCons(widget.item.pageUrl);
+    items.then(
+      (value) {
+        setState(() {});
+      },
+    );
     super.initState();
   }
 
@@ -127,7 +153,12 @@ class _ConPageState extends State<ConPage> {
               // 아이콘이 mp4일 때
               widget.item.imageUrl.contains('.mp4')
                   ? Container(
-                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      margin: const EdgeInsets.fromLTRB(
+                        20,
+                        20,
+                        20,
+                        0,
+                      ),
                       child: GestureDetector(
                         onTap: () {
                           navigateToImageDetailPage(
@@ -151,7 +182,12 @@ class _ConPageState extends State<ConPage> {
                       ),
                     )
                   : Container(
-                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      margin: const EdgeInsets.fromLTRB(
+                        20,
+                        20,
+                        20,
+                        0,
+                      ),
                       child: GestureDetector(
                         onTap: () {
                           navigateToImageDetailPage(
@@ -216,7 +252,7 @@ class _ConPageState extends State<ConPage> {
               onPressed: () {
                 onPressStartDownload(widget.item.pageUrl);
               },
-              child: const Text('다운로드'),
+              child: const Text('모두 다운로드'),
             ),
           ),
           const SizedBox(height: 8),
@@ -248,7 +284,8 @@ class _ConPageState extends State<ConPage> {
                   return Expanded(
                     child: GridView.builder(
                       itemBuilder: (context, position) {
-                        return img(context, snapshot.data!, position);
+                        return img(context, snapshot.data!, position,
+                            widget.item.pageUrl);
                       },
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: snapshot.data!.length,
@@ -276,15 +313,44 @@ class _ConPageState extends State<ConPage> {
   }
 }
 
-Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
+Widget img(
+    BuildContext context, List<ArcaconUrl> data, int position, String pageUrl) {
   var margin = const EdgeInsets.fromLTRB(0, 10, 0, 10);
   if (data[position].imageUrl == '') {
     return Container(
       margin: margin,
-      child: const SizedBox(
-          width: 100,
-          height: 100,
-          child: Icon(Icons.play_circle, color: Colors.red, size: 50)),
+      child: SizedBox(
+        width: 100,
+        height: 100,
+        child: GestureDetector(
+          onLongPress: () {
+            showDialog<String>(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text("길게 눌러 다운로드"),
+                  content: const Text('이 아카콘을 다운로드 하실껀가요?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('취소'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    TextButton(
+                      child: const Text('다운로드'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onPressSingleStartDownload(pageUrl, position);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          child: const Icon(Icons.play_circle, color: Colors.red, size: 50),
+        ),
+      ),
     );
   } else if (data[position].imageUrl.contains('.thumbnail.')) {
     var key = UniqueKey().toString();
@@ -298,22 +364,46 @@ Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
             navigateToImageDetailPageWithArcaconUrl(
                 context, data[position], key);
           },
+          onLongPress: () {
+            showDialog<String>(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text("길게 눌러 다운로드"),
+                  content: const Text('이 아카콘을 다운로드 하실껀가요?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('취소'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    TextButton(
+                      child: const Text('다운로드'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onPressSingleStartDownload(pageUrl, position);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
           child: Stack(
             alignment: AlignmentDirectional.bottomEnd,
             children: [
               Hero(
-                  tag: key,
-                  child: CachedNetworkImage(
-                    width: 100,
-                    height: 100,
-                    imageUrl: data[position].imageUrl,
-                    progressIndicatorBuilder:
-                        (context, url, downloadProgress) =>
-                            CircularProgressIndicator(
-                                value: downloadProgress.progress),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                  )),
+                tag: key,
+                child: CachedNetworkImage(
+                  width: 100,
+                  height: 100,
+                  imageUrl: data[position].imageUrl,
+                  progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      CircularProgressIndicator(
+                          value: downloadProgress.progress),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
+              ),
               Container(
                 margin: const EdgeInsets.fromLTRB(0, 0, 9, 1),
                 child: const Icon(Icons.play_circle,
@@ -334,6 +424,31 @@ Widget img(BuildContext context, List<ArcaconUrl> data, int position) {
         child: GestureDetector(
           onTap: () {
             navigateToImageDetailPage(context, data[position].imageUrl, key);
+          },
+          onLongPress: () {
+            showDialog<String>(
+              context: context,
+              barrierDismissible: true,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text("길게 눌러 다운로드"),
+                  content: const Text('이 아카콘을 다운로드 하실껀가요?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('취소'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    TextButton(
+                      child: const Text('다운로드'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onPressSingleStartDownload(pageUrl, position);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
           },
           child: Hero(
             tag: key,

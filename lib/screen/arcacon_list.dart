@@ -23,7 +23,7 @@ String searchString = "";
 class PreviewArcaconItem {
   final String pageUrl;
   final String imageUrl;
-  final String title, count, maker;
+  String title, count, maker;
 
   PreviewArcaconItem(
       this.pageUrl, this.imageUrl, this.title, this.count, this.maker);
@@ -181,6 +181,7 @@ class ArcaconPage extends StatefulWidget {
 class ArcaconPageState extends State<ArcaconPage>
     with AutomaticKeepAliveClientMixin {
   late TextEditingController searchTextController;
+
   Future<void> requestNew() async {
     previewList.clear();
     setState(() {

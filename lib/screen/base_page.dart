@@ -6,7 +6,7 @@ import '../screen/arcacon_alert.dart';
 import '../screen/task_list.dart';
 
 late FToast fToast;
-bool isGooglePlay = false;
+bool isGooglePlay = true;
 List<Widget> pages = [
   const FirstPage(),
   if (isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),
@@ -119,11 +119,11 @@ class _BasePageState extends State<BasePage>
                       icon: Icon(Icons.explore_outlined),
                       label: Text('탐색'),
                     ),
-                    NavigationRailDestination(
+                    /*NavigationRailDestination(
                       selectedIcon: Icon(Icons.download_done_rounded),
                       icon: Icon(Icons.download_done_outlined),
                       label: Text('작업'),
-                    ),
+                    ),*/
                   ],
                 ),
               Expanded(
@@ -162,12 +162,12 @@ class _BasePageState extends State<BasePage>
                       label: '탐색',
                       tooltip: '',
                     ),
-                    NavigationDestination(
+                    /*NavigationDestination(
                       selectedIcon: Icon(Icons.download_done_rounded),
                       icon: Icon(Icons.download_done_outlined),
                       label: '작업',
                       tooltip: '',
-                    ),
+                    ),*/
                   ],
                 )
               : null),
