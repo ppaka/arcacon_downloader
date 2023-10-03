@@ -53,24 +53,26 @@ void cancelAllTasks() {
 Future<DownloadTask> _singleStartDownload(String myUrl, int index) async {
   DownloadTask result = DownloadTask();
 
-  final deviceInfo = await DeviceInfoPlugin().androidInfo;
-  if (deviceInfo.version.sdkInt > 32) {
-    var request = await Permission.photos.request();
-    if (request.isDenied) {
-      result.result = Result.noPermission;
-      return result;
+  if (Platform.isAndroid) {
+    final deviceInfo = await DeviceInfoPlugin().androidInfo;
+    if (deviceInfo.version.sdkInt > 32) {
+      var request = await Permission.photos.request();
+      if (request.isDenied) {
+        result.result = Result.noPermission;
+        return result;
+      }
+    } else {
+      var request = await Permission.storage.request();
+      if (request.isDenied) {
+        result.result = Result.noPermission;
+        return result;
+      }
     }
-  } else {
-    var request = await Permission.storage.request();
-    if (request.isDenied) {
-      result.result = Result.noPermission;
-      return result;
-    }
-  }
 
-  var request2 = await Permission.notification.request();
-  if (request2.isDenied) {
-    print('알림 권한 없음');
+    var request2 = await Permission.notification.request();
+    if (request2.isDenied) {
+      print('알림 권한 없음');
+    }
   }
 
   var client = http.Client();
