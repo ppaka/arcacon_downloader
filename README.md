@@ -14,4 +14,7 @@ Flutter로 제작한 아카라이브 이모티콘 '아카콘' 다운로더<br>
 [Windows](https://github.com/ppaka/arcacon_downloader/releases/latest/download/Windows.zip) | Android ([apk](https://github.com/ppaka/arcacon_downloader/releases/latest/download/app-release.apk), [Play Store](https://play.google.com/store/apps/details?id=com.ppaka.ArcaconDownloader)) |
 | ------------- | ------------- | 
 
-Windows 버전의 경우, Python 3 (3.10 이상 권장) 설치를 필요로 합니다.
+Windows 버전의 경우, Python 3 (3.10 이상 권장) 설치를 필요로 합니다.<br><br>
+Android apk 버전과 Play Store 버전에는 차이가 있습니다.<br>
+apk 버전에는 앱 내에서 빠르게 검색할 수 있는 기능- 탐색 페이지가 존재하지만,<br>
+Play Store 버전에는 <b>심의 문제로 인해 탐색 페이지가 제공되지 않습니다</b>.
