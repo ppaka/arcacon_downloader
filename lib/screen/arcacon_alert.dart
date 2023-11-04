@@ -1,6 +1,5 @@
+import 'package:arcacon_downloader/common/utility/custom_tab.dart';
 import 'package:flutter/material.dart';
-
-import '../utility/custom_tab.dart';
 
 class ArcaconAlert extends StatelessWidget {
   const ArcaconAlert({Key? key}) : super(key: key);

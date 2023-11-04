@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:arcacon_downloader/utility/custom_tab.dart';
+import 'package:arcacon_downloader/common/theme/style.dart';
+import 'package:arcacon_downloader/common/utility/custom_tab.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,6 @@ import 'package:video_player_win/video_player_win_plugin.dart';
 import 'package:window_size/window_size.dart';
 
 import './screen/base_page.dart';
-import './theme/style.dart';
 
 void main() async {
   if (!kIsWeb && Platform.isWindows) WindowsVideoPlayer.registerWith();
