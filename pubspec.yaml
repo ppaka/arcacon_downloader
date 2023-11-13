@@ -29,7 +29,7 @@ dependencies:
   device_info_plus: ^9.0.3
   fluttertoast: ^8.0.8
   flutter_custom_tabs: ^1.0.3
-  flutter_local_notifications: ^15.1.0+1
+  flutter_local_notifications: ^16.1.0
   dio: ^5.0.0
   ffmpeg_kit_flutter: ^6.0.2
   video_player: ^2.6.1
@@ -39,7 +39,7 @@ dependencies:
       path: cached_network_image
   google_fonts: ^6.1.0
   path_provider: ^2.0.11
-  ffmpeg_cli: ^0.1.0
+  ffmpeg_cli: ^0.2.0
   url_launcher: ^6.1.4
   package_info_plus: ^4.0.1
   video_player_win: ^2.2.2
@@ -60,7 +60,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
