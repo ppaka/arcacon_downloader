@@ -118,6 +118,70 @@ class ArcaconDetailImage extends StatelessWidget {
           ),
         ),
       );
+    } else if (data[position].imageUrl.contains('.mp4')) {
+      var key = UniqueKey().toString();
+      return Container(
+        margin: margin,
+        child: SizedBox(
+          width: 100,
+          height: 100,
+          child: GestureDetector(
+            onTap: () {
+              navigateToImageDetailPage(
+                  context, data[position].imageUrl, key, null);
+            },
+            onLongPress: () {
+              showDialog<String>(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("길게 눌러 다운로드"),
+                    content: const Text('이 아카콘을 다운로드 하실껀가요?'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text('취소'),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      TextButton(
+                        child: const Text('다운로드'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          onPressStartDownload(pageUrl, position);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Hero(
+              tag: key,
+              child: Container(
+                width: 100,
+                height: 100,
+                color: Colors.white,
+                child: const Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error,
+                        color: Colors.black,
+                      ),
+                      Text(
+                        'mp4',
+                        style: TextStyle(color: Colors.black),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
     } else {
       var key = UniqueKey().toString();
       return Container(
