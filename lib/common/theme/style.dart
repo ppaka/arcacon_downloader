@@ -6,6 +6,7 @@ ThemeData mat3DarkTheme() {
   return ThemeData(
     fontFamily: 'NotoSansKR',
     useMaterial3: true,
+    appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
     colorScheme:
         ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.dark),
   );
@@ -17,6 +18,7 @@ ThemeData mat3LightTheme() {
   return ThemeData(
     fontFamily: 'NotoSansKR',
     useMaterial3: true,
+    appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
     colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor, brightness: Brightness.light),
   );
