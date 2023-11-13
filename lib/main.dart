@@ -16,7 +16,10 @@ import 'package:window_size/window_size.dart';
 import './screen/base_page.dart';
 
 void main() async {
-  if (!kIsWeb && Platform.isWindows) WindowsVideoPlayer.registerWith();
+  if (!kIsWeb && Platform.isWindows) {
+    WindowsVideoPlayer.registerWith();
+    initPythonScript();
+  }
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
@@ -38,6 +41,19 @@ void main() async {
   if (Platform.isWindows) {
     setWindowTitle('아카콘 다운로더');
   }
+}
+
+initPythonScript() {
+  var exePath = Platform.resolvedExecutable.toString();
+  var exeDirectory =
+      exePath.replaceRange(exePath.lastIndexOf('\\') + 1, null, '');
+  var pyDirectory = '$exeDirectory\\res';
+
+  var script =
+      "import imageio\nimport imageio_ffmpeg\nimport ffmpeg\nimport sys\n\n\ndef convertFile(inputpath, outputpath, palettepath):\n\treader = imageio.get_reader(inputpath)\n\tfps = reader.get_meta_data()['fps']\n\t# print(outputpath + '원본 fps: ' + str(fps))\n\twhile fps > 50:\n\t\tfps = fps/2\n\t\t# print('조정 fps: ' + str(fps))\n\tffmpeg.input(inputpath).filter(filter_name='palettegen').output(palettepath, loglevel='error').global_args('-hide_banner').overwrite_output().run(cmd=imageio_ffmpeg.get_ffmpeg_exe())\n\tffmpeg.filter([ffmpeg.input(inputpath), ffmpeg.input(palettepath)], filter_name='paletteuse').output(outputpath, r=fps, loglevel='error').global_args('-hide_banner').overwrite_output().run(cmd=imageio_ffmpeg.get_ffmpeg_exe())\n\n\nconvertFile(sys.argv[1], sys.argv[2], sys.argv[3])";
+  var file = File('$pyDirectory\\convert.py');
+  file.createSync(recursive: true);
+  file.writeAsStringSync(script, flush: true);
 }
 
 Future<bool> checkUpdate() async {
