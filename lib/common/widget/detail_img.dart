@@ -1,4 +1,4 @@
-import 'package:arcacon_downloader/common/models/aracon_url.dart';
+import 'package:arcacon_downloader/common/models/arcacon_url.dart';
 import 'package:arcacon_downloader/common/utils/onpress_download.dart';
 import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -97,6 +97,7 @@ class ArcaconDetailImage extends StatelessWidget {
                 Hero(
                   tag: key,
                   child: CachedNetworkImage(
+                    fit: BoxFit.cover,
                     width: 100,
                     height: 100,
                     imageUrl: data[position].imageUrl,
@@ -109,7 +110,7 @@ class ArcaconDetailImage extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 9, 1),
+                  margin: const EdgeInsets.fromLTRB(0, 0, 3, 3),
                   child: const Icon(Icons.play_circle,
                       color: Colors.redAccent, size: 24),
                 ),
@@ -222,12 +223,31 @@ class ArcaconDetailImage extends StatelessWidget {
             child: Hero(
               tag: key,
               child: CachedNetworkImage(
+                fit: BoxFit.cover,
                 width: 100,
                 height: 100,
                 imageUrl: data[position].imageUrl,
                 progressIndicatorBuilder: (context, url, downloadProgress) =>
                     CircularProgressIndicator(value: downloadProgress.progress),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                errorWidget: (context, url, error) {
+                  return Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.white,
+                    child: const Material(
+                      type: MaterialType.transparency,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error,
+                            color: Colors.red,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
