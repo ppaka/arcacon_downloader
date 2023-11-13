@@ -17,7 +17,7 @@ class ArcaconDetailImage extends StatelessWidget {
   final String pageUrl;
   @override
   Widget build(BuildContext context) {
-    var margin = const EdgeInsets.fromLTRB(0, 10, 0, 10);
+    var margin = const EdgeInsets.fromLTRB(5, 5, 5, 5);
     if (data[position].imageUrl == '') {
       return Container(
         margin: margin,
