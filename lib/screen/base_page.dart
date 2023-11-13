@@ -1,9 +1,9 @@
+import 'package:arcacon_downloader/screen/arcacon_alert.dart';
+import 'package:arcacon_downloader/screen/arcacon_list.dart';
+import 'package:arcacon_downloader/screen/first_page.dart';
+import 'package:arcacon_downloader/screen/task_list.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../screen/first_page.dart';
-import '../screen/arcacon_list.dart';
-import '../screen/arcacon_alert.dart';
-import '../screen/task_list.dart';
 
 late FToast fToast;
 bool isGooglePlay = false;
@@ -14,7 +14,7 @@ List<Widget> pages = [
 ];
 
 class BasePage extends StatefulWidget {
-  const BasePage({Key? key, required this.title}) : super(key: key);
+  const BasePage({super.key, required this.title});
   final String title;
 
   @override

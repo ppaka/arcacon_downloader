@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:arcacon_downloader/common/theme/style.dart';
 import 'package:arcacon_downloader/common/utility/custom_tab.dart';
+import 'package:arcacon_downloader/screen/base_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,8 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:video_player_win/video_player_win_plugin.dart';
 import 'package:window_size/window_size.dart';
-
-import './screen/base_page.dart';
 
 void main() async {
   if (!kIsWeb && Platform.isWindows) {
@@ -108,7 +107,7 @@ Future<bool> checkUpdate() async {
 }
 
 class ArcaconDownloader extends StatefulWidget {
-  const ArcaconDownloader({Key? key}) : super(key: key);
+  const ArcaconDownloader({super.key});
 
   @override
   State<ArcaconDownloader> createState() => _ArcaconDownloaderState();

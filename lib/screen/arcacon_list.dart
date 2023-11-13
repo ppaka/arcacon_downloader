@@ -1,10 +1,9 @@
+import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 import 'package:arcacon_downloader/common/utils/load_item.dart';
 import 'package:arcacon_downloader/common/widget/arcacon_item.dart';
 import 'package:arcacon_downloader/common/widget/custom_popmenu_item.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 
 int lastLoadPage = 0;
 int nowWorkingPage = -1;
@@ -27,7 +26,7 @@ void scrollToZero() {
 }
 
 class ArcaconPage extends StatefulWidget {
-  const ArcaconPage({Key? key}) : super(key: key);
+  const ArcaconPage({super.key});
 
   @override
   ArcaconPageState createState() => ArcaconPageState();
@@ -136,32 +135,33 @@ class ArcaconPageState extends State<ArcaconPage>
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-          title: TextField(
-            controller: searchTextController,
-            onSubmitted: (value) {
-              searchString = value;
-              if (scrollController!.hasClients) {
-                scrollController?.jumpTo(0);
-              }
-              requestNew();
-            },
-            decoration: InputDecoration(
-                labelText: '검색',
-                suffixIcon: IconButton(
-                    onPressed: () {
-                      searchString = searchTextController.text;
-                      if (scrollController!.hasClients) {
-                        scrollController?.jumpTo(0);
-                      }
-                      requestNew();
-                    },
-                    icon: const Icon(Icons.search))),
-          ),
-          actions: [
-            CustomPopMenuButton(
-                changeSearchFilter: changeSearchFilter,
-                changeSortByRank: changeSortByRank),
-          ]),
+        title: TextField(
+          controller: searchTextController,
+          onSubmitted: (value) {
+            searchString = value;
+            if (scrollController!.hasClients) {
+              scrollController?.jumpTo(0);
+            }
+            requestNew();
+          },
+          decoration: InputDecoration(
+              labelText: '검색',
+              suffixIcon: IconButton(
+                  onPressed: () {
+                    searchString = searchTextController.text;
+                    if (scrollController!.hasClients) {
+                      scrollController?.jumpTo(0);
+                    }
+                    requestNew();
+                  },
+                  icon: const Icon(Icons.search))),
+        ),
+        actions: [
+          CustomPopMenuButton(
+              changeSearchFilter: changeSearchFilter,
+              changeSortByRank: changeSortByRank),
+        ],
+      ),
       body: Center(
         child: FutureBuilder(
           future: items,

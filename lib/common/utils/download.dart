@@ -1,19 +1,20 @@
 import 'dart:io';
 import 'dart:math';
+
 import 'package:arcacon_downloader/common/utility/string_converter.dart';
 import 'package:arcacon_downloader/common/utils/download_path.dart';
+import 'package:arcacon_downloader/common/utils/notification.dart';
 import 'package:arcacon_downloader/common/utils/show_toast.dart';
 import 'package:arcacon_downloader/screen/first_page.dart';
 import 'package:arcacon_downloader/task_item.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:arcacon_downloader/common/utils/notification.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
   DownloadTask result = DownloadTask();
@@ -61,7 +62,7 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
   }
 
   titleText = titleText.trim();
-  var invalidChar = RegExp(r'[\/:*?"<>|]');
+  var invalidChar = RegExp(r'[/:*?"<>|]');
   if (invalidChar.hasMatch(titleText)) {
     titleText = titleText.replaceAll(invalidChar, '');
   }

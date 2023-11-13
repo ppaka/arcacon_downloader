@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TaskList extends StatefulWidget {
-  const TaskList({Key? key}) : super(key: key);
+  const TaskList({super.key});
 
   @override
   State<TaskList> createState() => _TaskListState();

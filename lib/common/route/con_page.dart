@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:arcacon_downloader/common/models/aracon_url.dart';
+import 'package:arcacon_downloader/common/models/arcacon_url.dart';
 import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 import 'package:arcacon_downloader/common/utility/custom_tab.dart';
 import 'package:arcacon_downloader/common/utility/string_converter.dart';
@@ -10,9 +10,9 @@ import 'package:arcacon_downloader/common/widget/detail_img.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart' as parser;
+import 'package:http/http.dart' as http;
 
 late Future<List<ArcaconUrl>> items;
 
@@ -52,7 +52,7 @@ class _ConPageState extends State<ConPage> {
     }
 
     titleText = titleText.trim();
-    var invalidChar = RegExp(r'[\/:*?"<>|]');
+    var invalidChar = RegExp(r'[/:*?"<>|]');
     if (invalidChar.hasMatch(titleText)) {
       titleText = titleText.replaceAll(invalidChar, '');
     }
@@ -67,7 +67,7 @@ class _ConPageState extends State<ConPage> {
     }
 
     makerText = makerText.trim();
-    var makerInvalidChar = RegExp(r'[\/:*?"<>|]');
+    var makerInvalidChar = RegExp(r'[/:*?"<>|]');
     if (makerInvalidChar.hasMatch(makerText)) {
       makerText = makerText.replaceAll(makerInvalidChar, '');
     }

@@ -1,11 +1,11 @@
-import 'package:arcacon_downloader/common/widget/download_floating_button%20copy.dart';
+import 'package:arcacon_downloader/common/widget/download_floating_button.dart';
 import 'package:arcacon_downloader/common/widget/open_floating_button.dart';
-import 'package:arcacon_downloader/common/widget/search_floating_button%20copy%202.dart';
+import 'package:arcacon_downloader/common/widget/search_floating_button.dart';
+import 'package:dio/dio.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:dio/dio.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -36,7 +36,7 @@ void cancelAllTasks() {
 }
 
 class FirstPage extends StatefulWidget {
-  const FirstPage({Key? key}) : super(key: key);
+  const FirstPage({super.key});
 
   @override
   State<FirstPage> createState() => _FirstPageState();
