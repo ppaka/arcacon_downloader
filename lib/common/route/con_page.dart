@@ -1,24 +1,18 @@
 import 'dart:io';
 
-import 'package:arcacon_downloader/utility/string_converter.dart';
+import 'package:arcacon_downloader/common/models/arcacon_url.dart';
+import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
+import 'package:arcacon_downloader/common/utility/custom_tab.dart';
+import 'package:arcacon_downloader/common/utility/string_converter.dart';
+import 'package:arcacon_downloader/common/utils/onpress_download.dart';
+import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
+import 'package:arcacon_downloader/common/widget/detail_img.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as parser;
 import 'package:html/dom.dart' as dom;
-
-import '../screen/arcacon_list.dart';
-import '../screen/first_page.dart';
-import '../utility/custom_tab.dart';
-import 'image_detail.dart';
-
-class ArcaconUrl {
-  String imageUrl = '';
-  String trueImageUrl = '';
-  String videoUrl = '';
-  String trueVideoUrl = '';
-}
+import 'package:html/parser.dart' as parser;
+import 'package:http/http.dart' as http;
 
 late Future<List<ArcaconUrl>> items;
 
@@ -58,7 +52,7 @@ class _ConPageState extends State<ConPage> {
     }
 
     titleText = titleText.trim();
-    var invalidChar = RegExp(r'[\/:*?"<>|]');
+    var invalidChar = RegExp(r'[/:*?"<>|]');
     if (invalidChar.hasMatch(titleText)) {
       titleText = titleText.replaceAll(invalidChar, '');
     }
@@ -73,7 +67,7 @@ class _ConPageState extends State<ConPage> {
     }
 
     makerText = makerText.trim();
-    var makerInvalidChar = RegExp(r'[\/:*?"<>|]');
+    var makerInvalidChar = RegExp(r'[/:*?"<>|]');
     if (makerInvalidChar.hasMatch(makerText)) {
       makerText = makerText.replaceAll(makerInvalidChar, '');
     }
@@ -165,6 +159,7 @@ class _ConPageState extends State<ConPage> {
                             context,
                             widget.item.imageUrl,
                             key,
+                            null,
                           );
                         },
                         child: Hero(
@@ -194,6 +189,7 @@ class _ConPageState extends State<ConPage> {
                             context,
                             widget.item.imageUrl,
                             key,
+                            null,
                           );
                         },
                         child: Hero(
@@ -250,7 +246,7 @@ class _ConPageState extends State<ConPage> {
             width: MediaQuery.of(context).size.width - 40,
             child: ElevatedButton(
               onPressed: () {
-                onPressStartDownload(widget.item.pageUrl);
+                onPressStartDownload(widget.item.pageUrl, null);
               },
               child: const Text('모두 다운로드'),
             ),
@@ -284,8 +280,11 @@ class _ConPageState extends State<ConPage> {
                   return Expanded(
                     child: GridView.builder(
                       itemBuilder: (context, position) {
-                        return img(context, snapshot.data!, position,
-                            widget.item.pageUrl);
+                        return ArcaconDetailImage(
+                            context: context,
+                            data: snapshot.data!,
+                            position: position,
+                            pageUrl: widget.item.pageUrl);
                       },
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: snapshot.data!.length,
@@ -311,210 +310,4 @@ class _ConPageState extends State<ConPage> {
       ),
     );
   }
-}
-
-Widget img(
-    BuildContext context, List<ArcaconUrl> data, int position, String pageUrl) {
-  var margin = const EdgeInsets.fromLTRB(0, 10, 0, 10);
-  if (data[position].imageUrl == '') {
-    return Container(
-      margin: margin,
-      child: SizedBox(
-        width: 100,
-        height: 100,
-        child: GestureDetector(
-          onLongPress: () {
-            showDialog<String>(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text("길게 눌러 다운로드"),
-                  content: const Text('이 아카콘을 다운로드 하실껀가요?'),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('취소'),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    TextButton(
-                      child: const Text('다운로드'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        onPressSingleStartDownload(pageUrl, position);
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          child: const Icon(Icons.play_circle, color: Colors.red, size: 50),
-        ),
-      ),
-    );
-  } else if (data[position].imageUrl.contains('.thumbnail.')) {
-    var key = UniqueKey().toString();
-    return Container(
-      margin: margin,
-      child: SizedBox(
-        width: 100,
-        height: 100,
-        child: GestureDetector(
-          onTap: () {
-            navigateToImageDetailPageWithArcaconUrl(
-                context, data[position], key);
-          },
-          onLongPress: () {
-            showDialog<String>(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text("길게 눌러 다운로드"),
-                  content: const Text('이 아카콘을 다운로드 하실껀가요?'),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('취소'),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    TextButton(
-                      child: const Text('다운로드'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        onPressSingleStartDownload(pageUrl, position);
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          child: Stack(
-            alignment: AlignmentDirectional.bottomEnd,
-            children: [
-              Hero(
-                tag: key,
-                child: CachedNetworkImage(
-                  width: 100,
-                  height: 100,
-                  imageUrl: data[position].imageUrl,
-                  progressIndicatorBuilder: (context, url, downloadProgress) =>
-                      CircularProgressIndicator(
-                          value: downloadProgress.progress),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 9, 1),
-                child: const Icon(Icons.play_circle,
-                    color: Colors.redAccent, size: 24),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  } else {
-    var key = UniqueKey().toString();
-    return Container(
-      margin: margin,
-      child: SizedBox(
-        width: 100,
-        height: 100,
-        child: GestureDetector(
-          onTap: () {
-            navigateToImageDetailPage(context, data[position].imageUrl, key);
-          },
-          onLongPress: () {
-            showDialog<String>(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text("길게 눌러 다운로드"),
-                  content: const Text('이 아카콘을 다운로드 하실껀가요?'),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('취소'),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    TextButton(
-                      child: const Text('다운로드'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        onPressSingleStartDownload(pageUrl, position);
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          child: Hero(
-            tag: key,
-            child: CachedNetworkImage(
-              width: 100,
-              height: 100,
-              imageUrl: data[position].imageUrl,
-              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                  CircularProgressIndicator(value: downloadProgress.progress),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-void navigateToImageDetailPage(BuildContext context, String url, String tag) {
-  Navigator.push(
-    context,
-    PageRouteBuilder(
-      opaque: false,
-      transitionDuration: const Duration(milliseconds: 300),
-      reverseTransitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (BuildContext context, Animation<double> animation,
-          Animation<double> secondaryAnimation) {
-        return FadeTransition(
-          opacity: Tween<double>(
-            begin: 0,
-            end: 1,
-          ).chain(CurveTween(curve: Curves.easeInOutSine)).animate(animation),
-          child: Semantics(
-            scopesRoute: true,
-            explicitChildNodes: true,
-            child: DetailScreen(url: url, tag: tag, videoUrl: ''),
-          ),
-        );
-      },
-    ),
-  );
-}
-
-void navigateToImageDetailPageWithArcaconUrl(
-    BuildContext context, ArcaconUrl url, String tag) {
-  Navigator.push(
-    context,
-    PageRouteBuilder(
-      opaque: false,
-      transitionDuration: const Duration(milliseconds: 300),
-      reverseTransitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (BuildContext context, Animation<double> animation,
-          Animation<double> secondaryAnimation) {
-        return FadeTransition(
-          opacity: Tween<double>(
-            begin: 0,
-            end: 1,
-          ).chain(CurveTween(curve: Curves.easeInOutSine)).animate(animation),
-          child: Semantics(
-            scopesRoute: true,
-            explicitChildNodes: true,
-            child: DetailScreen(
-                url: url.imageUrl, tag: tag, videoUrl: url.videoUrl),
-          ),
-        );
-      },
-    ),
-  );
 }

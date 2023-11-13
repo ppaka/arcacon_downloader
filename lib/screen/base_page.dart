@@ -1,59 +1,20 @@
+import 'package:arcacon_downloader/screen/arcacon_alert.dart';
+import 'package:arcacon_downloader/screen/arcacon_list.dart';
+import 'package:arcacon_downloader/screen/first_page.dart';
+import 'package:arcacon_downloader/screen/task_list.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../screen/first_page.dart';
-import '../screen/arcacon_list.dart';
-import '../screen/arcacon_alert.dart';
-import '../screen/task_list.dart';
 
 late FToast fToast;
-bool isGooglePlay = true;
+bool isGooglePlay = false;
 List<Widget> pages = [
   const FirstPage(),
   if (isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),
   const TaskList(),
 ];
 
-showToast(Color color, IconData icon, String text, Color textColor,
-    Duration? duration) {
-  duration ??= const Duration(seconds: 2);
-
-  Widget toast = Container(
-    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(25.0),
-      color: color,
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: textColor,
-        ),
-        const SizedBox(
-          width: 12.0,
-        ),
-        Text(
-          text,
-          style: TextStyle(
-            color: textColor,
-          ),
-        ),
-      ],
-    ),
-  );
-
-  fToast.removeCustomToast();
-
-  fToast.showToast(
-    child: toast,
-    gravity: ToastGravity.BOTTOM,
-    toastDuration: duration,
-  );
-}
-
 class BasePage extends StatefulWidget {
-  const BasePage({Key? key, required this.title}) : super(key: key);
+  const BasePage({super.key, required this.title});
   final String title;
 
   @override
