@@ -26,13 +26,19 @@ class _DownloadAllElevatedButtonState extends State<DownloadAllElevatedButton> {
         var current = (task.completeCount + task.errorCount).toDouble();
         debugPrint("$current / $total");
 
+        var height = Theme.of(context).buttonTheme.height - 4;
+
         if ((current / total).isNaN) {
-          return const LinearProgressIndicator(
+          return LinearProgressIndicator(
+            minHeight: height,
+            borderRadius: BorderRadius.circular(height / 2),
             value: null,
           );
         }
 
         return LinearProgressIndicator(
+          minHeight: height, //높이 조절
+          borderRadius: BorderRadius.circular(height / 2), // 동그란 수치 조절
           value: current / total,
         );
       }
