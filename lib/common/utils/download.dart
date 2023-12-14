@@ -6,7 +6,6 @@ import 'package:arcacon_downloader/common/utils/download_path.dart';
 import 'package:arcacon_downloader/common/utils/notification.dart';
 import 'package:arcacon_downloader/common/utils/show_toast.dart';
 import 'package:arcacon_downloader/screen/first_page.dart';
-import 'package:arcacon_downloader/task_item.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,8 +15,9 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
-  DownloadTask result = DownloadTask();
+Future<DownloadTask> singleStartDownload(
+    String myUrl, int? index, Function? onProgress) async {
+  DownloadTask downloadTask = DownloadTask();
 
   if (Platform.isAndroid) {
     final deviceInfo = await DeviceInfoPlugin().androidInfo;
@@ -25,14 +25,14 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
     if (deviceInfo.version.sdkInt > 32) {
       var request = await Permission.photos.request();
       if (request.isDenied) {
-        result.result = Result.noPermission;
-        return result;
+        downloadTask.result = Result.noPermission;
+        return downloadTask;
       }
     } else {
       var request = await Permission.storage.request();
       if (request.isDenied) {
-        result.result = Result.noPermission;
-        return result;
+        downloadTask.result = Result.noPermission;
+        return downloadTask;
       }
     }
     var request2 = await Permission.notification.request();
@@ -47,8 +47,8 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
   try {
     response = await client.get(Uri.parse(myUrl));
   } catch (ex) {
-    result.result = Result.connectError;
-    return result;
+    downloadTask.result = Result.connectError;
+    return downloadTask;
   }
 
   var document = parser.parse(response.body);
@@ -122,15 +122,22 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
   }
 
   int count = 0;
-  var taskItem = TaskItem();
-  taskItem.arcaconUrl = myUrl;
-  taskItem.title = titleText;
-  taskItem.maker = makerText;
-  taskItem.progress = 0;
+  var arcaconId = int.parse(Uri.parse(myUrl).path.split('/').last);
 
-  if (nowRunning.containsKey(titleText)) {
-    result.result = Result.alreadyRunning;
-    return result;
+  if (nowRunning.containsKey(arcaconId)) {
+    downloadTask.result = Result.alreadyRunning;
+    return downloadTask;
+  }
+
+  int randomValue = Random.secure().nextInt(2147483647);
+  while (nowRunning.containsValue(randomValue)) {
+    randomValue = Random.secure().nextInt(2147483647);
+  }
+
+  nowRunning[arcaconId] = randomValue;
+  runningTasks[arcaconId] = downloadTask;
+  if (onProgress != null) {
+    onProgress();
   }
 
   if (Platform.isAndroid || Platform.isIOS) {
@@ -149,16 +156,6 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
       Colors.white,
       null,
     );
-  }
-
-  int randomValue = Random.secure().nextInt(2147483647);
-  while (nowRunning.containsValue(randomValue)) {
-    randomValue = Random.secure().nextInt(2147483647);
-  }
-
-  nowRunning[titleText] = randomValue;
-  if (Platform.isAndroid || Platform.isIOS) {
-    await progressNotification(titleText, 0, 1);
   }
 
   var directory = '';
@@ -187,8 +184,8 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
       debugPrint('-----imageio 종료-----');
 
       if (processRes.exitCode != 0) {
-        result.result = Result.pipError;
-        return result;
+        downloadTask.result = Result.pipError;
+        return downloadTask;
       }
 
       debugPrint('-----imageio[ffmpeg] 설치-----');
@@ -200,8 +197,8 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
       debugPrint('-----imageio[ffmpeg] 종료-----');
 
       if (processRes.exitCode != 0) {
-        result.result = Result.pipError;
-        return result;
+        downloadTask.result = Result.pipError;
+        return downloadTask;
       }
 
       debugPrint('-----ffmpeg-python 설치-----');
@@ -213,29 +210,63 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
       debugPrint('-----ffmpeg-python 종료-----');
 
       if (processRes.exitCode != 0) {
-        result.result = Result.pipError;
-        return result;
+        downloadTask.result = Result.pipError;
+        return downloadTask;
       }
     }
   }
 
+  if (index == null) {
+    downloadTask.itemCount = arcacon.length;
+    runningTasks[arcaconId] = downloadTask;
+  } else {
+    downloadTask.itemCount = 1;
+    runningTasks[arcaconId] = downloadTask;
+  }
+
+  if (onProgress != null) {
+    onProgress();
+  }
+
+  if (Platform.isAndroid || Platform.isIOS) {
+    await progressNotification(titleText, 0, 1);
+  }
   var videoDir = '${directory}videos/';
 
   if (index == null) {
     for (int i = 0; i < arcacon.length; i++) {
       var con = arcacon[i];
       await downloadToPath(con, arcaconTrueUrl, i, arcacon, videoDir, directory,
-          result, pyDirectory);
+          downloadTask, pyDirectory);
+
+      count++;
+      downloadTask.completeCount = count;
+      runningTasks[arcaconId] = downloadTask;
+
+      if (onProgress != null) {
+        onProgress();
+      }
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        await progressNotification(titleText, count, 1);
+      }
     }
   } else {
     var con = arcacon[index];
     await downloadToPath(con, arcaconTrueUrl, index, arcacon, videoDir,
-        directory, result, pyDirectory);
-  }
+        directory, downloadTask, pyDirectory);
 
-  count++;
-  if (Platform.isAndroid || Platform.isIOS) {
-    await progressNotification(titleText, count, 1);
+    count++;
+    downloadTask.completeCount = count;
+    runningTasks[arcaconId] = downloadTask;
+
+    if (onProgress != null) {
+      onProgress();
+    }
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      await progressNotification(titleText, count, 1);
+    }
   }
 
   if (await Directory(videoDir).exists()) {
@@ -248,11 +279,18 @@ Future<DownloadTask> singleStartDownload(String myUrl, int? index) async {
 
   if (Platform.isAndroid || Platform.isIOS) {
     await Future.delayed(const Duration(milliseconds: 500));
-    await flutterLocalNotificationsPlugin.cancel(nowRunning[titleText]!);
+    await flutterLocalNotificationsPlugin.cancel(nowRunning[arcaconId]!);
     await showNotification(titleText);
   }
 
-  nowRunning.remove(titleText);
-  result.result = Result.success;
-  return result;
+  downloadTask.completeCount = count;
+  runningTasks[arcaconId] = downloadTask;
+
+  nowRunning.remove(arcaconId);
+  runningTasks.remove(arcaconId);
+  if (onProgress != null) {
+    onProgress();
+  }
+  downloadTask.result = Result.success;
+  return downloadTask;
 }

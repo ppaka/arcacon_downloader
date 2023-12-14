@@ -9,10 +9,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-Map<String, int> nowRunning = {};
+Map<int, int> nowRunning = {};
+Map<int, DownloadTask> runningTasks = {};
 
 class DownloadTask {
   int errorCount = 0;
+  int itemCount = 0;
+  int completeCount = 0;
   late Result result;
 }
 
@@ -95,16 +98,10 @@ class _FirstPageState extends State<FirstPage>
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           const SearchFloatingActionButton(),
-          const SizedBox(
-            height: 8,
-          ),
-          OpenFloatingActionButton(
-            text: textController.text,
-          ),
-          const SizedBox(
-            height: 8,
-          ),
-          DownloadFloatingActionButton(text: textController.text),
+          const SizedBox(height: 8),
+          OpenFloatingActionButton(textController: textController),
+          const SizedBox(height: 8),
+          DownloadFloatingActionButton(textController: textController),
         ],
       ),
     );

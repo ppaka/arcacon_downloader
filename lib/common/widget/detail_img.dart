@@ -4,21 +4,28 @@ import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-class ArcaconDetailImage extends StatelessWidget {
+class ArcaconDetailImage extends StatefulWidget {
   const ArcaconDetailImage(
       {super.key,
       required this.context,
       required this.data,
       required this.position,
       required this.pageUrl});
+
   final BuildContext context;
   final List<ArcaconUrl> data;
   final int position;
   final String pageUrl;
+
+  @override
+  State<ArcaconDetailImage> createState() => _ArcaconDetailImageState();
+}
+
+class _ArcaconDetailImageState extends State<ArcaconDetailImage> {
   @override
   Widget build(BuildContext context) {
     var margin = const EdgeInsets.fromLTRB(5, 5, 5, 5);
-    if (data[position].imageUrl == '') {
+    if (widget.data[widget.position].imageUrl == '') {
       return Container(
         margin: margin,
         child: SizedBox(
@@ -42,7 +49,10 @@ class ArcaconDetailImage extends StatelessWidget {
                         child: const Text('다운로드'),
                         onPressed: () {
                           Navigator.pop(context);
-                          onPressStartDownload(pageUrl, position);
+                          onPressStartDownload(widget.pageUrl, widget.position,
+                              () {
+                            setState(() {});
+                          });
                         },
                       ),
                     ],
@@ -54,7 +64,7 @@ class ArcaconDetailImage extends StatelessWidget {
           ),
         ),
       );
-    } else if (data[position].imageUrl.contains('.thumbnail.')) {
+    } else if (widget.data[widget.position].imageUrl.contains('.thumbnail.')) {
       var key = UniqueKey().toString();
       return Container(
         margin: margin,
@@ -63,8 +73,11 @@ class ArcaconDetailImage extends StatelessWidget {
           height: 100,
           child: GestureDetector(
             onTap: () {
-              navigateToImageDetailPage(context, data[position].imageUrl, key,
-                  data[position].videoUrl);
+              navigateToImageDetailPage(
+                  context,
+                  widget.data[widget.position].imageUrl,
+                  key,
+                  widget.data[widget.position].videoUrl);
             },
             onLongPress: () {
               showDialog<String>(
@@ -83,7 +96,10 @@ class ArcaconDetailImage extends StatelessWidget {
                         child: const Text('다운로드'),
                         onPressed: () {
                           Navigator.pop(context);
-                          onPressStartDownload(pageUrl, position);
+                          onPressStartDownload(widget.pageUrl, widget.position,
+                              () {
+                            setState(() {});
+                          });
                         },
                       ),
                     ],
@@ -100,7 +116,7 @@ class ArcaconDetailImage extends StatelessWidget {
                     fit: BoxFit.cover,
                     width: 100,
                     height: 100,
-                    imageUrl: data[position].imageUrl,
+                    imageUrl: widget.data[widget.position].imageUrl,
                     progressIndicatorBuilder:
                         (context, url, downloadProgress) =>
                             CircularProgressIndicator(
@@ -119,7 +135,7 @@ class ArcaconDetailImage extends StatelessWidget {
           ),
         ),
       );
-    } else if (data[position].imageUrl.contains('.mp4')) {
+    } else if (widget.data[widget.position].imageUrl.contains('.mp4')) {
       var key = UniqueKey().toString();
       return Container(
         margin: margin,
@@ -129,7 +145,7 @@ class ArcaconDetailImage extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               navigateToImageDetailPage(
-                  context, data[position].imageUrl, key, null);
+                  context, widget.data[widget.position].imageUrl, key, null);
             },
             onLongPress: () {
               showDialog<String>(
@@ -148,7 +164,10 @@ class ArcaconDetailImage extends StatelessWidget {
                         child: const Text('다운로드'),
                         onPressed: () {
                           Navigator.pop(context);
-                          onPressStartDownload(pageUrl, position);
+                          onPressStartDownload(widget.pageUrl, widget.position,
+                              () {
+                            setState(() {});
+                          });
                         },
                       ),
                     ],
@@ -193,7 +212,7 @@ class ArcaconDetailImage extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               navigateToImageDetailPage(
-                  context, data[position].imageUrl, key, null);
+                  context, widget.data[widget.position].imageUrl, key, null);
             },
             onLongPress: () {
               showDialog<String>(
@@ -212,7 +231,10 @@ class ArcaconDetailImage extends StatelessWidget {
                         child: const Text('다운로드'),
                         onPressed: () {
                           Navigator.pop(context);
-                          onPressStartDownload(pageUrl, position);
+                          onPressStartDownload(widget.pageUrl, widget.position,
+                              () {
+                            setState(() {});
+                          });
                         },
                       ),
                     ],
@@ -226,7 +248,7 @@ class ArcaconDetailImage extends StatelessWidget {
                 fit: BoxFit.cover,
                 width: 100,
                 height: 100,
-                imageUrl: data[position].imageUrl,
+                imageUrl: widget.data[widget.position].imageUrl,
                 progressIndicatorBuilder: (context, url, downloadProgress) =>
                     CircularProgressIndicator(value: downloadProgress.progress),
                 errorWidget: (context, url, error) {

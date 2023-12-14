@@ -9,16 +9,16 @@ import 'package:fluttertoast/fluttertoast.dart';
 class OpenFloatingActionButton extends StatelessWidget {
   const OpenFloatingActionButton({
     super.key,
-    required this.text,
+    required this.textController,
   });
 
-  final String text;
+  final TextEditingController textController;
 
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () async {
-        if (text.isEmpty) {
+        if (textController.text.isEmpty) {
           if (Platform.isAndroid || Platform.isIOS) {
             Fluttertoast.showToast(
               msg: "주소를 입력해주세요!",
@@ -41,7 +41,7 @@ class OpenFloatingActionButton extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => ConPage(
-                item: PreviewArcaconItem(text, "", "", "", ""),
+                item: PreviewArcaconItem(textController.text, "", "", "", ""),
               ),
             ),
           );

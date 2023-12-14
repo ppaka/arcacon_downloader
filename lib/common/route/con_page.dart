@@ -7,6 +7,7 @@ import 'package:arcacon_downloader/common/utility/string_converter.dart';
 import 'package:arcacon_downloader/common/utils/onpress_download.dart';
 import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
 import 'package:arcacon_downloader/common/widget/detail_img.dart';
+import 'package:arcacon_downloader/common/widget/download_all_elevated_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -16,13 +17,10 @@ import 'package:http/http.dart' as http;
 
 late Future<List<ArcaconUrl>> items;
 
-// ignore: must_be_immutable
 class ConPage extends StatefulWidget {
-  ConPage({Key? key, PreviewArcaconItem? item}) : super(key: key) {
-    this.item = item!;
-  }
+  const ConPage({super.key, required this.item});
 
-  late PreviewArcaconItem item;
+  final PreviewArcaconItem item;
 
   @override
   State<ConPage> createState() => _ConPageState();
@@ -129,6 +127,8 @@ class _ConPageState extends State<ConPage> {
 
   @override
   Widget build(BuildContext context) {
+    var arcaconId =
+        int.parse(Uri.parse(widget.item.pageUrl).path.split('/').last);
     var key = UniqueKey().toString();
     return Scaffold(
       appBar: AppBar(
@@ -144,75 +144,80 @@ class _ConPageState extends State<ConPage> {
         children: [
           Row(
             children: [
-              // 아이콘이 mp4일 때
-              widget.item.imageUrl.contains('.mp4')
-                  ? Container(
-                      margin: const EdgeInsets.fromLTRB(
-                        20,
-                        20,
-                        20,
-                        0,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          navigateToImageDetailPage(
-                            context,
-                            widget.item.imageUrl,
-                            key,
-                            null,
-                          );
-                        },
-                        child: Hero(
-                          tag: key,
-                          child: const SizedBox(
-                            width: 100,
-                            height: 100,
-                            child: Icon(
-                              Icons.play_circle,
-                              color: Colors.red,
-                              size: 50,
+              if (widget.item.imageUrl.isNotEmpty)
+                widget.item.imageUrl.contains('.mp4')
+                    ? Container(
+                        margin: const EdgeInsets.fromLTRB(
+                          20,
+                          20,
+                          20,
+                          0,
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            navigateToImageDetailPage(
+                              context,
+                              widget.item.imageUrl,
+                              key,
+                              null,
+                            );
+                          },
+                          child: Hero(
+                            tag: key,
+                            child: const SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: Icon(
+                                Icons.play_circle,
+                                color: Colors.red,
+                                size: 50,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                  : Container(
-                      margin: const EdgeInsets.fromLTRB(
-                        20,
-                        20,
-                        20,
-                        0,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          navigateToImageDetailPage(
-                            context,
-                            widget.item.imageUrl,
-                            key,
-                            null,
-                          );
-                        },
-                        child: Hero(
-                          tag: key,
-                          child: SizedBox(
-                            width: 100,
-                            height: 100,
-                            child: CachedNetworkImage(
-                              imageUrl: widget.item.imageUrl,
-                              progressIndicatorBuilder:
-                                  (context, url, downloadProgress) {
-                                return CircularProgressIndicator(
-                                  value: downloadProgress.progress,
-                                );
-                              },
-                              errorWidget: (context, url, error) {
-                                return const Icon(Icons.error);
-                              },
+                      )
+                    : Container(
+                        margin: const EdgeInsets.fromLTRB(
+                          20,
+                          20,
+                          20,
+                          0,
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            navigateToImageDetailPage(
+                              context,
+                              widget.item.imageUrl,
+                              key,
+                              null,
+                            );
+                          },
+                          child: Hero(
+                            tag: key,
+                            child: SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: CachedNetworkImage(
+                                imageUrl: widget.item.imageUrl,
+                                progressIndicatorBuilder:
+                                    (context, url, downloadProgress) {
+                                  return CircularProgressIndicator(
+                                    value: downloadProgress.progress,
+                                  );
+                                },
+                                errorWidget: (context, url, error) {
+                                  return const Icon(Icons.error);
+                                },
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      )
+              else
+                const SizedBox(
+                  width: 50,
+                  height: 60,
+                ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,11 +249,17 @@ class _ConPageState extends State<ConPage> {
           const SizedBox(height: 20),
           SizedBox(
             width: MediaQuery.of(context).size.width - 40,
-            child: ElevatedButton(
-              onPressed: () {
-                onPressStartDownload(widget.item.pageUrl, null);
-              },
-              child: const Text('모두 다운로드'),
+            child: DownloadAllElevatedButton(
+              onPressed: () => onPressStartDownload(
+                widget.item.pageUrl,
+                null,
+                () {
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+              ),
+              arcaconId: arcaconId,
             ),
           ),
           const SizedBox(height: 8),

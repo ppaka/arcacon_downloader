@@ -6,12 +6,17 @@ import 'package:arcacon_downloader/screen/first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-Future<void> onPressStartDownload(String url, int? index) async {
+Future<void> onPressStartDownload(
+    String url, int? index, Function? onProgress) async {
   DownloadTask result;
   if (index == null) {
-    result = await singleStartDownload(url, null);
+    result = await singleStartDownload(url, null, onProgress);
   } else {
-    result = await singleStartDownload(url, index);
+    result = await singleStartDownload(url, index, onProgress);
+  }
+
+  if (onProgress != null) {
+    onProgress();
   }
 
   if (result.result == Result.success) {
