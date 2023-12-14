@@ -229,7 +229,7 @@ Future<DownloadTask> singleStartDownload(
   }
 
   if (Platform.isAndroid || Platform.isIOS) {
-    await progressNotification(titleText, 0, 1);
+    await progressNotification(arcaconId, titleText, 0, 1);
   }
   var videoDir = '${directory}videos/';
 
@@ -248,7 +248,7 @@ Future<DownloadTask> singleStartDownload(
       }
 
       if (Platform.isAndroid || Platform.isIOS) {
-        await progressNotification(titleText, count, 1);
+        await progressNotification(arcaconId, titleText, count, 1);
       }
     }
   } else {
@@ -265,7 +265,7 @@ Future<DownloadTask> singleStartDownload(
     }
 
     if (Platform.isAndroid || Platform.isIOS) {
-      await progressNotification(titleText, count, 1);
+      await progressNotification(arcaconId, titleText, count, 1);
     }
   }
 
@@ -280,7 +280,7 @@ Future<DownloadTask> singleStartDownload(
   if (Platform.isAndroid || Platform.isIOS) {
     await Future.delayed(const Duration(milliseconds: 500));
     await flutterLocalNotificationsPlugin.cancel(nowRunning[arcaconId]!);
-    await showNotification(titleText);
+    await showNotification(arcaconId, titleText);
   }
 
   downloadTask.completeCount = count;

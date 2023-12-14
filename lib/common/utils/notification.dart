@@ -2,7 +2,7 @@ import 'package:arcacon_downloader/screen/first_page.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 Future<void> progressNotification(
-    String conTitle, int nowProgress, int maxProgress) async {
+    int arcaconId, String conTitle, int nowProgress, int maxProgress) async {
   final AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails('Task Notifications ID', 'Task Notifications',
           importance: Importance.low,
@@ -21,12 +21,12 @@ Future<void> progressNotification(
           ongoing: true);
   final NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(nowRunning[conTitle]!,
+  await flutterLocalNotificationsPlugin.show(nowRunning[arcaconId]!,
       '아카콘 다운로드 중...', conTitle, platformChannelSpecifics,
       payload: 'item x');
 }
 
-Future<void> showNotification(String conTitle) async {
+Future<void> showNotification(int arcaconId, String conTitle) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
           'Ended Task Notifications ID', 'Ended Task Notifications',
@@ -38,7 +38,7 @@ Future<void> showNotification(String conTitle) async {
           setAsGroupSummary: false);
   const NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(nowRunning[conTitle]!.hashCode,
+  await flutterLocalNotificationsPlugin.show(nowRunning[arcaconId]!.hashCode,
       '아카콘 다운로드 완료!', conTitle, platformChannelSpecifics,
       payload: 'item x');
 }
