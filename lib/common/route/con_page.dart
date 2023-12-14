@@ -249,6 +249,7 @@ class _ConPageState extends State<ConPage> {
           const SizedBox(height: 20),
           SizedBox(
             width: MediaQuery.of(context).size.width - 40,
+            height: 40,
             child: DownloadAllElevatedButton(
               onPressed: () => onPressStartDownload(
                 widget.item.pageUrl,
@@ -265,6 +266,7 @@ class _ConPageState extends State<ConPage> {
           const SizedBox(height: 8),
           SizedBox(
             width: MediaQuery.of(context).size.width - 40,
+            height: 40,
             child: OutlinedButton(
               onPressed: () {
                 if (Platform.isAndroid || Platform.isIOS) {

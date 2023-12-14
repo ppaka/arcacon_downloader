@@ -26,7 +26,7 @@ class _DownloadAllElevatedButtonState extends State<DownloadAllElevatedButton> {
         var current = (task.completeCount + task.errorCount).toDouble();
         debugPrint("$current / $total");
 
-        var height = Theme.of(context).buttonTheme.height - 4;
+        var height = 40.0;
 
         if ((current / total).isNaN) {
           return LinearProgressIndicator(
