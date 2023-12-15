@@ -304,10 +304,10 @@ class _ConPageState extends State<ConPage> {
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 100,
-                        mainAxisSpacing: 1, //수평 Padding
-                        crossAxisSpacing: 1, //수직 Padding
-                        mainAxisExtent: 100,
-                        //childAspectRatio: (itemWidth / itemHeight), //item 의 가로 1, 세로 2 의 비율
+                        mainAxisSpacing: 1,
+                        crossAxisSpacing: 1,
+                        //mainAxisExtent: 100,
+                        childAspectRatio: 1,
                       ),
                       shrinkWrap: true,
                     ),
