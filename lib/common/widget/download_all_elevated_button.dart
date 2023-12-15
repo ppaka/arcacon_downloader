@@ -1,29 +1,27 @@
-import 'package:arcacon_downloader/screen/first_page.dart';
+import 'package:arcacon_downloader/common/utils/onpress_download.dart';
+import 'package:arcacon_downloader/taskNotifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DownloadAllElevatedButton extends StatefulWidget {
+class DownloadAllElevatedButton extends ConsumerWidget {
   const DownloadAllElevatedButton({
+    required this.arcaconUrl,
     super.key,
-    required this.onPressed,
     required this.arcaconId,
   });
 
-  final Function onPressed;
+  final String arcaconUrl;
   final int arcaconId;
 
   @override
-  State<DownloadAllElevatedButton> createState() =>
-      _DownloadAllElevatedButtonState();
-}
-
-class _DownloadAllElevatedButtonState extends State<DownloadAllElevatedButton> {
-  @override
-  Widget build(BuildContext context) {
-    if (runningTasks.containsKey(widget.arcaconId)) {
-      var task = runningTasks[widget.arcaconId];
-      if (task != null) {
-        var total = task.itemCount.toDouble();
-        var current = (task.completeCount + task.errorCount).toDouble();
+  Widget build(BuildContext context, WidgetRef ref) {
+    var tasks = ref.watch(taskStateProvider);
+    debugPrint('asd');
+    if (ref.watch(taskStateProvider.notifier).containsKey(arcaconId)) {
+      var thisTask = tasks[arcaconId];
+      if (thisTask != null) {
+        var total = thisTask.itemCount.toDouble();
+        var current = (thisTask.completeCount + thisTask.errorCount).toDouble();
         debugPrint("$current / $total");
 
         var height = 40.0;
@@ -46,7 +44,12 @@ class _DownloadAllElevatedButtonState extends State<DownloadAllElevatedButton> {
 
     return ElevatedButton(
       onPressed: () {
-        widget.onPressed();
+        onPressStartDownload(
+          ref,
+          arcaconUrl,
+          null,
+          () {},
+        );
       },
       child: const Text('모두 다운로드'),
     );

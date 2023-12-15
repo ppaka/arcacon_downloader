@@ -10,7 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 Map<int, int> nowRunning = {};
-Map<int, DownloadTask> runningTasks = {};
+// Map<int, DownloadTask> runningTasks = {};
 
 class DownloadTask {
   int errorCount = 0;

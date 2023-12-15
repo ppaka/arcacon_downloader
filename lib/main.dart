@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:video_player_win/video_player_win_plugin.dart';
@@ -25,18 +26,22 @@ void main() async {
   });
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MaterialApp(
-    localizationsDelegates: const [
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
-    themeMode: ThemeMode.system,
-    theme: mat3LightTheme(),
-    darkTheme: mat3DarkTheme(),
-    home: const ArcaconDownloader(),
-  ));
+  runApp(
+    ProviderScope(
+      child: MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
+        themeMode: ThemeMode.system,
+        theme: mat3LightTheme(),
+        darkTheme: mat3DarkTheme(),
+        home: const ArcaconDownloader(),
+      ),
+    ),
+  );
   if (Platform.isWindows) {
     setWindowTitle('아카콘 다운로더');
   }

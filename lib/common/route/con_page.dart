@@ -4,7 +4,6 @@ import 'package:arcacon_downloader/common/models/arcacon_url.dart';
 import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 import 'package:arcacon_downloader/common/utility/custom_tab.dart';
 import 'package:arcacon_downloader/common/utility/string_converter.dart';
-import 'package:arcacon_downloader/common/utils/onpress_download.dart';
 import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
 import 'package:arcacon_downloader/common/widget/detail_img.dart';
 import 'package:arcacon_downloader/common/widget/download_all_elevated_button.dart';
@@ -251,15 +250,7 @@ class _ConPageState extends State<ConPage> {
             width: MediaQuery.of(context).size.width - 40,
             height: 40,
             child: DownloadAllElevatedButton(
-              onPressed: () => onPressStartDownload(
-                widget.item.pageUrl,
-                null,
-                () {
-                  if (mounted) {
-                    setState(() {});
-                  }
-                },
-              ),
+              arcaconUrl: widget.item.pageUrl,
               arcaconId: arcaconId,
             ),
           ),

@@ -6,8 +6,10 @@ import 'package:arcacon_downloader/common/utils/download_path.dart';
 import 'package:arcacon_downloader/common/utils/notification.dart';
 import 'package:arcacon_downloader/common/utils/show_toast.dart';
 import 'package:arcacon_downloader/screen/first_page.dart';
+import 'package:arcacon_downloader/taskNotifier.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as parser;
@@ -16,7 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<DownloadTask> singleStartDownload(
-    String myUrl, int? index, Function? onProgress) async {
+    WidgetRef ref, String myUrl, int? index, Function? onProgress) async {
   DownloadTask downloadTask = DownloadTask();
 
   if (Platform.isAndroid) {
@@ -135,7 +137,8 @@ Future<DownloadTask> singleStartDownload(
   }
 
   nowRunning[arcaconId] = randomValue;
-  runningTasks[arcaconId] = downloadTask;
+  // runningTasks[arcaconId] = downloadTask;
+  ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
   if (onProgress != null) {
     onProgress();
   }
@@ -218,11 +221,11 @@ Future<DownloadTask> singleStartDownload(
 
   if (index == null) {
     downloadTask.itemCount = arcacon.length;
-    runningTasks[arcaconId] = downloadTask;
   } else {
     downloadTask.itemCount = 1;
-    runningTasks[arcaconId] = downloadTask;
   }
+
+  ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
 
   if (onProgress != null) {
     onProgress();
@@ -241,7 +244,7 @@ Future<DownloadTask> singleStartDownload(
 
       count++;
       downloadTask.completeCount = count;
-      runningTasks[arcaconId] = downloadTask;
+      ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
 
       if (onProgress != null) {
         onProgress();
@@ -253,12 +256,20 @@ Future<DownloadTask> singleStartDownload(
     }
   } else {
     var con = arcacon[index];
-    await downloadToPath(con, arcaconTrueUrl, index, arcacon, videoDir,
-        directory, downloadTask, pyDirectory);
+    await downloadToPath(
+      con,
+      arcaconTrueUrl,
+      index,
+      arcacon,
+      videoDir,
+      directory,
+      downloadTask,
+      pyDirectory,
+    );
 
     count++;
     downloadTask.completeCount = count;
-    runningTasks[arcaconId] = downloadTask;
+    ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
 
     if (onProgress != null) {
       onProgress();
@@ -284,10 +295,10 @@ Future<DownloadTask> singleStartDownload(
   }
 
   downloadTask.completeCount = count;
-  runningTasks[arcaconId] = downloadTask;
+  ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
 
   nowRunning.remove(arcaconId);
-  runningTasks.remove(arcaconId);
+  ref.watch(taskStateProvider.notifier).remove(arcaconId);
   if (onProgress != null) {
     onProgress();
   }
