@@ -248,7 +248,7 @@ Future<DownloadTask> singleStartDownload(
       }
 
       if (Platform.isAndroid || Platform.isIOS) {
-        await progressNotification(arcaconId, titleText, count, 1);
+        await progressNotification(arcaconId, titleText, count, arcacon.length);
       }
     }
   } else {
