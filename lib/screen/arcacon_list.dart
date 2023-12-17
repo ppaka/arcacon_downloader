@@ -4,6 +4,7 @@ import 'package:arcacon_downloader/common/widget/arcacon_item.dart';
 import 'package:arcacon_downloader/common/widget/custom_popmenu_item.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 int lastLoadPage = 0;
 int nowWorkingPage = -1;
@@ -26,7 +27,9 @@ void scrollToZero() {
 }
 
 class ArcaconPage extends StatefulWidget {
-  const ArcaconPage({super.key});
+  const ArcaconPage({super.key, required this.parentRef});
+
+  final WidgetRef parentRef;
 
   @override
   ArcaconPageState createState() => ArcaconPageState();
@@ -182,6 +185,7 @@ class ArcaconPageState extends State<ArcaconPage>
                       return ArcaconItem(
                         snapshot: snapshot,
                         position: position,
+                        parentRef: widget.parentRef,
                       );
                     },
                     physics: const AlwaysScrollableScrollPhysics(),

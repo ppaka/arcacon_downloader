@@ -2,13 +2,19 @@ import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:arcacon_downloader/common/route/con_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ArcaconItem extends StatelessWidget {
-  const ArcaconItem(
-      {super.key, required this.snapshot, required this.position});
+  const ArcaconItem({
+    super.key,
+    required this.snapshot,
+    required this.position,
+    required this.parentRef,
+  });
 
   final AsyncSnapshot<List<PreviewArcaconItem>> snapshot;
   final int position;
+  final WidgetRef parentRef;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +29,7 @@ class ArcaconItem extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => ConPage(
                 item: snapshot.data![position],
+                parentRef: parentRef,
               ),
             ),
           );

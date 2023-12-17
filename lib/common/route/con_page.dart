@@ -17,16 +17,21 @@ import 'package:http/http.dart' as http;
 
 late Future<List<ArcaconUrl>> items;
 
-class ConPage extends ConsumerStatefulWidget {
-  const ConPage({super.key, required this.item});
+class ConPage extends StatefulWidget {
+  const ConPage({
+    super.key,
+    required this.item,
+    required this.parentRef,
+  });
 
   final PreviewArcaconItem item;
+  final WidgetRef parentRef;
 
   @override
-  ConsumerState<ConPage> createState() => _ConPageState();
+  State<ConPage> createState() => _ConPageState();
 }
 
-class _ConPageState extends ConsumerState<ConPage> {
+class _ConPageState extends State<ConPage> {
   Future<List<ArcaconUrl>> getCons(String url) async {
     var client = http.Client();
     List<ArcaconUrl> lists = [];
@@ -253,6 +258,7 @@ class _ConPageState extends ConsumerState<ConPage> {
             child: DownloadAllElevatedButton(
               arcaconUrl: widget.item.pageUrl,
               arcaconId: arcaconId,
+              parentRef: widget.parentRef,
             ),
           ),
           const SizedBox(height: 8),

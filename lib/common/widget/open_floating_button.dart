@@ -4,15 +4,18 @@ import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 import 'package:arcacon_downloader/common/route/con_page.dart';
 import 'package:arcacon_downloader/common/utils/show_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class OpenFloatingActionButton extends StatelessWidget {
   const OpenFloatingActionButton({
     super.key,
     required this.textController,
+    required this.parentRef,
   });
 
   final TextEditingController textController;
+  final WidgetRef parentRef;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +45,7 @@ class OpenFloatingActionButton extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => ConPage(
                 item: PreviewArcaconItem(textController.text, "", "", "", ""),
+                parentRef: parentRef,
               ),
             ),
           );

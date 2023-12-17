@@ -6,6 +6,7 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -39,7 +40,12 @@ void cancelAllTasks() {
 }
 
 class FirstPage extends StatefulWidget {
-  const FirstPage({super.key});
+  const FirstPage({
+    super.key,
+    required this.parentRef,
+  });
+
+  final WidgetRef parentRef;
 
   @override
   State<FirstPage> createState() => _FirstPageState();
@@ -99,7 +105,8 @@ class _FirstPageState extends State<FirstPage>
         children: [
           const SearchFloatingActionButton(),
           const SizedBox(height: 8),
-          OpenFloatingActionButton(textController: textController),
+          OpenFloatingActionButton(
+              textController: textController, parentRef: widget.parentRef),
           const SizedBox(height: 8),
           DownloadFloatingActionButton(textController: textController),
         ],
