@@ -3,25 +3,19 @@ import 'dart:io';
 import 'package:arcacon_downloader/common/utils/onpress_download.dart';
 import 'package:arcacon_downloader/common/utils/show_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class DownloadFloatingActionButton extends StatefulWidget {
+class DownloadFloatingActionButton extends ConsumerWidget {
   const DownloadFloatingActionButton({super.key, required this.textController});
 
   final TextEditingController textController;
 
   @override
-  State<DownloadFloatingActionButton> createState() =>
-      _DownloadFloatingActionButtonState();
-}
-
-class _DownloadFloatingActionButtonState
-    extends State<DownloadFloatingActionButton> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return FloatingActionButton(
       onPressed: () async {
-        if (widget.textController.text.isEmpty) {
+        if (textController.text.isEmpty) {
           if (Platform.isAndroid || Platform.isIOS) {
             Fluttertoast.showToast(
               msg: "주소를 입력해주세요!",
@@ -40,9 +34,7 @@ class _DownloadFloatingActionButtonState
             );
           }
         } else {
-          onPressStartDownload(widget.textController.text, null, () {
-            setState(() {});
-          });
+          onPressStartDownload(ref, textController.text, null, () {});
         }
       },
       mini: false,

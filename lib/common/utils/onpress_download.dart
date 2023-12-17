@@ -4,15 +4,16 @@ import 'package:arcacon_downloader/common/utils/download.dart';
 import 'package:arcacon_downloader/common/utils/show_toast.dart';
 import 'package:arcacon_downloader/screen/first_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 Future<void> onPressStartDownload(
-    String url, int? index, Function? onProgress) async {
+    WidgetRef ref, String url, int? index, Function? onProgress) async {
   DownloadTask result;
   if (index == null) {
-    result = await singleStartDownload(url, null, onProgress);
+    result = await singleStartDownload(ref, url, null, onProgress);
   } else {
-    result = await singleStartDownload(url, index, onProgress);
+    result = await singleStartDownload(ref, url, index, onProgress);
   }
 
   if (onProgress != null) {

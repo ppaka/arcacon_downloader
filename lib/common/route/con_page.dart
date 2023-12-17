@@ -4,13 +4,13 @@ import 'package:arcacon_downloader/common/models/arcacon_url.dart';
 import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 import 'package:arcacon_downloader/common/utility/custom_tab.dart';
 import 'package:arcacon_downloader/common/utility/string_converter.dart';
-import 'package:arcacon_downloader/common/utils/onpress_download.dart';
 import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
 import 'package:arcacon_downloader/common/widget/detail_img.dart';
 import 'package:arcacon_downloader/common/widget/download_all_elevated_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
@@ -18,9 +18,14 @@ import 'package:http/http.dart' as http;
 late Future<List<ArcaconUrl>> items;
 
 class ConPage extends StatefulWidget {
-  const ConPage({super.key, required this.item});
+  const ConPage({
+    super.key,
+    required this.item,
+    required this.parentRef,
+  });
 
   final PreviewArcaconItem item;
+  final WidgetRef parentRef;
 
   @override
   State<ConPage> createState() => _ConPageState();
@@ -251,16 +256,9 @@ class _ConPageState extends State<ConPage> {
             width: MediaQuery.of(context).size.width - 40,
             height: 40,
             child: DownloadAllElevatedButton(
-              onPressed: () => onPressStartDownload(
-                widget.item.pageUrl,
-                null,
-                () {
-                  if (mounted) {
-                    setState(() {});
-                  }
-                },
-              ),
+              arcaconUrl: widget.item.pageUrl,
               arcaconId: arcaconId,
+              parentRef: widget.parentRef,
             ),
           ),
           const SizedBox(height: 8),

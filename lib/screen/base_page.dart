@@ -1,27 +1,23 @@
 import 'package:arcacon_downloader/screen/arcacon_alert.dart';
 import 'package:arcacon_downloader/screen/arcacon_list.dart';
 import 'package:arcacon_downloader/screen/first_page.dart';
-import 'package:arcacon_downloader/screen/task_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 late FToast fToast;
+late List<Widget> pages;
 bool isGooglePlay = false;
-List<Widget> pages = [
-  const FirstPage(),
-  if (isGooglePlay == true) const ArcaconAlert() else const ArcaconPage(),
-  const TaskList(),
-];
 
-class BasePage extends StatefulWidget {
+class BasePage extends ConsumerStatefulWidget {
   const BasePage({super.key, required this.title});
   final String title;
 
   @override
-  State<BasePage> createState() => _BasePageState();
+  ConsumerState<BasePage> createState() => _BasePageState();
 }
 
-class _BasePageState extends State<BasePage>
+class _BasePageState extends ConsumerState<BasePage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -34,6 +30,17 @@ class _BasePageState extends State<BasePage>
   @override
   void initState() {
     super.initState();
+    pages = [
+      FirstPage(
+        parentRef: ref,
+      ),
+      if (isGooglePlay == true)
+        const ArcaconAlert()
+      else
+        ArcaconPage(
+          parentRef: ref,
+        )
+    ];
     _controller = TabController(length: pages.length, vsync: this);
     fToast = FToast();
     fToast.init(context);
@@ -54,84 +61,74 @@ class _BasePageState extends State<BasePage>
       length: pages.length,
       initialIndex: 0,
       child: Scaffold(
-          body: Row(
-            children: [
-              if (MediaQuery.of(context).size.width >= 640)
-                NavigationRail(
-                  onDestinationSelected: (value) {
-                    if (currentPageIndex == value && value == 1) {
-                      scrollToZero();
-                    }
-                    setState(() {
-                      currentPageIndex = value;
-                      _controller.animateTo(currentPageIndex);
-                    });
-                  },
-                  selectedIndex: currentPageIndex,
-                  labelType: NavigationRailLabelType.all,
-                  destinations: const <NavigationRailDestination>[
-                    NavigationRailDestination(
-                      selectedIcon: Icon(Icons.home_rounded),
-                      icon: Icon(Icons.home_outlined),
-                      label: Text('홈'),
-                    ),
-                    NavigationRailDestination(
-                      selectedIcon: Icon(Icons.explore_rounded),
-                      icon: Icon(Icons.explore_outlined),
-                      label: Text('탐색'),
-                    ),
-                    /*NavigationRailDestination(
-                      selectedIcon: Icon(Icons.download_done_rounded),
-                      icon: Icon(Icons.download_done_outlined),
-                      label: Text('작업'),
-                    ),*/
-                  ],
-                ),
-              Expanded(
-                child: TabBarView(
-                  controller: _controller,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: pages,
-                ),
+        body: Row(
+          children: [
+            if (MediaQuery.of(context).size.width >= 640)
+              NavigationRail(
+                onDestinationSelected: (value) {
+                  if (currentPageIndex == value && value == 1) {
+                    scrollToZero();
+                  }
+                  setState(() {
+                    currentPageIndex = value;
+                    _controller.animateTo(currentPageIndex);
+                  });
+                },
+                selectedIndex: currentPageIndex,
+                labelType: NavigationRailLabelType.all,
+                destinations: const <NavigationRailDestination>[
+                  NavigationRailDestination(
+                    selectedIcon: Icon(Icons.home_rounded),
+                    icon: Icon(Icons.home_outlined),
+                    label: Text('홈'),
+                  ),
+                  NavigationRailDestination(
+                    selectedIcon: Icon(Icons.explore_rounded),
+                    icon: Icon(Icons.explore_outlined),
+                    label: Text('탐색'),
+                  ),
+                ],
+              ),
+            Expanded(
+              child: TabBarView(
+                controller: _controller,
+                physics: const NeverScrollableScrollPhysics(),
+                children: pages,
+              ),
+            )
+          ],
+        ),
+        bottomNavigationBar: MediaQuery.of(context).size.width < 640
+            ? NavigationBar(
+                height: 70,
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                onDestinationSelected: (value) {
+                  if (currentPageIndex == value && value == 1) {
+                    scrollToZero();
+                  }
+                  setState(() {
+                    currentPageIndex = value;
+                    _controller.animateTo(currentPageIndex);
+                  });
+                },
+                selectedIndex: currentPageIndex,
+                destinations: const <Widget>[
+                  NavigationDestination(
+                    selectedIcon: Icon(Icons.home_rounded),
+                    icon: Icon(Icons.home_outlined),
+                    label: '홈',
+                    tooltip: '',
+                  ),
+                  NavigationDestination(
+                    selectedIcon: Icon(Icons.explore_rounded),
+                    icon: Icon(Icons.explore_outlined),
+                    label: '탐색',
+                    tooltip: '',
+                  ),
+                ],
               )
-            ],
-          ),
-          bottomNavigationBar: MediaQuery.of(context).size.width < 640
-              ? NavigationBar(
-                  height: 70,
-                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                  onDestinationSelected: (value) {
-                    if (currentPageIndex == value && value == 1) {
-                      scrollToZero();
-                    }
-                    setState(() {
-                      currentPageIndex = value;
-                      _controller.animateTo(currentPageIndex);
-                    });
-                  },
-                  selectedIndex: currentPageIndex,
-                  destinations: const <Widget>[
-                    NavigationDestination(
-                      selectedIcon: Icon(Icons.home_rounded),
-                      icon: Icon(Icons.home_outlined),
-                      label: '홈',
-                      tooltip: '',
-                    ),
-                    NavigationDestination(
-                      selectedIcon: Icon(Icons.explore_rounded),
-                      icon: Icon(Icons.explore_outlined),
-                      label: '탐색',
-                      tooltip: '',
-                    ),
-                    /*NavigationDestination(
-                      selectedIcon: Icon(Icons.download_done_rounded),
-                      icon: Icon(Icons.download_done_outlined),
-                      label: '작업',
-                      tooltip: '',
-                    ),*/
-                  ],
-                )
-              : null),
+            : null,
+      ),
     );
   }
 }
