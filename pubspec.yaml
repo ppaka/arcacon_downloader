@@ -28,7 +28,7 @@ dependencies:
   permission_handler: ^11.0.0
   device_info_plus: ^9.0.3
   fluttertoast: ^8.0.8
-  flutter_custom_tabs: ^1.0.3
+  flutter_custom_tabs: ^2.0.0-beta
   flutter_local_notifications: ^16.1.0
   dio: ^5.0.0
   ffmpeg_kit_flutter: ^6.0.2
