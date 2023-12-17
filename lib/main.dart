@@ -93,9 +93,11 @@ Future<bool> checkUpdate() async {
         if (x > y) {
           // 앱 버전이 큼
           needUpdate = false;
+          break;
         } else if (x < y) {
           // 비교 버전이 큼
           needUpdate = true;
+          break;
         } else {
           needUpdate = false;
         }
