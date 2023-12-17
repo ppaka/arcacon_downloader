@@ -10,22 +10,23 @@ import 'package:arcacon_downloader/common/widget/download_all_elevated_button.da
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 
 late Future<List<ArcaconUrl>> items;
 
-class ConPage extends StatefulWidget {
+class ConPage extends ConsumerStatefulWidget {
   const ConPage({super.key, required this.item});
 
   final PreviewArcaconItem item;
 
   @override
-  State<ConPage> createState() => _ConPageState();
+  ConsumerState<ConPage> createState() => _ConPageState();
 }
 
-class _ConPageState extends State<ConPage> {
+class _ConPageState extends ConsumerState<ConPage> {
   Future<List<ArcaconUrl>> getCons(String url) async {
     var client = http.Client();
     List<ArcaconUrl> lists = [];

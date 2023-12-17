@@ -6,7 +6,7 @@ import 'package:arcacon_downloader/common/utils/download_path.dart';
 import 'package:arcacon_downloader/common/utils/notification.dart';
 import 'package:arcacon_downloader/common/utils/show_toast.dart';
 import 'package:arcacon_downloader/screen/first_page.dart';
-import 'package:arcacon_downloader/taskNotifier.dart';
+import 'package:arcacon_downloader/task_notifier.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,7 +138,7 @@ Future<DownloadTask> singleStartDownload(
 
   nowRunning[arcaconId] = randomValue;
   // runningTasks[arcaconId] = downloadTask;
-  ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
+  ref.read(taskStateProvider.notifier).add(arcaconId, downloadTask);
   if (onProgress != null) {
     onProgress();
   }
@@ -225,7 +225,7 @@ Future<DownloadTask> singleStartDownload(
     downloadTask.itemCount = 1;
   }
 
-  ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
+  ref.read(taskStateProvider.notifier).add(arcaconId, downloadTask);
 
   if (onProgress != null) {
     onProgress();
@@ -269,7 +269,7 @@ Future<DownloadTask> singleStartDownload(
 
     count++;
     downloadTask.completeCount = count;
-    ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
+    ref.read(taskStateProvider.notifier).add(arcaconId, downloadTask);
 
     if (onProgress != null) {
       onProgress();
@@ -295,10 +295,10 @@ Future<DownloadTask> singleStartDownload(
   }
 
   downloadTask.completeCount = count;
-  ref.watch(taskStateProvider.notifier).add(arcaconId, downloadTask);
+  ref.read(taskStateProvider.notifier).add(arcaconId, downloadTask);
 
   nowRunning.remove(arcaconId);
-  ref.watch(taskStateProvider.notifier).remove(arcaconId);
+  ref.read(taskStateProvider.notifier).remove(arcaconId);
   if (onProgress != null) {
     onProgress();
   }

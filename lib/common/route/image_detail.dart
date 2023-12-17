@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class DetailScreen extends StatefulWidget {
-  const DetailScreen(
-      {Key? key, required this.url, required this.tag, required this.videoUrl})
-      : super(key: key);
+  const DetailScreen({
+    super.key,
+    required this.url,
+    required this.tag,
+    required this.videoUrl,
+  });
   final String url;
   final String tag;
   final String videoUrl;

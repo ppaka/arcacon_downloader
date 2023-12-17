@@ -1,5 +1,6 @@
 import 'package:arcacon_downloader/common/utils/onpress_download.dart';
-import 'package:arcacon_downloader/taskNotifier.dart';
+import 'package:arcacon_downloader/screen/first_page.dart';
+import 'package:arcacon_downloader/task_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,9 +16,12 @@ class DownloadAllElevatedButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var tasks = ref.watch(taskStateProvider);
-    debugPrint('asd');
-    if (ref.watch(taskStateProvider.notifier).containsKey(arcaconId)) {
+    final tasks = ref.watch(taskStateProvider);
+    return checkState(ref, tasks);
+  }
+
+  Widget checkState(WidgetRef ref, Map<int, DownloadTask> tasks) {
+    if (tasks.containsKey(arcaconId)) {
       var thisTask = tasks[arcaconId];
       if (thisTask != null) {
         var total = thisTask.itemCount.toDouble();
