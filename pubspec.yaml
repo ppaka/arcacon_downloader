@@ -43,6 +43,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  media_kit: ^1.1.10
+  media_kit_video: ^1.2.4
+  media_kit_libs_video: ^1.0.4
+
   window_size:
     git:
       url: https://github.com/google/flutter-desktop-embedding.git

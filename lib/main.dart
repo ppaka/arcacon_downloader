@@ -12,12 +12,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:video_player_win/video_player_win_plugin.dart';
+// import 'package:video_player_win/video_player_win_plugin.dart';
 import 'package:window_size/window_size.dart';
+import 'package:media_kit/media_kit.dart';
 
 void main() async {
   if (!kIsWeb && Platform.isWindows) {
-    WindowsVideoPlayer.registerWith();
+    // WindowsVideoPlayer.registerWith();
     initPythonScript();
   }
   LicenseRegistry.addLicense(() async* {
@@ -25,6 +26,8 @@ void main() async {
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
   WidgetsFlutterBinding.ensureInitialized();
+
+  MediaKit.ensureInitialized();
 
   runApp(
     ProviderScope(
