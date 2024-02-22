@@ -1,4 +1,5 @@
 import 'package:arcacon_downloader/common/models/arcacon_url.dart';
+import 'package:arcacon_downloader/common/utils/clipboard.dart';
 import 'package:arcacon_downloader/common/utils/onpress_download.dart';
 import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -18,6 +19,38 @@ class ArcaconDetailImage extends ConsumerWidget {
   final int position;
   final String pageUrl;
 
+  void _onLongPress(WidgetRef ref) {
+    showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("단일 선택 메뉴"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('닫기'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('링크 주소 복사'),
+              onPressed: () {
+                Navigator.pop(context);
+                copyToClipboard(data[position].imageUrl);
+              },
+            ),
+            TextButton(
+              child: const Text('다운로드'),
+              onPressed: () {
+                Navigator.pop(context);
+                onPressStartDownload(ref, pageUrl, position, () {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var margin = const EdgeInsets.fromLTRB(5, 5, 5, 5);
@@ -29,29 +62,10 @@ class ArcaconDetailImage extends ConsumerWidget {
           height: 100,
           child: GestureDetector(
             onLongPress: () {
-              showDialog<String>(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("길게 눌러 다운로드"),
-                    content: const Text('이 아카콘을 다운로드 하실껀가요?'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('취소'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      TextButton(
-                        child: const Text('다운로드'),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          onPressStartDownload(ref, pageUrl, position, () {});
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+              _onLongPress(ref);
+            },
+            onSecondaryTapUp: (details) {
+              _onLongPress(ref);
             },
             child: const Icon(Icons.play_circle, color: Colors.red, size: 50),
           ),
@@ -70,29 +84,10 @@ class ArcaconDetailImage extends ConsumerWidget {
                   data[position].videoUrl);
             },
             onLongPress: () {
-              showDialog<String>(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("길게 눌러 다운로드"),
-                    content: const Text('이 아카콘을 다운로드 하실껀가요?'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('취소'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      TextButton(
-                        child: const Text('다운로드'),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          onPressStartDownload(ref, pageUrl, position, () {});
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+              _onLongPress(ref);
+            },
+            onSecondaryTapUp: (details) {
+              _onLongPress(ref);
             },
             child: Stack(
               alignment: AlignmentDirectional.bottomEnd,
@@ -135,29 +130,10 @@ class ArcaconDetailImage extends ConsumerWidget {
                   context, data[position].imageUrl, key, null);
             },
             onLongPress: () {
-              showDialog<String>(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("길게 눌러 다운로드"),
-                    content: const Text('이 아카콘을 다운로드 하실껀가요?'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('취소'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      TextButton(
-                        child: const Text('다운로드'),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          onPressStartDownload(ref, pageUrl, position, () {});
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+              _onLongPress(ref);
+            },
+            onSecondaryTapUp: (details) {
+              _onLongPress(ref);
             },
             child: Hero(
               tag: key,
@@ -199,29 +175,10 @@ class ArcaconDetailImage extends ConsumerWidget {
                   context, data[position].imageUrl, key, null);
             },
             onLongPress: () {
-              showDialog<String>(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("길게 눌러 다운로드"),
-                    content: const Text('이 아카콘을 다운로드 하실껀가요?'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text('취소'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      TextButton(
-                        child: const Text('다운로드'),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          onPressStartDownload(ref, pageUrl, position, () {});
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+              _onLongPress(ref);
+            },
+            onSecondaryTapUp: (details) {
+              _onLongPress(ref);
             },
             child: Hero(
               tag: key,
