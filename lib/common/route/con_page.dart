@@ -54,11 +54,8 @@ class _ConPageState extends State<ConPage> {
       titleText = convertEncodedTitleForList(titleText);
     }
 
+    titleText = convertHtmlEscapedString(titleText);
     titleText = titleText.trim();
-    var invalidChar = RegExp(r'[/:*?"<>|]');
-    if (invalidChar.hasMatch(titleText)) {
-      titleText = titleText.replaceAll(invalidChar, '');
-    }
 
     dom.Element? maker = document.querySelector(
         'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.info-row.clearfix > div.member-info');
@@ -69,11 +66,8 @@ class _ConPageState extends State<ConPage> {
       makerText = convertEncodedTitleForList(makerText);
     }
 
+    makerText = convertHtmlEscapedString(makerText);
     makerText = makerText.trim();
-    var makerInvalidChar = RegExp(r'[/:*?"<>|]');
-    if (makerInvalidChar.hasMatch(makerText)) {
-      makerText = makerText.replaceAll(makerInvalidChar, '');
-    }
 
     widget.item.title = titleText;
     widget.item.maker = makerText;

@@ -63,6 +63,7 @@ Future<DownloadTask> singleStartDownload(
     titleText = convertEncodedTitleForDownload(titleText);
   }
 
+  titleText = convertHtmlEscapedString(titleText);
   titleText = titleText.trim();
   var invalidChar = RegExp(r'[/:*?"<>|]');
   if (invalidChar.hasMatch(titleText)) {
@@ -77,6 +78,7 @@ Future<DownloadTask> singleStartDownload(
     makerText = convertEncodedTitleForDownload(makerText);
   }
 
+  makerText = convertHtmlEscapedString(makerText);
   makerText = makerText.trim();
 
   dom.Element links = document.querySelector(

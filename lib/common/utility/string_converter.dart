@@ -1,3 +1,5 @@
+import 'package:html_unescape/html_unescape.dart';
+
 String convertEncodedTitleForList(String titleText) {
   for (int j = 0; j < titleText.length; j++) {
     if (titleText.contains('<span class="__cf_email__"')) {
@@ -23,7 +25,14 @@ String convertEncodedTitleForList(String titleText) {
           titleText.substring(endIndex);
     }
   }
+
   return titleText;
+}
+
+String convertHtmlEscapedString(String escapedString) {
+  var converted = HtmlUnescape().convert(escapedString);
+  print('$escapedString, $converted');
+  return converted;
 }
 
 String convertEncodedTitleForDownload(String titleText) {
@@ -53,5 +62,6 @@ String convertEncodedTitleForDownload(String titleText) {
           titleText.substring(endIndex);
     }
   }
-  return titleText;
+
+  return HtmlUnescape().convert(titleText);
 }
