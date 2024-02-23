@@ -17,6 +17,8 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+bool pipReady = false;
+
 Future<DownloadTask> singleStartDownload(
     WidgetRef ref, String myUrl, int? index, Function? onProgress) async {
   DownloadTask downloadTask = DownloadTask();
@@ -179,7 +181,7 @@ Future<DownloadTask> singleStartDownload(
         exePath.replaceRange(exePath.lastIndexOf('\\') + 1, null, '');
     pyDirectory = '$exeDirectory\\res\\';
 
-    if (downloadVideo) {
+    if (downloadVideo && !pipReady) {
       debugPrint('-----imageio 설치-----');
       var processRes =
           await Process.run('python', ['-m', 'pip', 'install', 'imageio']);
@@ -218,6 +220,8 @@ Future<DownloadTask> singleStartDownload(
         downloadTask.result = Result.pipError;
         return downloadTask;
       }
+
+      pipReady = true;
     }
   }
 
