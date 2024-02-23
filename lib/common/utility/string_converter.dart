@@ -31,7 +31,6 @@ String convertEncodedTitleForList(String titleText) {
 
 String convertHtmlEscapedString(String escapedString) {
   var converted = HtmlUnescape().convert(escapedString);
-  print('$escapedString, $converted');
   return converted;
 }
 
