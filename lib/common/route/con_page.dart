@@ -4,6 +4,7 @@ import 'package:arcacon_downloader/common/models/arcacon_url.dart';
 import 'package:arcacon_downloader/common/models/preview_arcacon.dart';
 import 'package:arcacon_downloader/common/utility/custom_tab.dart';
 import 'package:arcacon_downloader/common/utility/string_converter.dart';
+import 'package:arcacon_downloader/common/utils/clipboard.dart';
 import 'package:arcacon_downloader/common/utils/push_detail_arcacon.dart';
 import 'package:arcacon_downloader/common/widget/detail_img.dart';
 import 'package:arcacon_downloader/common/widget/download_all_elevated_button.dart';
@@ -113,6 +114,31 @@ class _ConPageState extends State<ConPage> {
     return lists;
   }
 
+  void _onLongPress(String url) {
+    showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("단일 선택 메뉴"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('닫기'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('링크 주소 복사'),
+              onPressed: () {
+                Navigator.pop(context);
+                copyToClipboard(url);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     items = getCons(widget.item.pageUrl);
@@ -161,15 +187,33 @@ class _ConPageState extends State<ConPage> {
                               null,
                             );
                           },
+                          onLongPress: () {
+                            _onLongPress(widget.item.imageUrl);
+                          },
+                          onSecondaryTapUp: (details) {
+                            _onLongPress(widget.item.imageUrl);
+                          },
                           child: Hero(
                             tag: key,
-                            child: const SizedBox(
+                            child: Container(
                               width: 100,
                               height: 100,
-                              child: Icon(
-                                Icons.play_circle,
-                                color: Colors.red,
-                                size: 50,
+                              color: Colors.white,
+                              child: const Material(
+                                type: MaterialType.transparency,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.error,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      'mp4',
+                                      style: TextStyle(color: Colors.black),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -190,6 +234,12 @@ class _ConPageState extends State<ConPage> {
                               key,
                               null,
                             );
+                          },
+                          onLongPress: () {
+                            _onLongPress(widget.item.imageUrl);
+                          },
+                          onSecondaryTapUp: (details) {
+                            _onLongPress(widget.item.imageUrl);
                           },
                           child: Hero(
                             tag: key,

@@ -35,7 +35,11 @@ class ArcaconDetailImage extends ConsumerWidget {
               child: const Text('링크 주소 복사'),
               onPressed: () {
                 Navigator.pop(context);
-                copyToClipboard(data[position].imageUrl);
+                if (data[position].videoUrl.isNotEmpty) {
+                  copyToClipboard(data[position].videoUrl);
+                } else {
+                  copyToClipboard(data[position].imageUrl);
+                }
               },
             ),
             TextButton(
@@ -54,7 +58,7 @@ class ArcaconDetailImage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var margin = const EdgeInsets.fromLTRB(5, 5, 5, 5);
-    if (data[position].imageUrl == '') {
+    if (data[position].imageUrl.isEmpty) {
       return Container(
         margin: margin,
         child: SizedBox(
