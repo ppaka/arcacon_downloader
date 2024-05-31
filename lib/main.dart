@@ -106,21 +106,57 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('아카콘 다운로더'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              var html = await controller.getHtml();
-              var curUrl = await controller.currentUrl();
-              singleStartDownloadFromHtml(null, html, curUrl, null, null);
-            },
-            icon: const Icon(Icons.download),
-          )
-        ],
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('아카콘 다운로더'),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                var html = await controller.getHtml();
+                var curUrl = await controller.currentUrl();
+                singleStartDownloadFromHtml(null, html, curUrl, null, null);
+              },
+              icon: const Icon(Icons.download),
+            )
+          ],
+        ),
+        body: WebViewWidget(controller: controller),
       ),
-      body: WebViewWidget(controller: controller),
+      onPopInvoked: (didPop) {
+        controller.canGoBack().then(
+          (value) {
+            if (value) {
+              controller.goBack();
+            } else {
+              showDialog(
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('앱 종료'),
+                    content: const Text('앱을 종료하시겠습니까?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('취소'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          SystemNavigator.pop(animated: true);
+                        },
+                        child: const Text('확인'),
+                      )
+                    ],
+                  );
+                },
+                context: context,
+              );
+            }
+          },
+        );
+      },
     );
   }
 }

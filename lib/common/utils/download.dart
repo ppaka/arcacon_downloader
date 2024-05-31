@@ -418,6 +418,7 @@ Future<DownloadTask> singleStartDownloadFromHtml(WidgetRef? ref, Object html,
     arcaconId = Random.secure().nextInt(2147483647);
   } else {
     arcaconId = int.parse(Uri.parse(url).path.split('/').last);
+    debugPrint('arcaconId: $arcaconId');
   }
 
   if (nowRunning.containsKey(arcaconId)) {
