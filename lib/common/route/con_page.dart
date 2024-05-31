@@ -45,7 +45,14 @@ class _ConPageState extends State<ConPage> {
       return lists;
     }
 
+    var url2 = response.request?.url;
+    debugPrint(url2.toString());
+    debugPrint(response.reasonPhrase.toString());
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body);
+
     var document = parser.parse(response.body);
+    debugPrint(document.text.toString());
     dom.Element? title = document.querySelector(
         'body > div.root-container > div.content-wrapper.clearfix > article > div > div.article-wrapper > div.article-head > div.title-row > div');
 

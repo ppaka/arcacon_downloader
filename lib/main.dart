@@ -9,12 +9,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart';
-// import 'package:video_player_win/video_player_win_plugin.dart';
-import 'package:window_size/window_size.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+import 'common/utils/download.dart';
 
 void main() async {
   if (!kIsWeb && Platform.isWindows) {
@@ -29,7 +29,7 @@ void main() async {
 
   MediaKit.ensureInitialized();
 
-  runApp(
+  /*runApp(
     ProviderScope(
       child: MaterialApp(
         localizationsDelegates: const [
@@ -47,10 +47,85 @@ void main() async {
   );
   if (Platform.isWindows) {
     setWindowTitle('아카콘 다운로더');
+  }*/
+
+  controller = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setBackgroundColor(const Color(0x00000000))
+    ..setNavigationDelegate(
+      NavigationDelegate(
+        onProgress: (int progress) {
+          // Update loading bar.
+        },
+        onPageStarted: (String url) {},
+        onPageFinished: (String url) {},
+        onHttpError: (HttpResponseError error) {},
+        onWebResourceError: (WebResourceError error) {},
+        onNavigationRequest: (NavigationRequest request) {
+          if (request.url.startsWith('https://www.youtube.com/')) {
+            return NavigationDecision.prevent;
+          }
+          return NavigationDecision.navigate;
+        },
+      ),
+    )
+    ..loadRequest(Uri.parse('https://arca.live/e/'));
+  runApp(
+    MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en', 'US'), Locale('ko', 'KR')],
+      themeMode: ThemeMode.system,
+      theme: mat3LightTheme(),
+      darkTheme: mat3DarkTheme(),
+      home: const ArcaconDownloader(),
+    ),
+  );
+}
+
+late WebViewController controller;
+
+extension WebViewControllerExtension on WebViewController {
+  Future<String> getHtml() {
+    return runJavaScriptReturningResult('document.documentElement.outerHTML')
+        .then((value) {
+      if (Platform.isAndroid) {
+        return jsonDecode(value as String) as String;
+      } else {
+        return value as String;
+      }
+    });
   }
 }
 
-initPythonScript() {
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('아카콘 다운로더'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              var html = await controller.getHtml();
+              var curUrl = await controller.currentUrl();
+              singleStartDownloadFromHtml(null, html, curUrl, null, null);
+            },
+            icon: const Icon(Icons.download),
+          )
+        ],
+      ),
+      body: WebViewWidget(controller: controller),
+    );
+  }
+}
+
+void initPythonScript() {
   var exePath = Platform.resolvedExecutable.toString();
   var exeDirectory =
       exePath.replaceRange(exePath.lastIndexOf('\\') + 1, null, '');
@@ -164,10 +239,30 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
         });
   }
 
+  void showStartAlert() {
+    showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('사용하기 전에'),
+            content: const Text(
+                '로그인 후, 아카콘 페이지에서 원하는 아카콘을 선택하고 오른쪽 상단의 다운로드 버튼을 누릅니다.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('확인'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      showStartAlert();
       var hasUpdate = await checkUpdate();
       if (hasUpdate) showUpdateDialog();
     });
@@ -189,7 +284,8 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
         theme: mat3LightTheme(),
         darkTheme: mat3DarkTheme(),
         // debugShowCheckedModeBanner: false,
-        home: const BasePage(title: '아카콘 다운로더'),
+        // home: const BasePage(title: '아카콘 다운로더'),
+        home: const HomeScreen(),
       ),
     );
   }

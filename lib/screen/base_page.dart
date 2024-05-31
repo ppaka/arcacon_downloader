@@ -7,10 +7,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 late FToast fToast;
 late List<Widget> pages;
-bool isGooglePlay = false;
+bool isGooglePlay = true;
 
 class BasePage extends ConsumerStatefulWidget {
   const BasePage({super.key, required this.title});
+
   final String title;
 
   @override
