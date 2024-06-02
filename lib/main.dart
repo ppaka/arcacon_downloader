@@ -253,8 +253,8 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
                 onPressed: () {
                   if (isGooglePlay) {
                     if (Platform.isAndroid) {
-                      launchURLtoBrowser(context,
-                          'https://play.google.com/store/apps/details?id=com.ppaka.ArcaconDownloader');
+                      /*launchURLtoBrowser(context,
+                          'https://play.google.com/store/apps/details?id=com.ppaka.ArcaconDownloader');*/
                     }
                   } else {
                     if (Platform.isAndroid) {
@@ -276,7 +276,34 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
   }
 
   void showStartAlert() {
-    showDialog<String>(
+    if (isGooglePlay) {
+      showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('안내'),
+            content:
+                const Text('아카콘 다운로더의 사용 불가에 대해서, \'자세히\' 버튼을 눌러 확인해주시기 바랍니다.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('자세히'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  launchURLtoBrowser(context,
+                      'https://github.com/ppaka/arcacon_downloader/blob/master/ForGooglePlay.md');
+                },
+              ),
+              TextButton(
+                child: const Text('닫기'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showDialog<String>(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
@@ -291,7 +318,9 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
               ),
             ],
           );
-        });
+        },
+      );
+    }
   }
 
   @override
@@ -320,8 +349,8 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
         theme: mat3LightTheme(),
         darkTheme: mat3DarkTheme(),
         // debugShowCheckedModeBanner: false,
-        // home: const BasePage(title: '아카콘 다운로더'),
-        home: const HomeScreen(),
+        home: const BasePage(title: '아카콘 다운로더'),
+        // home: const HomeScreen(),
       ),
     );
   }
