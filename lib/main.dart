@@ -349,8 +349,8 @@ class _ArcaconDownloaderState extends State<ArcaconDownloader> {
         theme: mat3LightTheme(),
         darkTheme: mat3DarkTheme(),
         // debugShowCheckedModeBanner: false,
-        home: const BasePage(title: '아카콘 다운로더'),
-        // home: const HomeScreen(),
+        // home: const BasePage(title: '아카콘 다운로더'),
+        home: const HomeScreen(),
       ),
     );
   }
