@@ -7,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 late FToast fToast;
 late List<Widget> pages;
-bool isGooglePlay = true;
+bool isGooglePlay = false;
 
 class BasePage extends ConsumerStatefulWidget {
   const BasePage({super.key, required this.title});
@@ -64,7 +64,10 @@ class _BasePageState extends ConsumerState<BasePage>
       child: Scaffold(
         body: Row(
           children: [
-            if (MediaQuery.of(context).size.width >= 640)
+            if (MediaQuery
+                .of(context)
+                .size
+                .width >= 640)
               NavigationRail(
                 onDestinationSelected: (value) {
                   if (currentPageIndex == value && value == 1) {
@@ -99,35 +102,38 @@ class _BasePageState extends ConsumerState<BasePage>
             )
           ],
         ),
-        bottomNavigationBar: MediaQuery.of(context).size.width < 640
+        bottomNavigationBar: MediaQuery
+            .of(context)
+            .size
+            .width < 640
             ? NavigationBar(
-                height: 70,
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                onDestinationSelected: (value) {
-                  if (currentPageIndex == value && value == 1) {
-                    scrollToZero();
-                  }
-                  setState(() {
-                    currentPageIndex = value;
-                    _controller.animateTo(currentPageIndex);
-                  });
-                },
-                selectedIndex: currentPageIndex,
-                destinations: const <Widget>[
-                  NavigationDestination(
-                    selectedIcon: Icon(Icons.home_rounded),
-                    icon: Icon(Icons.home_outlined),
-                    label: '홈',
-                    tooltip: '',
-                  ),
-                  NavigationDestination(
-                    selectedIcon: Icon(Icons.explore_rounded),
-                    icon: Icon(Icons.explore_outlined),
-                    label: '탐색',
-                    tooltip: '',
-                  ),
-                ],
-              )
+          height: 70,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          onDestinationSelected: (value) {
+            if (currentPageIndex == value && value == 1) {
+              scrollToZero();
+            }
+            setState(() {
+              currentPageIndex = value;
+              _controller.animateTo(currentPageIndex);
+            });
+          },
+          selectedIndex: currentPageIndex,
+          destinations: const <Widget>[
+            NavigationDestination(
+              selectedIcon: Icon(Icons.home_rounded),
+              icon: Icon(Icons.home_outlined),
+              label: '홈',
+              tooltip: '',
+            ),
+            NavigationDestination(
+              selectedIcon: Icon(Icons.explore_rounded),
+              icon: Icon(Icons.explore_outlined),
+              label: '탐색',
+              tooltip: '',
+            ),
+          ],
+        )
             : null,
       ),
     );
