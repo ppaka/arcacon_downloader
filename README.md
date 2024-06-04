@@ -11,7 +11,7 @@ Flutter로 제작한 아카라이브 이모티콘 '아카콘' 다운로더<br>
 여러 아카콘을 한꺼번에 다운로드하고 싶을 때, '아카콘 다운로더'는 웹 크롤링으로 아카콘을 모아서 다운로드할 수 있습니다.
 
 ## 설치
-[Windows](https://github.com/ppaka/arcacon_downloader/releases/latest/download/Windows.zip) | Android 7.0+ ([apk](https://github.com/ppaka/arcacon_downloader/releases/latest/download/app-release.apk), [~~Play Store~~](https://play.google.com/store/apps/details?id=com.ppaka.ArcaconDownloader)) |
+[~~Windows~~](https://github.com/ppaka/arcacon_downloader/releases/latest/download/Windows.zip) | Android 7.0+ ([apk](https://github.com/ppaka/arcacon_downloader/releases/latest/download/app-release.apk), [~~Play Store~~](https://play.google.com/store/apps/details?id=com.ppaka.ArcaconDownloader)) |
 | ------------- | ------------- | 
 
 Windows 버전의 경우, Python 3 (3.10 이상 권장) 설치를 필요로 합니다.<br><br>
