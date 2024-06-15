@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.ppaka" "\0"
+            VALUE "CompanyName", "com.ppaka.ArcaconDownloader" "\0"
             VALUE "FileDescription", "arcacon_downloader" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "arcacon_downloader" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2022 com.ppaka. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.ppaka.ArcaconDownloader. All rights reserved." "\0"
             VALUE "OriginalFilename", "arcacon_downloader.exe" "\0"
             VALUE "ProductName", "arcacon_downloader" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
