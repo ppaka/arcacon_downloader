@@ -244,6 +244,7 @@ class _MainPageState extends State<MainPage> {
                     controller: textEditingController,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
+                      isDense: true,
                       labelText: '아카콘 주소',
                       hintText: '상점 페이지 URL을 입력해주세요',
                       focusedBorder: OutlineInputBorder(
