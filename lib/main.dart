@@ -167,7 +167,7 @@ class _MainPageState extends State<MainPage> {
       await dio.download(con.imageUrl, "${directory.path}/$filename");
 
       setState(() {
-        taskPercent = Future.value(i + 1 / arcacons.length);
+        taskPercent = Future.value((i + 1) / arcacons.length);
       });
     }
 
